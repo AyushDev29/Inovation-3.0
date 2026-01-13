@@ -1,0 +1,141 @@
+/* Mobile-specific overrides */
+@media only screen and (max-width: 768px) {
+
+    /* Hero Parent - Disable vertical centering */
+    .hero-section {
+        justify-content: flex-start !important;
+        padding-top: 15vh !important;
+        /* Start content lower down */
+        height: auto !important;
+        /* Allow growing if needed, though screen height is usually enough */
+        min-height: 100vh !important;
+    }
+
+    /* Hero Title - Reduce size significantly to prevent overlap */
+    .hero-title {
+        font-size: 2.5rem !important;
+        /* Was 6xl/9xl */
+        line-height: 1.2 !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .hero-subtitle {
+        font-size: 1.5rem !important;
+        position: relative !important;
+        top: auto !important;
+        right: auto !important;
+        display: inline-block !important;
+        margin-left: 0.2rem !important;
+        vertical-align: top !important;
+    }
+
+    /* Top HUD - Adjust positioning and size */
+    .hud-top-container {
+        margin-top: 4rem !important;
+        /* Just below navbar */
+        padding: 0 1rem !important;
+    }
+
+    .hud-text-sm {
+        font-size: 0.6rem !important;
+    }
+
+    .hud-label {
+        font-size: 0.5rem !important;
+    }
+
+    /* Adjust main container padding */
+    .hero-content {
+        padding-top: 4rem !important;
+        /* Space between Top HUD and Title */
+    }
+
+    /* Grid Layout for HUD Boxes - Stack them with less gap */
+    .hud-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.8rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
+    /* CTA Button */
+    .cta-button {
+        padding: 0.8rem 1.5rem !important;
+        width: 100% !important;
+    }
+
+    .cta-text {
+        font-size: 0.9rem !important;
+    }
+
+    /* Events Section Mobile Optimizations */
+    #events {
+        padding: 3rem 1rem !important;
+    }
+
+    .events-title h3 {
+        font-size: 2.5rem !important;
+        line-height: 1.1 !important;
+    }
+
+    .events-title h2 {
+        font-size: 0.75rem !important;
+        letter-spacing: 0.2em !important;
+    }
+
+    /* Event Cards Mobile Layout */
+    .event-left-card,
+    .event-right-card {
+        padding: 1.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .event-left-card h4,
+    .event-right-card h4 {
+        font-size: 1.1rem !important;
+        line-height: 1.3 !important;
+    }
+
+    .event-left-card p,
+    .event-right-card p {
+        font-size: 0.85rem !important;
+        line-height: 1.4 !important;
+    }
+
+    .event-left-card img,
+    .event-right-card img {
+        width: 3rem !important;
+        height: 3rem !important;
+    }
+
+    /* Mobile: Make right cards look like left cards for consistency */
+    .event-right-card {
+        border-r-4: none !important;
+        border-l-4: 4px solid rgb(6 182 212) !important;
+        border-radius: 0 1rem 1rem 0 !important;
+        text-align: left !important;
+    }
+
+    .event-right-card .flex {
+        justify-content: flex-start !important;
+    }
+
+    .event-right-card .flex:last-child {
+        justify-content: space-between !important;
+    }
+
+    /* Event Modal Mobile */
+    .event-modal {
+        margin: 1rem !important;
+        max-height: 90vh !important;
+        overflow-y: auto !important;
+    }
+
+    .event-modal h2 {
+        font-size: 1.8rem !important;
+    }
+
+    .event-modal .grid {
+        grid-template-columns: 1fr 1fr !important;
+        gap: 1rem !important;
+    }
+}
