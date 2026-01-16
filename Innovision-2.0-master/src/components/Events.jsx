@@ -92,41 +92,41 @@ const eventsData = [
 const EventCardLeft = ({ event, onClick }) => {
     return (
         <div
-            className="event-left-card p-6 sm:p-8 border-l-4 border-cyber-blue bg-white/5 backdrop-blur-sm rounded-r-xl hover:bg-white/10 transition-colors duration-300 cursor-pointer group"
+            className="event-left-card p-4 sm:p-6 md:p-8 border-l-4 border-cyber-blue bg-white/5 backdrop-blur-sm rounded-r-xl hover:bg-white/10 transition-colors duration-300 cursor-pointer group"
             onClick={() => onClick(event)}
         >
-            <div className="flex items-start gap-4 mb-4">
+            <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
                 <div className="flex-shrink-0">
                     <img
                         src={event.image}
                         alt={event.title}
-                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-white/10"
+                        className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover rounded-lg border border-white/10"
                     />
                 </div>
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2">
-                        <span className={`inline-block px-2 py-1 text-xs font-bold rounded-full bg-gradient-to-r ${event.color} text-white`}>
+                    <div className="flex flex-wrap items-center gap-2 mb-2">
+                        <span className={`inline-block px-2 py-0.5 text-[10px] sm:text-xs font-bold rounded-full bg-gradient-to-r ${event.color} text-white whitespace-nowrap`}>
                             {event.category}
                         </span>
-                        <span className="text-neon-purple font-bold text-sm">
+                        <span className="text-neon-purple font-bold text-xs sm:text-sm">
                             {event.prize}
                         </span>
                     </div>
-                    <h4 className="text-lg sm:text-xl font-orbitron font-bold text-white mb-2 group-hover:text-cyber-blue transition-colors">
+                    <h4 className="text-base sm:text-lg md:text-xl font-orbitron font-bold text-white mb-1 sm:mb-2 group-hover:text-cyber-blue transition-colors leading-tight">
                         {event.title}
                     </h4>
                 </div>
             </div>
-            <p className="text-gray-400 leading-relaxed text-sm sm:text-base mb-4">
+            <p className="text-gray-400 leading-relaxed text-xs sm:text-sm md:text-base mb-3 sm:mb-4">
                 {event.description}
             </p>
-            <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center text-gray-500">
-                    <span>{event.date}</span>
-                    <span className="mx-2">•</span>
-                    <span>{event.venue}</span>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-xs sm:text-sm">
+                <div className="flex flex-col sm:flex-row sm:items-center text-gray-500 gap-1 sm:gap-0">
+                    <span className="truncate">{event.date}</span>
+                    <span className="hidden sm:inline mx-2">•</span>
+                    <span className="truncate">{event.venue}</span>
                 </div>
-                <div className="flex items-center text-cyber-blue font-medium">
+                <div className="flex items-center text-cyber-blue font-medium whitespace-nowrap">
                     <span>View Details</span>
                     <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -140,20 +140,20 @@ const EventCardLeft = ({ event, onClick }) => {
 const EventCardRight = ({ event, onClick }) => {
     return (
         <div
-            className="event-right-card p-6 sm:p-8 border-r-4 border-neon-purple bg-white/5 backdrop-blur-sm rounded-l-xl text-right hover:bg-white/10 transition-colors duration-300 cursor-pointer group"
+            className="event-right-card p-4 sm:p-6 md:p-8 border-r-4 border-neon-purple bg-white/5 backdrop-blur-sm rounded-l-xl text-right hover:bg-white/10 transition-colors duration-300 cursor-pointer group"
             onClick={() => onClick(event)}
         >
-            <div className="flex items-start gap-4 mb-4 justify-end">
+            <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 justify-end">
                 <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-2 justify-end">
-                        <span className="text-neon-purple font-bold text-sm">
+                    <div className="flex flex-wrap items-center gap-2 mb-2 justify-end">
+                        <span className="text-neon-purple font-bold text-xs sm:text-sm">
                             {event.prize}
                         </span>
-                        <span className={`inline-block px-2 py-1 text-xs font-bold rounded-full bg-gradient-to-r ${event.color} text-white`}>
+                        <span className={`inline-block px-2 py-0.5 text-[10px] sm:text-xs font-bold rounded-full bg-gradient-to-r ${event.color} text-white whitespace-nowrap`}>
                             {event.category}
                         </span>
                     </div>
-                    <h4 className="text-lg sm:text-xl font-orbitron font-bold text-white mb-2 group-hover:text-neon-purple transition-colors">
+                    <h4 className="text-base sm:text-lg md:text-xl font-orbitron font-bold text-white mb-1 sm:mb-2 group-hover:text-neon-purple transition-colors leading-tight">
                         {event.title}
                     </h4>
                 </div>
@@ -161,24 +161,24 @@ const EventCardRight = ({ event, onClick }) => {
                     <img
                         src={event.image}
                         alt={event.title}
-                        className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-white/10"
+                        className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover rounded-lg border border-white/10"
                     />
                 </div>
             </div>
-            <p className="text-gray-400 leading-relaxed text-sm sm:text-base mb-4">
+            <p className="text-gray-400 leading-relaxed text-xs sm:text-sm md:text-base mb-3 sm:mb-4">
                 {event.description}
             </p>
-            <div className="flex items-center justify-between text-sm">
-                <div className="flex items-center text-neon-purple font-medium">
+            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-xs sm:text-sm">
+                <div className="flex items-center text-neon-purple font-medium whitespace-nowrap justify-end sm:justify-start">
                     <svg className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
                     </svg>
                     <span>View Details</span>
                 </div>
-                <div className="flex items-center text-gray-500">
-                    <span>{event.venue}</span>
-                    <span className="mx-2">•</span>
-                    <span>{event.date}</span>
+                <div className="flex flex-col sm:flex-row sm:items-center text-gray-500 gap-1 sm:gap-0 text-right">
+                    <span className="truncate">{event.venue}</span>
+                    <span className="hidden sm:inline mx-2">•</span>
+                    <span className="truncate">{event.date}</span>
                 </div>
             </div>
         </div>

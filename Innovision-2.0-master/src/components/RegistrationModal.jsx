@@ -25,14 +25,9 @@ const RegistrationModal = ({ event, onClose }) => {
     const [status, setStatus] = useState(null); // 'success', 'error'
     const [message, setMessage] = useState('');
 
-    // Lock body scroll AND stop Lenis when modal is open
+    // Lock background scroll when modal is open
     useEffect(() => {
-        // Save scroll position
-        const scrollY = window.scrollY;
-        
-        // Lock body scroll WITHOUT position fixed (which breaks modal scroll)
         document.body.style.overflow = 'hidden';
-        document.body.style.height = '100vh';
         
         // Stop Lenis smooth scroll
         const lenisInstance = window.lenis;
@@ -50,8 +45,6 @@ const RegistrationModal = ({ event, onClose }) => {
         
         return () => {
             document.body.style.overflow = '';
-            document.body.style.height = '';
-            window.scrollTo(0, scrollY);
             
             // Restart Lenis
             if (lenisInstance) {
@@ -137,56 +130,38 @@ const RegistrationModal = ({ event, onClose }) => {
     };
 
     return (
-        <div 
-            className="fixed inset-0 z-[150]"
-            style={{ 
-                position: 'fixed',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                overflow: 'auto',
-                overflowY: 'scroll',
-                WebkitOverflowScrolling: 'touch',
-                msOverflowStyle: 'scrollbar'
-            }}
+        <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center px-4 py-6 sm:py-8 overflow-hidden"
+            onClick={onClose}
         >
-            {/* Backdrop */}
-            <div 
-                className="fixed inset-0 bg-black/90 backdrop-blur-md"
-                style={{ position: 'fixed' }}
-                onClick={onClose}
-                aria-hidden="true"
-            />
-            
-            {/* Scrollable content wrapper */}
-            <div className="relative min-h-full flex items-center justify-center p-4 py-20">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{ duration: 0.2 }}
-                    className="relative w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-xl"
-                    onClick={(e) => e.stopPropagation()}
-                >
-                    {/* Close button - with higher z-index and pointer-events */}
+            <motion.div
+                initial={{ scale: 0.95, y: 20 }}
+                animate={{ scale: 1, y: 0 }}
+                exit={{ scale: 0.95, y: 20 }}
+                onClick={(e) => e.stopPropagation()}
+                className="relative z-[2001] w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+            >
+                {/* Header fixed + stays visible */}
+                <div className="sticky top-0 z-10 bg-[#0f0f0f] border-b border-white/10 px-5 sm:px-8 py-4 flex items-start justify-between">
+                    <div>
+                        <h2 className="text-lg sm:text-2xl font-orbitron font-bold text-white leading-tight">
+                            Register for <span className="text-neon-purple">{event.title}</span>
+                        </h2>
+                        <p className="text-gray-400 text-xs sm:text-sm mt-1">Fill in your details to secure your spot.</p>
+                    </div>
                     <button
-                        type="button"
                         onClick={onClose}
-                        className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
-                        style={{ pointerEvents: 'auto' }}
-                        aria-label="Close modal"
+                        className="ml-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors shrink-0"
                     >
                         <X size={20} />
                     </button>
+                </div>
 
-                    <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div className="mb-6 pr-10">
-                            <h2 className="text-2xl font-orbitron font-bold text-white mb-2">
-                                Register for <span className="text-neon-purple">{event.title}</span>
-                            </h2>
-                            <p className="text-gray-400 text-sm">Fill in your details to secure your spot.</p>
-                        </div>
+                {/* Scroll Area ONLY inside modal */}
+                <div className="max-h-[80vh] sm:max-h-[85vh] overflow-y-auto overscroll-contain px-5 sm:px-8 py-5">
 
                         {status === 'success' ? (
                             <div className="flex flex-col items-center justify-center py-10 text-center">
@@ -346,10 +321,9 @@ const RegistrationModal = ({ event, onClose }) => {
                                 </button>
                             </form>
                         )}
-                    </div>
-                </motion.div>
-            </div>
-        </div>
+                </div>
+            </motion.div>
+        </motion.div>
     );
 };
 
