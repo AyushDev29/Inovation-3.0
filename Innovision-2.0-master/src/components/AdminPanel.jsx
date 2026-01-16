@@ -90,7 +90,11 @@ const AdminPanel = () => {
 
     const exportToExcel = () => {
         const dataToExport = filteredRegistrations.map(reg => {
-            const isTeamEvent = reg.events?.event_name?.includes("Free Fire") || reg.events?.event_name?.includes("Hackathon");
+            // Check if it's a team event
+            const isTeamEvent = reg.events?.event_name?.includes("BGMI") || 
+                               reg.events?.event_name?.includes("Free Fire") || 
+                               reg.events?.event_name?.includes("Hackathon") ||
+                               reg.events?.event_name?.includes("Fun Fusion");
 
             if (isTeamEvent) {
                 return {
@@ -259,7 +263,10 @@ const AdminPanel = () => {
                                                 <div className="text-gray-500 text-xs mt-1">{reg.phone}</div>
                                             </td>
                                             <td className="px-6 py-4">
-                                                {reg.events?.event_name?.includes("Free Fire") || reg.events?.event_name?.includes("Hackathon") ? (
+                                                {reg.events?.event_name?.includes("BGMI") || 
+                                                 reg.events?.event_name?.includes("Free Fire") || 
+                                                 reg.events?.event_name?.includes("Hackathon") ||
+                                                 reg.events?.event_name?.includes("Fun Fusion") ? (
                                                     <div className="text-white">
                                                         <span className="text-neon-purple text-xs uppercase tracking-wider">Team:</span> {reg.team_name}
                                                     </div>
