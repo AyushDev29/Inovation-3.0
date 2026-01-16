@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Download, Search, Filter, LogOut } from 'lucide-react';
+import { Download, Search, Filter, LogOut, ChevronDown, ChevronUp, Users } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const AdminPanel = () => {
@@ -16,6 +16,7 @@ const AdminPanel = () => {
     const [selectedEvent, setSelectedEvent] = useState('all');
     const [searchTerm, setSearchTerm] = useState('');
     const [fetchError, setFetchError] = useState(null);
+    const [expandedRow, setExpandedRow] = useState(null);
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -249,47 +250,110 @@ const AdminPanel = () => {
                                     <th className="px-6 py-4 font-medium">Academic Info</th>
                                     <th className="px-6 py-4 font-medium">Event</th>
                                     <th className="px-6 py-4 font-medium">Date</th>
+                                    <th className="px-6 py-4 font-medium">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/10 text-sm">
                                 {filteredRegistrations.length > 0 ? (
-                                    filteredRegistrations.map((reg) => (
-                                        <tr key={reg.id} className="hover:bg-white/5 transition-colors">
-                                            <td className="px-6 py-4">
-                                                <div className="font-semibold text-white">{reg.name}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="text-white">{reg.email}</div>
-                                                <div className="text-gray-500 text-xs mt-1">{reg.phone}</div>
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                {reg.events?.event_name?.includes("BGMI") || 
-                                                 reg.events?.event_name?.includes("Free Fire") || 
-                                                 reg.events?.event_name?.includes("Hackathon") ||
-                                                 reg.events?.event_name?.includes("Fun Fusion") ? (
-                                                    <div className="text-white">
-                                                        <span className="text-neon-purple text-xs uppercase tracking-wider">Team:</span> {reg.team_name}
-                                                    </div>
-                                                ) : (
-                                                    <>
-                                                        <div className="text-white">{reg.class}</div>
-                                                        <div className="text-gray-500 text-xs mt-1">{reg.college}</div>
-                                                    </>
+                                    filteredRegistrations.map((reg) => {
+                                        const isTeamEvent = reg.events?.event_name?.includes("BGMI") || 
+                                                           reg.events?.event_name?.includes("Free Fire") || 
+                                                           reg.events?.event_name?.includes("Hackathon") ||
+                                                           reg.events?.event_name?.includes("Fun Fusion");
+                                        const isExpanded = expandedRow === reg.id;
+                                        
+                                        return (
+                                            <React.Fragment key={reg.id}>
+                                                <tr className="hover:bg-white/5 transition-colors">
+                                                    <td className="px-6 py-4">
+                                                        <div className="font-semibold text-white">{reg.name}</div>
+                                                        {isTeamEvent && <div className="text-xs text-gray-500 mt-1">Leader/IGL</div>}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="text-white">{reg.email}</div>
+                                                        <div className="text-gray-500 text-xs mt-1">{reg.phone}</div>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        {isTeamEvent ? (
+                                                            <div className="text-white">
+                                                                <span className="text-neon-purple text-xs uppercase tracking-wider">Team:</span> {reg.team_name}
+                                                            </div>
+                                                        ) : (
+                                                            <>
+                                                                <div className="text-white">{reg.class}</div>
+                                                                <div className="text-gray-500 text-xs mt-1">{reg.college}</div>
+                                                            </>
+                                                        )}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <span className="inline-block px-2 py-1 rounded-full bg-neon-purple/20 text-neon-purple text-xs font-semibold">
+                                                            {reg.events?.event_name}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-gray-400">
+                                                        {new Date(reg.created_at).toLocaleDateString()}
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        {isTeamEvent && (
+                                                            <button
+                                                                onClick={() => setExpandedRow(isExpanded ? null : reg.id)}
+                                                                className="flex items-center gap-1 px-3 py-1.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 rounded-lg transition-colors text-xs font-medium"
+                                                            >
+                                                                <Users size={14} />
+                                                                {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                                                Team
+                                                            </button>
+                                                        )}
+                                                    </td>
+                                                </tr>
+                                                {isTeamEvent && isExpanded && (
+                                                    <tr className="bg-white/5">
+                                                        <td colSpan="6" className="px-6 py-4">
+                                                            <div className="bg-black/20 rounded-lg p-4 border border-white/10">
+                                                                <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
+                                                                    <Users size={16} className="text-cyan-400" />
+                                                                    Team Members
+                                                                </h4>
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    <div className="bg-white/5 rounded-lg p-3">
+                                                                        <div className="text-xs text-gray-500 mb-1">Leader / IGL</div>
+                                                                        <div className="text-white font-medium">{reg.name}</div>
+                                                                        <div className="text-gray-400 text-sm mt-1">{reg.email}</div>
+                                                                        <div className="text-gray-400 text-sm">{reg.phone}</div>
+                                                                    </div>
+                                                                    {reg.player2_name && (
+                                                                        <div className="bg-white/5 rounded-lg p-3">
+                                                                            <div className="text-xs text-gray-500 mb-1">Member 2</div>
+                                                                            <div className="text-white font-medium">{reg.player2_name}</div>
+                                                                        </div>
+                                                                    )}
+                                                                    {reg.player3_name && (
+                                                                        <div className="bg-white/5 rounded-lg p-3">
+                                                                            <div className="text-xs text-gray-500 mb-1">Member 3</div>
+                                                                            <div className="text-white font-medium">{reg.player3_name}</div>
+                                                                        </div>
+                                                                    )}
+                                                                    {reg.player4_name && (
+                                                                        <div className="bg-white/5 rounded-lg p-3">
+                                                                            <div className="text-xs text-gray-500 mb-1">Member 4</div>
+                                                                            <div className="text-white font-medium">{reg.player4_name}</div>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                                <div className="mt-3 pt-3 border-t border-white/10">
+                                                                    <div className="text-xs text-gray-500">Academic Info</div>
+                                                                    <div className="text-white text-sm mt-1">{reg.class} • {reg.college}</div>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
                                                 )}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <span className="inline-block px-2 py-1 rounded-full bg-neon-purple/20 text-neon-purple text-xs font-semibold">
-                                                    {reg.events?.event_name}
-                                                </span>
-                                            </td>
-                                            <td className="px-6 py-4 text-gray-400">
-                                                {new Date(reg.created_at).toLocaleDateString()}
-                                            </td>
-                                        </tr>
-                                    ))
+                                            </React.Fragment>
+                                        );
+                                    })
                                 ) : (
                                     <tr>
-                                        <td colSpan="5" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
                                             No registrations found.
                                         </td>
                                     </tr>

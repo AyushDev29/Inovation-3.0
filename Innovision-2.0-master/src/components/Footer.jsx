@@ -68,15 +68,13 @@ const Footer = () => {
                     </div>
                 </div>
 
-                <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center">
-                    <p className="text-gray-500 text-sm mb-4 md:mb-0">
+                <div className="border-t border-white/10 pt-8 text-center">
+                    <p className="text-gray-500 text-sm mb-3">
                         © 2026 Innovision 3.0.
                     </p>
-                    <div className="flex items-center space-x-2 text-gray-500 text-sm">
-                        <span>Designed with</span>
-                        <span className="text-red-500">♥</span>
-                        <span>by IT Department</span>
-                    </div>
+                    <p className="text-gray-500 text-sm">
+                        Designed by Department of IT
+                    </p>
                 </div>
             </div>
 

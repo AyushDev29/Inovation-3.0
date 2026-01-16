@@ -27,27 +27,50 @@ const RegistrationModal = ({ event, onClose }) => {
 
     // Lock body scroll AND stop Lenis when modal is open
     useEffect(() => {
-        // Lock body scroll
-        const originalOverflow = document.body.style.overflow;
+        // Save scroll position
+        const scrollY = window.scrollY;
+        
+        // Lock body scroll WITHOUT position fixed (which breaks modal scroll)
         document.body.style.overflow = 'hidden';
+        document.body.style.height = '100vh';
         
         // Stop Lenis smooth scroll
         const lenisInstance = window.lenis;
         if (lenisInstance) {
             lenisInstance.stop();
         }
+
+        // Handle ESC key to close modal
+        const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+                onClose();
+            }
+        };
+        window.addEventListener('keydown', handleEscape);
         
         return () => {
-            document.body.style.overflow = originalOverflow;
+            document.body.style.overflow = '';
+            document.body.style.height = '';
+            window.scrollTo(0, scrollY);
+            
             // Restart Lenis
             if (lenisInstance) {
                 lenisInstance.start();
             }
+            window.removeEventListener('keydown', handleEscape);
         };
-    }, []);
+    }, [onClose]);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        
+        // Special handling for phone number - only allow digits and max 10
+        if (name === 'phone') {
+            const digitsOnly = value.replace(/\D/g, '').slice(0, 10);
+            setFormData({ ...formData, [name]: digitsOnly });
+        } else {
+            setFormData({ ...formData, [name]: value });
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -114,30 +137,51 @@ const RegistrationModal = ({ event, onClose }) => {
     };
 
     return (
-        <div className="fixed inset-0 z-[150] overflow-y-auto" style={{ position: 'fixed' }}>
+        <div 
+            className="fixed inset-0 z-[150]"
+            style={{ 
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                overflow: 'auto',
+                overflowY: 'scroll',
+                WebkitOverflowScrolling: 'touch',
+                msOverflowStyle: 'scrollbar'
+            }}
+        >
+            {/* Backdrop */}
             <div 
-                className="fixed inset-0 bg-black/90 backdrop-blur-md transition-opacity"
+                className="fixed inset-0 bg-black/90 backdrop-blur-md"
+                style={{ position: 'fixed' }}
                 onClick={onClose}
+                aria-hidden="true"
             />
             
-            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+            {/* Scrollable content wrapper */}
+            <div className="relative min-h-full flex items-center justify-center p-4 py-20">
                 <motion.div
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
-                    className="relative transform overflow-hidden rounded-2xl bg-[#0f0f0f] border border-white/10 text-left shadow-xl transition-all w-full max-w-lg my-8"
+                    className="relative w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-xl"
                     onClick={(e) => e.stopPropagation()}
                 >
+                    {/* Close button - with higher z-index and pointer-events */}
                     <button
+                        type="button"
                         onClick={onClose}
-                        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
+                        className="absolute top-4 right-4 z-50 p-2 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors cursor-pointer"
+                        style={{ pointerEvents: 'auto' }}
+                        aria-label="Close modal"
                     >
                         <X size={20} />
                     </button>
 
-                    <div className="bg-[#0f0f0f] px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                        <div className="mb-6">
+                    <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div className="mb-6 pr-10">
                             <h2 className="text-2xl font-orbitron font-bold text-white mb-2">
                                 Register for <span className="text-neon-purple">{event.title}</span>
                             </h2>
@@ -150,6 +194,7 @@ const RegistrationModal = ({ event, onClose }) => {
                                 <h3 className="text-xl font-bold text-white mb-2">Success!</h3>
                                 <p className="text-gray-300">{message}</p>
                                 <button
+                                    type="button"
                                     onClick={onClose}
                                     className="mt-6 px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
                                 >
@@ -205,8 +250,12 @@ const RegistrationModal = ({ event, onClose }) => {
                                     required
                                     value={formData.phone}
                                     onChange={handleChange}
+                                    pattern="[0-9]{10}"
+                                    maxLength="10"
+                                    minLength="10"
+                                    title="Please enter exactly 10 digits"
                                     className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                    placeholder="Number"
+                                    placeholder="10-digit number"
                                 />
                             </div>
                         </div>
@@ -288,15 +337,15 @@ const RegistrationModal = ({ event, onClose }) => {
                             </>
                         )}
 
-                        <button
-                            type="submit"
-                            disabled={loading}
-                            className="w-full mt-4 py-3 bg-gradient-to-r from-neon-purple to-cyber-blue text-white font-bold font-orbitron tracking-wider rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                            {loading ? 'REGISTERING...' : 'CONFIRM REGISTRATION'}
-                        </button>
-                    </form>
-                )}
+                                <button
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full mt-4 py-3 bg-gradient-to-r from-neon-purple to-cyber-blue text-white font-bold font-orbitron tracking-wider rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    {loading ? 'REGISTERING...' : 'CONFIRM REGISTRATION'}
+                                </button>
+                            </form>
+                        )}
                     </div>
                 </motion.div>
             </div>

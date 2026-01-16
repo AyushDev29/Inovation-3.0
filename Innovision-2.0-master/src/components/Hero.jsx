@@ -136,21 +136,21 @@ const Hero = () => {
                 {/* Data Grid */}
                 <div className="hud-grid grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 md:mb-12">
                     <HUDBox
-                        title="EVENTS LOADED"
-                        value="45 / 45"
-                        subtext="Data Upload Complete"
+                        title="EVENT DATES"
+                        value="5 - 6 FEB"
+                        subtext="Tech Fest 2025"
                         delay="200"
                     />
                     <HUDBox
-                        title="PARTICIPANTS"
-                        value="1,328"
-                        subtext="Online Status: Active"
+                        title="VENUE"
+                        value="KV PENDHARKAR"
+                        subtext="College Campus"
                         delay="400"
                     />
                     <HUDBox
-                        title="INNOVATION LEVEL"
-                        value="98%"
-                        subtext="System Optimized"
+                        title="DAILY TIMING"
+                        value="9 AM - 2 PM"
+                        subtext="All Events Active"
                         delay="600"
                     />
                 </div>

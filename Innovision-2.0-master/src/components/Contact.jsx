@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, MapPin, Phone, Send, Github, Linkedin, Instagram } from 'lucide-react';
+import { Mail, MapPin, Phone, User, Github, Linkedin, Instagram } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -77,36 +77,73 @@ const Contact = () => {
 
                 <div className="contact-container grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
 
-                    {/* Contact Form */}
-                    <div className="contact-form-container bg-white/5 backdrop-blur-md p-8 md:p-10 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-32 h-32 bg-cyber-blue/10 rounded-full blur-[50px] -mr-16 -mt-16 pointer-events-none"></div>
-
-                        <form className="space-y-6 relative z-10">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-2">
-                                    <label className="text-xs text-cyber-blue uppercase tracking-wider">Codename / Name</label>
-                                    <input type="text" className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white focus:border-cyber-blue focus:ring-1 focus:ring-cyber-blue transition-all outline-none" placeholder="John Doe" />
+                    {/* Coordinators Info */}
+                    <div className="contact-form-container space-y-6">
+                        
+                        {/* Coordinator 1 - Yash */}
+                        <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden group hover:border-cyber-blue/30 transition-all duration-300">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-cyber-blue/10 rounded-full blur-[50px] -mr-16 -mt-16 pointer-events-none"></div>
+                            
+                            <div className="relative z-10 space-y-4">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="p-4 bg-gradient-to-br from-cyber-blue/20 to-neon-purple/20 rounded-full border border-cyber-blue/30">
+                                        <User className="text-cyber-blue" size={28} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-white font-bold text-2xl font-orbitron">YASH</h4>
+                                        <p className="text-cyber-blue text-sm uppercase tracking-wider">Event Coordinator</p>
+                                    </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <label className="text-xs text-cyber-blue uppercase tracking-wider">Transmission Frequency / Email</label>
-                                    <input type="email" className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white focus:border-cyber-blue focus:ring-1 focus:ring-cyber-blue transition-all outline-none" placeholder="john@example.com" />
+
+                                <div className="space-y-3 pl-2">
+                                    <div className="flex items-center gap-3 group/item">
+                                        <Phone className="text-gray-400 group-hover/item:text-green-500 transition-colors" size={18} />
+                                        <span className="text-gray-300 group-hover/item:text-white transition-colors">
+                                            [Contact Number - To be added]
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-3 group/item">
+                                        <Mail className="text-gray-400 group-hover/item:text-cyber-blue transition-colors" size={18} />
+                                        <span className="text-gray-300 group-hover/item:text-white transition-colors">
+                                            innovit2026@gmail.com
+                                        </span>
+                                    </div>
                                 </div>
                             </div>
+                        </div>
 
-                            <div className="space-y-2">
-                                <label className="text-xs text-cyber-blue uppercase tracking-wider">Subject</label>
-                                <input type="text" className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white focus:border-cyber-blue focus:ring-1 focus:ring-cyber-blue transition-all outline-none" placeholder="Inquiry / Registration Issue" />
+                        {/* Coordinator 2 - Minoli */}
+                        <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden group hover:border-neon-purple/30 transition-all duration-300">
+                            <div className="absolute top-0 right-0 w-32 h-32 bg-neon-purple/10 rounded-full blur-[50px] -mr-16 -mt-16 pointer-events-none"></div>
+                            
+                            <div className="relative z-10 space-y-4">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="p-4 bg-gradient-to-br from-neon-purple/20 to-pink-500/20 rounded-full border border-neon-purple/30">
+                                        <User className="text-neon-purple" size={28} />
+                                    </div>
+                                    <div>
+                                        <h4 className="text-white font-bold text-2xl font-orbitron">MINOLI</h4>
+                                        <p className="text-neon-purple text-sm uppercase tracking-wider">Event Coordinator</p>
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3 pl-2">
+                                    <div className="flex items-center gap-3 group/item">
+                                        <Phone className="text-gray-400 group-hover/item:text-green-500 transition-colors" size={18} />
+                                        <span className="text-gray-300 group-hover/item:text-white transition-colors">
+                                            [Contact Number - To be added]
+                                        </span>
+                                    </div>
+                                    <div className="flex items-center gap-3 group/item">
+                                        <Mail className="text-gray-400 group-hover/item:text-neon-purple transition-colors" size={18} />
+                                        <span className="text-gray-300 group-hover/item:text-white transition-colors">
+                                            innovit2026@gmail.com
+                                        </span>
+                                    </div>
+                                </div>
                             </div>
+                        </div>
 
-                            <div className="space-y-2">
-                                <label className="text-xs text-cyber-blue uppercase tracking-wider">Message Payload</label>
-                                <textarea rows="4" className="w-full bg-black/40 border border-white/10 rounded-lg p-3 text-white focus:border-cyber-blue focus:ring-1 focus:ring-cyber-blue transition-all outline-none resize-none" placeholder="Your message here..."></textarea>
-                            </div>
-
-                            <button type="button" className="w-full py-4 bg-gradient-to-r from-cyber-blue to-blue-600 text-white font-bold font-orbitron tracking-widest rounded-lg hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:scale-[1.02] active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 group-hover:from-cyber-blue group-hover:to-neon-purple">
-                                <Send size={18} /> INITIALIZE TRANSMISSION
-                            </button>
-                        </form>
                     </div>
 
                     {/* Contact Info */}
@@ -134,8 +171,7 @@ const Contact = () => {
                                 <div>
                                     <h4 className="text-white font-bold text-lg mb-1 font-orbitron">Comms Channel</h4>
                                     <p className="text-gray-400 text-sm">
-                                        contact@innovision30.com<br />
-                                        support@kvp-it.edu.in
+                                        innovit2026@gmail.com
                                     </p>
                                 </div>
                             </div>
