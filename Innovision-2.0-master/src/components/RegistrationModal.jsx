@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '../supabaseClient';
@@ -24,6 +24,14 @@ const RegistrationModal = ({ event, onClose }) => {
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null); // 'success', 'error'
     const [message, setMessage] = useState('');
+
+    // Lock body scroll when modal is open
+    useEffect(() => {
+        document.body.style.overflow = 'hidden';
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, []);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -99,13 +107,15 @@ const RegistrationModal = ({ event, onClose }) => {
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md overflow-y-auto"
             onClick={onClose}
+            style={{ overscrollBehavior: 'contain' }}
         >
             <motion.div
                 initial={{ scale: 0.9, y: 30 }}
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 30 }}
-                className="relative w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-2xl overflow-hidden shadow-2xl p-8 my-8"
+                className="relative w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-2xl overflow-hidden shadow-2xl p-8 my-8 max-h-[90vh] overflow-y-auto"
                 onClick={(e) => e.stopPropagation()}
+                style={{ overscrollBehavior: 'contain' }}
             >
                 <button
                     onClick={onClose}
