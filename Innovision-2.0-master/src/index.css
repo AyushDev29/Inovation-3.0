@@ -51,6 +51,56 @@
   box-shadow: 0 0 10px rgba(6, 182, 212, 0.3);
 }
 
+/* Custom Scrollbar for Registration Modal */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 16px; /* Thicker for mobile */
+}
+
+@media (min-width: 640px) {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 14px;
+  }
+}
+
+@media (min-width: 768px) {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 12px;
+  }
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(15, 15, 15, 0.8);
+  border-radius: 12px;
+  margin: 8px 0;
+  border: 1px solid rgba(168, 85, 247, 0.1);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #a855f7 0%, #06b6d4 100%);
+  border-radius: 12px;
+  border: 3px solid rgba(15, 15, 15, 0.8);
+  box-shadow: 0 0 15px rgba(168, 85, 247, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.1);
+  min-height: 50px; /* Easier to grab on mobile */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #9333ea 0%, #0891b2 100%);
+  box-shadow: 0 0 20px rgba(168, 85, 247, 0.9), 0 0 30px rgba(6, 182, 212, 0.6), inset 0 0 15px rgba(255, 255, 255, 0.2);
+  border-color: rgba(168, 85, 247, 0.4);
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:active {
+  background: linear-gradient(180deg, #7c3aed 0%, #0e7490 100%);
+  box-shadow: 0 0 25px rgba(168, 85, 247, 1), 0 0 35px rgba(6, 182, 212, 0.8), inset 0 0 20px rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+/* Firefox Custom Scrollbar */
+.custom-scrollbar {
+  scrollbar-width: auto;
+  scrollbar-color: #a855f7 rgba(15, 15, 15, 0.8);
+}
+
 /* Custom Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;

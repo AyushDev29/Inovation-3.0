@@ -134,7 +134,7 @@ const RegistrationModal = ({ event, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-center justify-center overflow-hidden"
+            className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden"
             onClick={onClose}
         >
             <motion.div
@@ -142,29 +142,29 @@ const RegistrationModal = ({ event, onClose }) => {
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative z-[2001] w-[95vw] sm:w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] max-w-2xl bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col h-[95vh] sm:h-[90vh] md:max-h-[85vh]"
+                className="relative z-[2001] w-full sm:w-[92vw] md:w-[85vw] lg:w-[75vw] xl:w-[65vw] max-w-2xl bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[95vh] sm:max-h-[90vh] md:max-h-[88vh] lg:max-h-[85vh]"
             >
                 {/* Header - Fixed at top */}
-                <div className="flex-shrink-0 bg-[#0f0f0f] border-b border-white/10 px-3 sm:px-5 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex items-start justify-between rounded-t-xl sm:rounded-t-2xl">
+                <div className="flex-shrink-0 bg-[#0f0f0f] border-b border-white/10 px-4 sm:px-5 md:px-6 lg:px-8 py-3 sm:py-3.5 md:py-4 flex items-start justify-between rounded-t-xl sm:rounded-t-2xl">
                     <div className="flex-1 pr-2">
-                        <h2 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-orbitron font-bold text-white leading-tight">
+                        <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-orbitron font-bold text-white leading-tight">
                             Register for <span className="text-neon-purple">{event.title}</span>
                         </h2>
-                        <p className="text-gray-400 text-[9px] sm:text-[10px] md:text-xs lg:text-sm mt-0.5 sm:mt-1">Fill in your details to secure your spot.</p>
+                        <p className="text-gray-400 text-[10px] sm:text-xs md:text-sm mt-1">Fill in your details to secure your spot.</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="flex-shrink-0 p-1.5 sm:p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
+                        className="flex-shrink-0 p-2 sm:p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
                     >
-                        <X size={16} className="sm:hidden" />
-                        <X size={18} className="hidden sm:block md:hidden" />
-                        <X size={20} className="hidden md:block" />
+                        <X size={18} className="sm:hidden" />
+                        <X size={20} className="hidden sm:block md:hidden" />
+                        <X size={22} className="hidden md:block" />
                     </button>
                 </div>
 
                 {/* Scrollable Content Area */}
                 <div 
-                    className="flex-1 overflow-y-auto px-3 sm:px-5 md:px-6 lg:px-8 py-3 sm:py-4 md:py-5"
+                    className="flex-1 overflow-y-auto px-4 sm:px-5 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 custom-scrollbar"
                     style={{
                         WebkitOverflowScrolling: 'touch',
                         overscrollBehavior: 'contain'
@@ -172,32 +172,32 @@ const RegistrationModal = ({ event, onClose }) => {
                 >
 
                         {status === 'success' ? (
-                            <div className="flex flex-col items-center justify-center py-6 sm:py-8 md:py-10 text-center">
-                                <CheckCircle size={48} className="sm:hidden text-green-500 mb-3" />
-                                <CheckCircle size={56} className="hidden sm:block md:hidden text-green-500 mb-3" />
-                                <CheckCircle size={64} className="hidden md:block text-green-500 mb-4" />
-                                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Success!</h3>
-                                <p className="text-gray-300 text-xs sm:text-sm md:text-base">{message}</p>
+                            <div className="flex flex-col items-center justify-center py-8 sm:py-10 md:py-12 text-center">
+                                <CheckCircle size={56} className="sm:hidden text-green-500 mb-4" />
+                                <CheckCircle size={64} className="hidden sm:block md:hidden text-green-500 mb-4" />
+                                <CheckCircle size={72} className="hidden md:block text-green-500 mb-5" />
+                                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Success!</h3>
+                                <p className="text-gray-300 text-sm sm:text-base md:text-lg">{message}</p>
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="mt-4 sm:mt-6 px-4 sm:px-6 py-1.5 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors text-xs sm:text-sm md:text-base"
+                                    className="mt-6 sm:mt-8 px-6 sm:px-8 py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors text-sm sm:text-base md:text-lg font-medium"
                                 >
                                     Close
                                 </button>
                             </div>
                         ) : (
-                            <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3 md:space-y-4">
+                            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
                                 {status === 'error' && (
-                                    <div className="flex items-start p-2 sm:p-2.5 md:p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-[10px] sm:text-xs md:text-sm">
-                                        <AlertCircle size={14} className="sm:hidden mr-1.5 mt-0.5 flex-shrink-0" />
-                                        <AlertCircle size={16} className="hidden sm:block mr-2 mt-0.5 flex-shrink-0" />
+                                    <div className="flex items-start p-3 sm:p-3.5 md:p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-xs sm:text-sm md:text-base">
+                                        <AlertCircle size={16} className="sm:hidden mr-2 mt-0.5 flex-shrink-0" />
+                                        <AlertCircle size={18} className="hidden sm:block mr-2.5 mt-0.5 flex-shrink-0" />
                                         <span>{message}</span>
                                     </div>
                                 )}
 
-                        <div className="space-y-0.5 sm:space-y-1">
-                            <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">
+                        <div className="space-y-1 sm:space-y-1.5">
+                            <label className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wider ml-1">
                                 {isFreeFire ? "IGL Name" : (isTeamEvent ? "Leader Name" : "Full Name")}
                             </label>
                             <input
