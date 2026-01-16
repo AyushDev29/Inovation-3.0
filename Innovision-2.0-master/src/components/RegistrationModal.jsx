@@ -4,8 +4,11 @@ import { X, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const RegistrationModal = ({ event, onClose }) => {
+    const isBGMI = event.title.includes("BGMI");
     const isFreeFire = event.title.includes("Free Fire");
-    const isTeamEvent = isFreeFire || event.title.includes("Hackathon");
+    const isHackathon = event.title.includes("Hackathon");
+    const isFunFusion = event.title.includes("Fun Fusion");
+    const isTeamEvent = isBGMI || isFreeFire || isHackathon || isFunFusion;
 
     const [formData, setFormData] = useState({
         name: '',
