@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
 import { Menu, X, ChevronRight } from 'lucide-react';
 
 const Navbar = () => {
@@ -24,10 +25,11 @@ const Navbar = () => {
     }, [isOpen]);
 
     const navLinks = [
-        { name: 'Home', href: '#', id: '01' },
-        { name: 'Events', href: '#events', id: '02' },
-        { name: 'About', href: '#about', id: '03' },
-        { name: 'Contact', href: '#contact' },
+        { name: 'Home', href: '/', id: '01', isRoute: true },
+        { name: 'Events', href: '#events', id: '02', isRoute: false },
+        { name: 'Schedule', href: '/schedule', id: '03', isRoute: true },
+        { name: 'About', href: '#about', id: '04', isRoute: false },
+        { name: 'Contact', href: '#contact', id: '05', isRoute: false },
     ];
 
     return (
@@ -43,14 +45,25 @@ const Navbar = () => {
                 {/* Desktop Menu */}
                 <div className="hidden md:flex space-x-8">
                     {navLinks.map((link) => (
-                        <a
-                            key={link.name}
-                            href={link.href}
-                            className="text-gray-300 hover:text-white transition-colors relative group font-medium"
-                        >
-                            {link.name}
-                            <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-purple transition-all duration-300 group-hover:w-full"></span>
-                        </a>
+                        link.isRoute ? (
+                            <Link
+                                key={link.name}
+                                to={link.href}
+                                className="text-gray-300 hover:text-white transition-colors relative group font-medium"
+                            >
+                                {link.name}
+                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-purple transition-all duration-300 group-hover:w-full"></span>
+                            </Link>
+                        ) : (
+                            <a
+                                key={link.name}
+                                href={link.href}
+                                className="text-gray-300 hover:text-white transition-colors relative group font-medium"
+                            >
+                                {link.name}
+                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-purple transition-all duration-300 group-hover:w-full"></span>
+                            </a>
+                        )
                     ))}
                 </div>
 
@@ -80,19 +93,35 @@ const Navbar = () => {
                     <div className="container mx-auto px-8 relative z-10 flex flex-col h-full justify-center">
                         <div className="flex flex-col space-y-6">
                             {navLinks.map((link, index) => (
-                                <a
-                                    key={link.name}
-                                    href={link.href}
-                                    className={`group flex items-center justify-between text-3xl font-orbitron text-white border-b border-white/10 pb-4 transition-all duration-500 delay-[${index * 100}ms] ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
-                                        }`}
-                                    onClick={() => setIsOpen(false)}
-                                >
-                                    <span className="relative">
-                                        <span className="text-xs font-mono text-neon-purple/70 absolute -top-3 -left-2">{link.id}</span>
-                                        {link.name}
-                                    </span>
-                                    <ChevronRight className="text-white/20 group-hover:text-neon-purple group-hover:translate-x-2 transition-all duration-300" />
-                                </a>
+                                link.isRoute ? (
+                                    <Link
+                                        key={link.name}
+                                        to={link.href}
+                                        className={`group flex items-center justify-between text-3xl font-orbitron text-white border-b border-white/10 pb-4 transition-all duration-500 delay-[${index * 100}ms] ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
+                                            }`}
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        <span className="relative">
+                                            <span className="text-xs font-mono text-neon-purple/70 absolute -top-3 -left-2">{link.id}</span>
+                                            {link.name}
+                                        </span>
+                                        <ChevronRight className="text-white/20 group-hover:text-neon-purple group-hover:translate-x-2 transition-all duration-300" />
+                                    </Link>
+                                ) : (
+                                    <a
+                                        key={link.name}
+                                        href={link.href}
+                                        className={`group flex items-center justify-between text-3xl font-orbitron text-white border-b border-white/10 pb-4 transition-all duration-500 delay-[${index * 100}ms] ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
+                                            }`}
+                                        onClick={() => setIsOpen(false)}
+                                    >
+                                        <span className="relative">
+                                            <span className="text-xs font-mono text-neon-purple/70 absolute -top-3 -left-2">{link.id}</span>
+                                            {link.name}
+                                        </span>
+                                        <ChevronRight className="text-white/20 group-hover:text-neon-purple group-hover:translate-x-2 transition-all duration-300" />
+                                    </a>
+                                )
                             ))}
                         </div>
 

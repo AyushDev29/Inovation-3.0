@@ -12,11 +12,20 @@ import ScrollProgress from './ScrollProgress';
 import FloatingActions from './FloatingActions';
 
 const LandingPage = () => {
-    const [loading, setLoading] = useState(true); // Re-enabled preloader
+    // Check if preloader has already been shown in this session
+    const [loading, setLoading] = useState(() => {
+        const hasSeenPreloader = sessionStorage.getItem('preloaderShown');
+        return !hasSeenPreloader; // Show preloader only if not shown before
+    });
+
+    const handlePreloaderComplete = () => {
+        setLoading(false);
+        sessionStorage.setItem('preloaderShown', 'true'); // Mark as shown
+    };
 
     return (
         <>
-            {loading && <Preloader onComplete={() => setLoading(false)} />}
+            {loading && <Preloader onComplete={handlePreloaderComplete} />}
             <SmoothScroll>
                 <ScrollProgress />
                 <FloatingActions />
