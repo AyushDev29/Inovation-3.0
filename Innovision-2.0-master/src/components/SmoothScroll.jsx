@@ -18,6 +18,9 @@ const SmoothScroll = ({ children }) => {
             touchMultiplier: 2,
         });
 
+        // Expose lenis globally so modals can stop/start it
+        window.lenis = lenis;
+
         function raf(time) {
             lenis.raf(time);
             requestAnimationFrame(raf);
@@ -37,6 +40,7 @@ const SmoothScroll = ({ children }) => {
         return () => {
             lenis.destroy();
             gsap.ticker.remove(raf);
+            delete window.lenis;
         };
     }, []);
 

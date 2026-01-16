@@ -25,11 +25,24 @@ const RegistrationModal = ({ event, onClose }) => {
     const [status, setStatus] = useState(null); // 'success', 'error'
     const [message, setMessage] = useState('');
 
-    // Lock body scroll when modal is open
+    // Lock body scroll AND stop Lenis when modal is open
     useEffect(() => {
+        // Lock body scroll
+        const originalOverflow = document.body.style.overflow;
         document.body.style.overflow = 'hidden';
+        
+        // Stop Lenis smooth scroll
+        const lenisInstance = window.lenis;
+        if (lenisInstance) {
+            lenisInstance.stop();
+        }
+        
         return () => {
-            document.body.style.overflow = 'unset';
+            document.body.style.overflow = originalOverflow;
+            // Restart Lenis
+            if (lenisInstance) {
+                lenisInstance.start();
+            }
         };
     }, []);
 
