@@ -105,18 +105,18 @@ const RegistrationModal = ({ event, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[150] flex items-center justify-center p-4 bg-black/90 backdrop-blur-md overflow-y-auto"
+            className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-md"
             onClick={onClose}
-            style={{ overscrollBehavior: 'contain' }}
         >
-            <motion.div
-                initial={{ scale: 0.9, y: 30 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 30 }}
-                className="relative w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-2xl overflow-hidden shadow-2xl p-8 my-8 max-h-[90vh] overflow-y-auto"
-                onClick={(e) => e.stopPropagation()}
-                style={{ overscrollBehavior: 'contain' }}
-            >
+            <div className="fixed inset-0 overflow-y-auto">
+                <div className="flex min-h-full items-center justify-center p-4">
+                    <motion.div
+                        initial={{ scale: 0.9, y: 30 }}
+                        animate={{ scale: 1, y: 0 }}
+                        exit={{ scale: 0.9, y: 30 }}
+                        className="relative w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-2xl p-8 my-8"
+                        onClick={(e) => e.stopPropagation()}
+                    >
                 <button
                     onClick={onClose}
                     className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
@@ -285,6 +285,8 @@ const RegistrationModal = ({ event, onClose }) => {
                     </form>
                 )}
             </motion.div>
+                </div>
+            </div>
         </motion.div>
     );
 };
