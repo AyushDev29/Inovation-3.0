@@ -137,7 +137,7 @@ const Hero = () => {
                 <div className="hud-grid grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 md:mb-12">
                     <HUDBox
                         title="EVENT DATES"
-                        value="5 - 6 FEB"
+                        value="5 - 7 FEB"
                         subtext="Tech Fest 2025"
                         delay="200"
                     />
