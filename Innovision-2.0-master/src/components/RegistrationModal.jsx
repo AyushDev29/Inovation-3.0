@@ -101,56 +101,56 @@ const RegistrationModal = ({ event, onClose }) => {
     };
 
     return (
-        <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[150] bg-black/90 backdrop-blur-md"
-            onClick={onClose}
-        >
-            <div className="fixed inset-0 overflow-y-auto">
-                <div className="flex min-h-full items-center justify-center p-4">
-                    <motion.div
-                        initial={{ scale: 0.9, y: 30 }}
-                        animate={{ scale: 1, y: 0 }}
-                        exit={{ scale: 0.9, y: 30 }}
-                        className="relative w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-2xl p-8 my-8"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                <button
-                    onClick={onClose}
-                    className="absolute top-4 right-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
+        <div className="fixed inset-0 z-[150] overflow-y-auto" style={{ position: 'fixed' }}>
+            <div 
+                className="fixed inset-0 bg-black/90 backdrop-blur-md transition-opacity"
+                onClick={onClose}
+            />
+            
+            <div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
+                <motion.div
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="relative transform overflow-hidden rounded-2xl bg-[#0f0f0f] border border-white/10 text-left shadow-xl transition-all w-full max-w-lg my-8"
+                    onClick={(e) => e.stopPropagation()}
                 >
-                    <X size={20} />
-                </button>
+                    <button
+                        onClick={onClose}
+                        className="absolute top-4 right-4 z-10 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
+                    >
+                        <X size={20} />
+                    </button>
 
-                <div className="mb-6">
-                    <h2 className="text-2xl font-orbitron font-bold text-white mb-2">
-                        Register for <span className="text-neon-purple">{event.title}</span>
-                    </h2>
-                    <p className="text-gray-400 text-sm">Fill in your details to secure your spot.</p>
-                </div>
+                    <div className="bg-[#0f0f0f] px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                        <div className="mb-6">
+                            <h2 className="text-2xl font-orbitron font-bold text-white mb-2">
+                                Register for <span className="text-neon-purple">{event.title}</span>
+                            </h2>
+                            <p className="text-gray-400 text-sm">Fill in your details to secure your spot.</p>
+                        </div>
 
-                {status === 'success' ? (
-                    <div className="flex flex-col items-center justify-center py-10 text-center">
-                        <CheckCircle size={64} className="text-green-500 mb-4" />
-                        <h3 className="text-xl font-bold text-white mb-2">Success!</h3>
-                        <p className="text-gray-300">{message}</p>
-                        <button
-                            onClick={onClose}
-                            className="mt-6 px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
-                        >
-                            Close
-                        </button>
-                    </div>
-                ) : (
-                    <form onSubmit={handleSubmit} className="space-y-4">
-                        {status === 'error' && (
-                            <div className="flex items-start p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-sm">
-                                <AlertCircle size={16} className="mr-2 mt-0.5" />
-                                <span>{message}</span>
+                        {status === 'success' ? (
+                            <div className="flex flex-col items-center justify-center py-10 text-center">
+                                <CheckCircle size={64} className="text-green-500 mb-4" />
+                                <h3 className="text-xl font-bold text-white mb-2">Success!</h3>
+                                <p className="text-gray-300">{message}</p>
+                                <button
+                                    onClick={onClose}
+                                    className="mt-6 px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                                >
+                                    Close
+                                </button>
                             </div>
-                        )}
+                        ) : (
+                            <form onSubmit={handleSubmit} className="space-y-4">
+                                {status === 'error' && (
+                                    <div className="flex items-start p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-sm">
+                                        <AlertCircle size={16} className="mr-2 mt-0.5 flex-shrink-0" />
+                                        <span>{message}</span>
+                                    </div>
+                                )}
 
                         <div className="space-y-1">
                             <label className="text-xs text-gray-500 uppercase tracking-wider ml-1">
@@ -284,10 +284,10 @@ const RegistrationModal = ({ event, onClose }) => {
                         </button>
                     </form>
                 )}
-            </motion.div>
-                </div>
+                    </div>
+                </motion.div>
             </div>
-        </motion.div>
+        </div>
     );
 };
 
