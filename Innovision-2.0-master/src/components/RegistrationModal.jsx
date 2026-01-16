@@ -134,7 +134,7 @@ const RegistrationModal = ({ event, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-start sm:items-center justify-center px-4 py-6 sm:py-8 overflow-hidden"
+            className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-center justify-center overflow-hidden"
             onClick={onClose}
         >
             <motion.div
@@ -142,51 +142,62 @@ const RegistrationModal = ({ event, onClose }) => {
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.95, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
-                className="relative z-[2001] w-full max-w-lg bg-[#0f0f0f] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+                className="relative z-[2001] w-[95vw] sm:w-[90vw] md:w-[80vw] lg:w-[70vw] xl:w-[60vw] max-w-2xl bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col h-[95vh] sm:h-[90vh] md:max-h-[85vh]"
             >
-                {/* Header fixed + stays visible */}
-                <div className="sticky top-0 z-10 bg-[#0f0f0f] border-b border-white/10 px-5 sm:px-8 py-4 flex items-start justify-between">
-                    <div>
-                        <h2 className="text-lg sm:text-2xl font-orbitron font-bold text-white leading-tight">
+                {/* Header - Fixed at top */}
+                <div className="flex-shrink-0 bg-[#0f0f0f] border-b border-white/10 px-3 sm:px-5 md:px-6 lg:px-8 py-2.5 sm:py-3 md:py-4 flex items-start justify-between rounded-t-xl sm:rounded-t-2xl">
+                    <div className="flex-1 pr-2">
+                        <h2 className="text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-orbitron font-bold text-white leading-tight">
                             Register for <span className="text-neon-purple">{event.title}</span>
                         </h2>
-                        <p className="text-gray-400 text-xs sm:text-sm mt-1">Fill in your details to secure your spot.</p>
+                        <p className="text-gray-400 text-[9px] sm:text-[10px] md:text-xs lg:text-sm mt-0.5 sm:mt-1">Fill in your details to secure your spot.</p>
                     </div>
                     <button
                         onClick={onClose}
-                        className="ml-4 p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors shrink-0"
+                        className="flex-shrink-0 p-1.5 sm:p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
                     >
-                        <X size={20} />
+                        <X size={16} className="sm:hidden" />
+                        <X size={18} className="hidden sm:block md:hidden" />
+                        <X size={20} className="hidden md:block" />
                     </button>
                 </div>
 
-                {/* Scroll Area ONLY inside modal */}
-                <div className="max-h-[80vh] sm:max-h-[85vh] overflow-y-auto overscroll-contain px-5 sm:px-8 py-5">
+                {/* Scrollable Content Area */}
+                <div 
+                    className="flex-1 overflow-y-auto px-3 sm:px-5 md:px-6 lg:px-8 py-3 sm:py-4 md:py-5"
+                    style={{
+                        WebkitOverflowScrolling: 'touch',
+                        overscrollBehavior: 'contain'
+                    }}
+                >
 
                         {status === 'success' ? (
-                            <div className="flex flex-col items-center justify-center py-10 text-center">
-                                <CheckCircle size={64} className="text-green-500 mb-4" />
-                                <h3 className="text-xl font-bold text-white mb-2">Success!</h3>
-                                <p className="text-gray-300">{message}</p>
+                            <div className="flex flex-col items-center justify-center py-6 sm:py-8 md:py-10 text-center">
+                                <CheckCircle size={48} className="sm:hidden text-green-500 mb-3" />
+                                <CheckCircle size={56} className="hidden sm:block md:hidden text-green-500 mb-3" />
+                                <CheckCircle size={64} className="hidden md:block text-green-500 mb-4" />
+                                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Success!</h3>
+                                <p className="text-gray-300 text-xs sm:text-sm md:text-base">{message}</p>
                                 <button
                                     type="button"
                                     onClick={onClose}
-                                    className="mt-6 px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors"
+                                    className="mt-4 sm:mt-6 px-4 sm:px-6 py-1.5 sm:py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors text-xs sm:text-sm md:text-base"
                                 >
                                     Close
                                 </button>
                             </div>
                         ) : (
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                            <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3 md:space-y-4">
                                 {status === 'error' && (
-                                    <div className="flex items-start p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-sm">
-                                        <AlertCircle size={16} className="mr-2 mt-0.5 flex-shrink-0" />
+                                    <div className="flex items-start p-2 sm:p-2.5 md:p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-[10px] sm:text-xs md:text-sm">
+                                        <AlertCircle size={14} className="sm:hidden mr-1.5 mt-0.5 flex-shrink-0" />
+                                        <AlertCircle size={16} className="hidden sm:block mr-2 mt-0.5 flex-shrink-0" />
                                         <span>{message}</span>
                                     </div>
                                 )}
 
-                        <div className="space-y-1">
-                            <label className="text-xs text-gray-500 uppercase tracking-wider ml-1">
+                        <div className="space-y-0.5 sm:space-y-1">
+                            <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">
                                 {isFreeFire ? "IGL Name" : (isTeamEvent ? "Leader Name" : "Full Name")}
                             </label>
                             <input
@@ -195,14 +206,14 @@ const RegistrationModal = ({ event, onClose }) => {
                                 required
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                 placeholder={isFreeFire ? "Enter IGL Name" : (isTeamEvent ? "Enter Leader Name" : "Enter your full name")}
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                                <label className="text-xs text-gray-500 uppercase tracking-wider ml-1">
+                        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                            <div className="space-y-0.5 sm:space-y-1">
+                                <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">
                                     {isFreeFire ? "IGL Email" : (isTeamEvent ? "Leader Email" : "Email")}
                                 </label>
                                 <input
@@ -211,12 +222,12 @@ const RegistrationModal = ({ event, onClose }) => {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                    className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                     placeholder="your@email.com"
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-gray-500 uppercase tracking-wider ml-1">
+                            <div className="space-y-0.5 sm:space-y-1">
+                                <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">
                                     {isFreeFire ? "IGL Phone" : (isTeamEvent ? "Leader Phone" : "Phone")}
                                 </label>
                                 <input
@@ -229,34 +240,34 @@ const RegistrationModal = ({ event, onClose }) => {
                                     maxLength="10"
                                     minLength="10"
                                     title="Please enter exactly 10 digits"
-                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                    className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                     placeholder="10-digit number"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="space-y-1">
-                                <label className="text-xs text-gray-500 uppercase tracking-wider ml-1">Class</label>
+                        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                            <div className="space-y-0.5 sm:space-y-1">
+                                <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">Class</label>
                                 <input
                                     type="text"
                                     name="class"
                                     required
                                     value={formData.class}
                                     onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                    className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                     placeholder="e.g. SYBSCIT"
                                 />
                             </div>
-                            <div className="space-y-1">
-                                <label className="text-xs text-gray-500 uppercase tracking-wider ml-1">College</label>
+                            <div className="space-y-0.5 sm:space-y-1">
+                                <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">College</label>
                                 <input
                                     type="text"
                                     name="college"
                                     required
                                     value={formData.college}
                                     onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                    className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                     placeholder="College Name"
                                 />
                             </div>
@@ -265,20 +276,20 @@ const RegistrationModal = ({ event, onClose }) => {
                         {/* Team Specific Fields */}
                         {isTeamEvent && (
                             <>
-                                <div className="space-y-1">
-                                    <label className="text-xs text-gray-500 uppercase tracking-wider ml-1">Team Name</label>
+                                <div className="space-y-0.5 sm:space-y-1">
+                                    <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">Team Name</label>
                                     <input
                                         type="text"
                                         name="team_name"
                                         required
                                         value={formData.team_name}
                                         onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                        className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                         placeholder="Enter Team Name"
                                     />
                                 </div>
-                                <div className="space-y-3 pt-2">
-                                    <span className="text-sm font-semibold text-white">
+                                <div className="space-y-2 sm:space-y-2.5 md:space-y-3 pt-1 sm:pt-1.5 md:pt-2">
+                                    <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-white">
                                         {isFreeFire ? "Squad Members" : "Team Members"}
                                     </span>
                                     <input
@@ -287,7 +298,7 @@ const RegistrationModal = ({ event, onClose }) => {
                                         required
                                         value={formData.player2_name}
                                         onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                        className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                         placeholder={isFreeFire ? "Player 2 Name" : "Member 2 Name"}
                                     />
                                     <input
@@ -296,7 +307,7 @@ const RegistrationModal = ({ event, onClose }) => {
                                         required
                                         value={formData.player3_name}
                                         onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                        className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                         placeholder={isFreeFire ? "Player 3 Name" : "Member 3 Name"}
                                     />
                                     <input
@@ -305,7 +316,7 @@ const RegistrationModal = ({ event, onClose }) => {
                                         required={isFreeFire ? true : false}
                                         value={formData.player4_name}
                                         onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded-lg px-4 py-3 text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                        className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                         placeholder={isFreeFire ? "Player 4 Name" : "Member 4 Name (Optional)"}
                                     />
                                 </div>
@@ -315,7 +326,7 @@ const RegistrationModal = ({ event, onClose }) => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full mt-4 py-3 bg-gradient-to-r from-neon-purple to-cyber-blue text-white font-bold font-orbitron tracking-wider rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
+                                    className="w-full mt-3 sm:mt-4 py-2 sm:py-2.5 md:py-3 bg-gradient-to-r from-neon-purple to-cyber-blue text-white font-bold font-orbitron tracking-wider rounded-lg sm:rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm md:text-base"
                                 >
                                     {loading ? 'REGISTERING...' : 'CONFIRM REGISTRATION'}
                                 </button>
