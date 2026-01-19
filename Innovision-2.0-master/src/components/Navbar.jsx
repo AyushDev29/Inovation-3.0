@@ -28,8 +28,9 @@ const Navbar = () => {
         { name: 'Home', href: '/', id: '01', isRoute: true },
         { name: 'Events', href: '#events', id: '02', isRoute: false },
         { name: 'Schedule', href: '/schedule', id: '03', isRoute: true },
-        { name: 'About', href: '#about', id: '04', isRoute: false },
-        { name: 'Contact', href: '#contact', id: '05', isRoute: false },
+        { name: 'Sponsors', href: '/sponsors', id: '04', isRoute: true },
+        { name: 'About', href: '#about', id: '05', isRoute: false },
+        { name: 'Contact', href: '#contact', id: '06', isRoute: false },
     ];
 
     return (

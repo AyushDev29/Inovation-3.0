@@ -131,6 +131,9 @@ const Hero = () => {
                     <p className="mt-4 text-cyber-blue/80 tracking-[0.5em] text-sm uppercase group-hover:text-white group-active:text-white transition-colors">
                         Organized by IT Dept
                     </p>
+                    <p className="mt-2 text-gray-400/70 tracking-[0.3em] text-xs uppercase group-hover:text-gray-300 group-active:text-gray-300 transition-colors">
+                        KV Pendharkar College of Arts, Science & Commerce
+                    </p>
                 </div>
 
                 {/* Data Grid */}

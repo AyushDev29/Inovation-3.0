@@ -55,7 +55,7 @@ const eventsData = [
         description: "Traditional attire ramp walk competition",
         date: "Day 1 (5 Feb), 11:00 AM – 1:00 PM",
         venue: "Auditorium",
-        teamSize: "Individual",
+        teamSize: "4 Members",
         prize: "TBA",
         image: "/images/ui_ux.png",
         color: "from-purple-500 to-pink-600",

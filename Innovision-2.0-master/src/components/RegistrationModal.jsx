@@ -8,7 +8,8 @@ const RegistrationModal = ({ event, onClose }) => {
     const isFreeFire = event.title.includes("Free Fire");
     const isHackathon = event.title.includes("Hackathon");
     const isFunFusion = event.title.includes("Fun Fusion");
-    const isTeamEvent = isBGMI || isFreeFire || isHackathon || isFunFusion;
+    const isRampWalk = event.title.includes("Ramp Walk");
+    const isTeamEvent = isBGMI || isFreeFire || isHackathon || isFunFusion || isRampWalk;
 
     const [formData, setFormData] = useState({
         name: '',
@@ -313,11 +314,11 @@ const RegistrationModal = ({ event, onClose }) => {
                                     <input
                                         type="text"
                                         name="player4_name"
-                                        required={isFreeFire ? true : false}
+                                        required={isFreeFire || isBGMI || isRampWalk ? true : false}
                                         value={formData.player4_name}
                                         onChange={handleChange}
                                         className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                        placeholder={isFreeFire ? "Player 4 Name" : "Member 4 Name (Optional)"}
+                                        placeholder={isFreeFire ? "Player 4 Name" : (isBGMI || isRampWalk) ? "Member 4 Name" : "Member 4 Name (Optional)"}
                                     />
                                 </div>
                             </>

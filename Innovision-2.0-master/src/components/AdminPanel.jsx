@@ -95,32 +95,33 @@ const AdminPanel = () => {
             const isTeamEvent = reg.events?.event_name?.includes("BGMI") || 
                                reg.events?.event_name?.includes("Free Fire") || 
                                reg.events?.event_name?.includes("Hackathon") ||
-                               reg.events?.event_name?.includes("Fun Fusion");
+                               reg.events?.event_name?.includes("Fun Fusion") ||
+                               reg.events?.event_name?.includes("Ramp Walk");
 
             if (isTeamEvent) {
                 return {
                     "Team Name": reg.team_name || '-',
-                    "Email": reg.email,
-                    "Phone": reg.phone,
-                    "Class": reg.class || '-',
-                    "College": reg.college || '-',
-                    "Leader / IGL": reg.name,
+                    "Leader/IGL Name": reg.name || '-',
+                    "Leader Email": reg.email || '-',
+                    "Leader Phone": reg.phone || '-',
+                    "Leader Class": reg.class || '-',
+                    "Leader College": reg.college || '-',
                     "Member 2": reg.player2_name || '-',
                     "Member 3": reg.player3_name || '-',
                     "Member 4": reg.player4_name || '-',
-                    "Event": reg.events?.event_name,
-                    "Registration Date": new Date(reg.created_at).toLocaleString()
+                    "Event": reg.events?.event_name || '-',
+                    "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
                 };
             }
 
             return {
-                "Name": reg.name,
-                "Email": reg.email,
-                "Phone": reg.phone,
+                "Name": reg.name || '-',
+                "Email": reg.email || '-',
+                "Phone": reg.phone || '-',
                 "Class": reg.class || '-',
                 "College": reg.college || '-',
-                "Event": reg.events?.event_name,
-                "Registration Date": new Date(reg.created_at).toLocaleString()
+                "Event": reg.events?.event_name || '-',
+                "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
             };
         });
 
@@ -259,7 +260,8 @@ const AdminPanel = () => {
                                         const isTeamEvent = reg.events?.event_name?.includes("BGMI") || 
                                                            reg.events?.event_name?.includes("Free Fire") || 
                                                            reg.events?.event_name?.includes("Hackathon") ||
-                                                           reg.events?.event_name?.includes("Fun Fusion");
+                                                           reg.events?.event_name?.includes("Fun Fusion") ||
+                                                           reg.events?.event_name?.includes("Ramp Walk");
                                         const isExpanded = expandedRow === reg.id;
                                         
                                         return (

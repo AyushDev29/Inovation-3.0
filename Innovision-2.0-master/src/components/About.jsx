@@ -112,7 +112,7 @@ const About = () => {
                                 <span className="p-3 bg-neon-purple/20 rounded-lg text-neon-purple"><Cpu size={24} /></span>
                             </div>
                             <p className="text-gray-400 leading-relaxed">
-                                Offering <strong className="text-white">B.Sc. IT</strong> and <strong className="text-white">M.Sc. Computer Science</strong>.
+                                Offering <strong className="text-white">B.Sc. IT</strong>.
                                 We prioritize practical learning with state-of-the-art computer labs, high-speed networks, and a curriculum focused on modern technologies like Python, Data Science, and Embedded Systems.
                             </p>
                         </div>
