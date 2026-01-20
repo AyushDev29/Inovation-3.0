@@ -3,6 +3,7 @@ import SmoothScroll from './SmoothScroll';
 import CustomCursor from './CustomCursor';
 import Navbar from './Navbar';
 import Hero from './Hero';
+import SponsorsIntro from './SponsorsIntro';
 import About from './About';
 import Events from './Events';
 import Contact from './Contact';
@@ -33,6 +34,7 @@ const LandingPage = () => {
                 <Navbar />
                 <main className="relative w-full overflow-hidden bg-void-black text-white selection:bg-neon-purple selection:text-white">
                     <Hero />
+                    <SponsorsIntro />
                     <Events />
                     <About />
                     <Contact />

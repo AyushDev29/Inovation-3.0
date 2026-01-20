@@ -124,16 +124,23 @@ const Hero = () => {
 
                 {/* Main Title */}
                 <div className="mb-8 md:mb-12 group cursor-default">
-                    <h1 ref={titleRef} className="hero-title text-6xl md:text-9xl font-orbitron font-black text-white relative inline-block transition-all duration-300 group-hover:drop-shadow-[0_0_25px_rgba(6,182,212,0.6)] group-active:drop-shadow-[0_0_25px_rgba(6,182,212,0.6)]">
-                        INNOVISION
-                        <span className="hero-subtitle text-cyber-blue absolute -top-4 -right-8 md:-top-6 md:-right-16 text-3xl md:text-5xl group-hover:text-neon-purple group-active:text-neon-purple group-hover:rotate-12 group-active:rotate-12 group-hover:scale-110 group-active:scale-110 transition-all duration-300 origin-bottom-left">3.0</span>
-                    </h1>
-                    <p className="mt-4 text-cyber-blue/80 tracking-[0.5em] text-sm uppercase group-hover:text-white group-active:text-white transition-colors">
-                        Organized by IT Dept
-                    </p>
-                    <p className="mt-2 text-gray-400/70 tracking-[0.3em] text-xs uppercase group-hover:text-gray-300 group-active:text-gray-300 transition-colors">
-                        KV Pendharkar College of Arts, Science & Commerce
-                    </p>
+                    {/* College Name & Department - Top */}
+                    <div className="mb-4 md:mb-6">
+                        <h2 className="text-sm sm:text-base md:text-xl font-orbitron font-bold text-white tracking-[0.1em] sm:tracking-[0.15em] uppercase group-hover:text-cyber-blue group-active:text-cyber-blue transition-all duration-300 leading-tight">
+                            KV Pendharkar College of Arts, Science & Commerce (Autonomous)
+                        </h2>
+                        <p className="mt-1 md:mt-2 text-neon-purple tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm md:text-base font-semibold uppercase group-hover:text-cyber-blue group-active:text-cyber-blue transition-colors leading-tight">
+                            Organised by the Department of Information Technology
+                        </p>
+                    </div>
+
+                    {/* INNOVISION Title - Below */}
+                    <div className="text-center">
+                        <h1 ref={titleRef} className="hero-title text-6xl sm:text-7xl md:text-9xl font-orbitron font-black text-white relative inline-block transition-all duration-300 group-hover:drop-shadow-[0_0_25px_rgba(6,182,212,0.6)] group-active:drop-shadow-[0_0_25px_rgba(6,182,212,0.6)] leading-tight">
+                            INNOVISION
+                            <span className="hero-subtitle text-cyber-blue absolute -top-2 -right-2 sm:-top-3 sm:-right-4 md:-top-6 md:-right-16 text-xl sm:text-2xl md:text-5xl group-hover:text-neon-purple group-active:text-neon-purple group-hover:rotate-12 group-active:rotate-12 group-hover:scale-110 group-active:scale-110 transition-all duration-300 origin-bottom-left">3.0</span>
+                        </h1>
+                    </div>
                 </div>
 
                 {/* Data Grid */}
@@ -141,7 +148,7 @@ const Hero = () => {
                     <HUDBox
                         title="EVENT DATES"
                         value="5 - 7 FEB"
-                        subtext="Tech Fest 2025"
+                        subtext="Tech Fest 2026"
                         delay="200"
                     />
                     <HUDBox

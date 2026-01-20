@@ -1,9 +1,10 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Calendar, MapPin, Users, Trophy } from 'lucide-react';
+import { X, Calendar, MapPin, Users, Trophy, FileText } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import RegistrationModal from './RegistrationModal';
+import RulesModal from './RulesModal';
 import { useScrollHover } from '../hooks/useScrollHover';
 
 gsap.registerPlugin(ScrollTrigger);
@@ -185,7 +186,7 @@ const EventCardRight = ({ event, onClick }) => {
     );
 };
 
-const EventModal = ({ event, onClose, onRegister }) => {
+const EventModal = ({ event, onClose, onRegister, onViewRules }) => {
     if (!event) return null;
 
     return (
@@ -245,12 +246,21 @@ const EventModal = ({ event, onClose, onRegister }) => {
                         </div>
                     </div>
 
-                    <button
-                        onClick={() => onRegister(event)}
-                        className="block w-full py-3 sm:py-4 bg-gradient-to-r from-neon-purple to-cyber-blue text-white text-center font-bold font-orbitron tracking-wider rounded-xl hover:opacity-90 transition-opacity text-sm sm:text-base"
-                    >
-                        REGISTER NOW
-                    </button>
+                    <div className="space-y-3">
+                        <button
+                            onClick={() => onViewRules(event.id)}
+                            className="block w-full py-3 sm:py-4 bg-gradient-to-r from-gray-700 to-gray-600 hover:from-gray-600 hover:to-gray-500 text-white text-center font-bold font-orbitron tracking-wider rounded-xl transition-all text-sm sm:text-base flex items-center justify-center gap-2"
+                        >
+                            <FileText size={18} />
+                            VIEW RULES
+                        </button>
+                        <button
+                            onClick={() => onRegister(event)}
+                            className="block w-full py-3 sm:py-4 bg-gradient-to-r from-neon-purple to-cyber-blue text-white text-center font-bold font-orbitron tracking-wider rounded-xl hover:opacity-90 transition-opacity text-sm sm:text-base"
+                        >
+                            REGISTER NOW
+                        </button>
+                    </div>
                 </div>
             </motion.div>
         </motion.div>
@@ -260,6 +270,7 @@ const EventModal = ({ event, onClose, onRegister }) => {
 const Events = () => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [registeringEvent, setRegisteringEvent] = useState(null);
+    const [rulesEventId, setRulesEventId] = useState(null);
     const containerRef = useRef(null);
 
     // Auto-trigger hover effects on mobile when scrolling
@@ -357,12 +368,21 @@ const Events = () => {
                             setSelectedEvent(null);
                             setRegisteringEvent(event);
                         }}
+                        onViewRules={(eventId) => {
+                            setRulesEventId(eventId);
+                        }}
                     />
                 )}
                 {registeringEvent && (
                     <RegistrationModal
                         event={registeringEvent}
                         onClose={() => setRegisteringEvent(null)}
+                    />
+                )}
+                {rulesEventId && (
+                    <RulesModal
+                        eventId={rulesEventId}
+                        onClose={() => setRulesEventId(null)}
                     />
                 )}
             </AnimatePresence>
