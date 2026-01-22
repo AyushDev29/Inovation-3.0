@@ -27,7 +27,7 @@ Database changes required:
 
 echo.
 echo 3. Pushing to remote repository...
-git push origin main
+git push origin master
 
 echo.
 echo 4. Building project for deployment...
