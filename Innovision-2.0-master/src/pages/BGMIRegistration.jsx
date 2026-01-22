@@ -114,11 +114,27 @@ const BGMIRegistration = () => {
     const handlePaymentScreenshot = (e) => {
         const file = e.target.files[0];
         if (file) {
+            // Clear previous errors
+            setPaymentErrors(prev => ({
+                ...prev,
+                screenshot: null
+            }));
+            
             // Validate file type (images only)
             if (!file.type.startsWith('image/')) {
                 setPaymentErrors(prev => ({
                     ...prev,
-                    screenshot: 'Please upload only image files (JPG, PNG)'
+                    screenshot: 'Please upload only image files (JPG, PNG, JPEG)'
+                }));
+                return;
+            }
+            
+            // Validate specific image types
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
+            if (!allowedTypes.includes(file.type.toLowerCase())) {
+                setPaymentErrors(prev => ({
+                    ...prev,
+                    screenshot: 'Please upload only JPG, JPEG, or PNG images'
                 }));
                 return;
             }
@@ -132,14 +148,34 @@ const BGMIRegistration = () => {
                 return;
             }
             
+            // Validate minimum file size (prevent empty files)
+            if (file.size < 1024) { // 1KB minimum
+                setPaymentErrors(prev => ({
+                    ...prev,
+                    screenshot: 'File appears to be corrupted or too small'
+                }));
+                return;
+            }
+            
+            // Additional validation for mobile devices
+            if (file.name.length > 100) {
+                setPaymentErrors(prev => ({
+                    ...prev,
+                    screenshot: 'File name is too long. Please rename the file.'
+                }));
+                return;
+            }
+            
             setPaymentData(prev => ({
                 ...prev,
                 screenshot: file
             }));
-            setPaymentErrors(prev => ({
-                ...prev,
-                screenshot: null
-            }));
+            
+            console.log('Payment screenshot selected:', {
+                name: file.name,
+                size: file.size,
+                type: file.type
+            });
         }
     };
 
@@ -169,11 +205,18 @@ const BGMIRegistration = () => {
             const fileExt = file.name.split('.').pop();
             const fileName = `bgmi/${Date.now()}-${formData.email.replace('@', '-')}.${fileExt}`;
             
+            console.log('Uploading payment screenshot:', fileName);
+            
             const { data, error } = await supabase.storage
                 .from('payment-screenshots')
                 .upload(fileName, file);
             
-            if (error) throw error;
+            if (error) {
+                console.error('Payment screenshot upload error:', error);
+                throw error;
+            }
+            
+            console.log('Payment screenshot uploaded successfully:', data.path);
             return data.path;
         } catch (error) {
             console.error('Payment screenshot upload error:', error);
@@ -709,7 +752,7 @@ const BGMIRegistration = () => {
                                         <div className="relative">
                                             <input
                                                 type="file"
-                                                accept="image/*"
+                                                accept="image/jpeg,image/jpg,image/png"
                                                 onChange={handlePaymentScreenshot}
                                                 className="hidden"
                                                 id="payment_screenshot"
@@ -717,14 +760,14 @@ const BGMIRegistration = () => {
                                             />
                                             <label
                                                 htmlFor="payment_screenshot"
-                                                className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs text-white hover:border-yellow-500 transition-all cursor-pointer flex items-center gap-1.5"
+                                                className={`w-full bg-black/40 border ${paymentErrors.screenshot ? 'border-red-500' : 'border-white/10'} rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs text-white hover:border-yellow-500 transition-all cursor-pointer flex items-center gap-1.5`}
                                             >
                                                 <Upload size={14} />
                                                 {paymentData.screenshot ? (
                                                     <span className="text-green-400 truncate">{paymentData.screenshot.name}</span>
                                                 ) : (
                                                     <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                                        Upload Payment Screenshot (JPG, PNG, max 5MB)
+                                                        📸 Upload Payment Screenshot (Camera/Gallery)
                                                     </span>
                                                 )}
                                             </label>
@@ -732,6 +775,9 @@ const BGMIRegistration = () => {
                                         {paymentErrors.screenshot && (
                                             <p className="text-red-400 text-[9px] sm:text-[10px] ml-1">{paymentErrors.screenshot}</p>
                                         )}
+                                        <p className="text-[8px] sm:text-[9px] text-gray-400 ml-1">
+                                            💡 Tip: Take a clear screenshot of your payment confirmation from your UPI app
+                                        </p>
                                     </div>
 
                                     {/* Transaction ID */}
