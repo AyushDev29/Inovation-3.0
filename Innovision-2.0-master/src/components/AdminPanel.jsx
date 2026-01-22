@@ -256,12 +256,10 @@ const AdminPanel = () => {
             const { data, error } = await supabase
                 .from('registrations')
                 .update({ 
-                    payment_status: newStatus,
-                    // Add timestamp to ensure we can track the update
-                    updated_at: new Date().toISOString()
+                    payment_status: newStatus
                 })
                 .eq('id', registrationId)
-                .select('id, payment_status, updated_at');
+                .select('id, payment_status');
 
             if (error) {
                 console.error('❌ Database update error:', error);
@@ -294,8 +292,7 @@ const AdminPanel = () => {
                     reg.id === registrationId 
                         ? { 
                             ...reg, 
-                            payment_status: updatedRecord.payment_status,
-                            updated_at: updatedRecord.updated_at
+                            payment_status: updatedRecord.payment_status
                         }
                         : reg
                 );
