@@ -365,15 +365,28 @@ const BGMIRegistration = () => {
                 payment_status: 'pending'
             };
 
+            console.log('💾 Saving registration with payload:', {
+                ...payload,
+                payment_screenshot_url: paymentScreenshotUrl ? 'uploaded' : 'missing',
+                payment_transaction_id: paymentData.transactionId ? 'provided' : 'missing'
+            });
+
             const { error: insertError } = await supabase
                 .from('registrations')
                 .insert([payload]);
 
             if (insertError) {
+                console.error('❌ Database insert error:', insertError);
+                
                 if (insertError.code === '23505') {
                     throw new Error("You/Team have already registered for this event with this email.");
+                } else if (insertError.code === '42703') {
+                    throw new Error("Database configuration error. Please contact support - missing payment fields.");
+                } else if (insertError.message?.includes('payment_status')) {
+                    throw new Error("Invalid payment status. Please try again.");
+                } else {
+                    throw new Error(`Registration failed: ${insertError.message}. Please contact support.`);
                 }
-                throw insertError;
             }
 
             setStatus('success');
