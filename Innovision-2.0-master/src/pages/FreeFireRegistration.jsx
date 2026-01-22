@@ -205,22 +205,46 @@ const FreeFireRegistration = () => {
             const fileExt = file.name.split('.').pop();
             const fileName = `freefire/${Date.now()}-${formData.email.replace('@', '-')}.${fileExt}`;
             
-            console.log('Uploading payment screenshot:', fileName);
+            console.log('🔄 Uploading payment screenshot:', {
+                fileName,
+                fileSize: file.size,
+                fileType: file.type,
+                environment: window.location.hostname
+            });
+            
+            // Check if we're authenticated
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+            console.log('🔐 Auth status:', user ? 'Authenticated' : 'Anonymous');
             
             const { data, error } = await supabase.storage
                 .from('payment-screenshots')
                 .upload(fileName, file);
             
             if (error) {
-                console.error('Payment screenshot upload error:', error);
+                console.error('❌ Payment screenshot upload error:', {
+                    error,
+                    code: error.code,
+                    message: error.message,
+                    details: error.details
+                });
                 throw error;
             }
             
-            console.log('Payment screenshot uploaded successfully:', data.path);
+            console.log('✅ Payment screenshot uploaded successfully:', data.path);
             return data.path;
         } catch (error) {
-            console.error('Payment screenshot upload error:', error);
-            throw new Error(`Failed to upload payment screenshot: ${error.message}`);
+            console.error('💥 Payment screenshot upload failed:', error);
+            
+            // Provide more specific error messages
+            if (error.message?.includes('not authenticated')) {
+                throw new Error('Authentication required. Please refresh the page and try again.');
+            } else if (error.message?.includes('bucket')) {
+                throw new Error('Storage service unavailable. Please try again in a moment.');
+            } else if (error.message?.includes('policy')) {
+                throw new Error('Upload permission denied. Please contact support.');
+            } else {
+                throw new Error(`Upload failed: ${error.message || 'Unknown error'}. Please try again.`);
+            }
         }
     };
 
@@ -728,9 +752,16 @@ const FreeFireRegistration = () => {
                                                     alt="Free Fire Payment QR Code"
                                                     className="w-40 h-40 sm:w-48 sm:h-48 object-contain"
                                                     onError={(e) => {
-                                                        console.log('QR image failed to load:', e.target.src);
-                                                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzM3NDE1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkZyZWUgRmlyZSBRUiBDb2RlPC90ZXh0Pjwvc3ZnPg==';
+                                                        console.error('Free Fire QR image failed to load:', e.target.src);
+                                                        // Try alternative path first
+                                                        if (e.target.src.includes('/scanners/')) {
+                                                            e.target.src = './scanners/freefire-scanner.jpeg';
+                                                        } else {
+                                                            // Fallback to placeholder
+                                                            e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzM3NDE1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkZyZWUgRmlyZSBRUiBDb2RlPC90ZXh0Pjwvc3ZnPg==';
+                                                        }
                                                     }}
+                                                    onLoad={() => console.log('Free Fire QR image loaded successfully')}
                                                 />
                                             </div>
                                             <div className="text-center">
