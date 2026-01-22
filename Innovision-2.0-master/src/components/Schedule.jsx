@@ -12,7 +12,7 @@ const scheduleData = {
         events: [
             {
                 id: 1,
-                name: "BGMI Tournament",
+                name: "BGMI Esports Tournament",
                 category: "E-Sports",
                 time: "9:00 AM - 12:00 PM",
                 venue: "College Campus",
@@ -21,7 +21,7 @@ const scheduleData = {
             },
             {
                 id: 2,
-                name: "Ramp Walk",
+                name: "Fashion Flex",
                 category: "Fun / Cultural",
                 time: "11:00 AM - 1:00 PM",
                 venue: "Auditorium",
@@ -35,7 +35,7 @@ const scheduleData = {
         events: [
             {
                 id: 3,
-                name: "BGMI Tournament",
+                name: "BGMI Esports Tournament",
                 category: "E-Sports",
                 time: "9:00 AM - 12:00 PM",
                 venue: "College Campus",
@@ -44,7 +44,7 @@ const scheduleData = {
             },
             {
                 id: 4,
-                name: "Blind Typing",
+                name: "Tech Triathlon",
                 category: "Technical / Fun",
                 time: "11:00 AM - 12:00 PM",
                 venue: "Computer Lab",
@@ -67,7 +67,7 @@ const scheduleData = {
         events: [
             {
                 id: 6,
-                name: "Free Fire Tournament",
+                name: "Free Fire Esports Tournament",
                 category: "E-Sports",
                 time: "9:00 AM - 11:00 AM",
                 venue: "College Campus",
@@ -76,11 +76,11 @@ const scheduleData = {
             },
             {
                 id: 7,
-                name: "Hackathon",
+                name: "Hackastra",
                 category: "Technical",
                 time: "11:00 AM - 2:00 PM",
                 venue: "Seminar Hall",
-                teamSize: "2-4 Members",
+                teamSize: "2-3 Members",
                 color: "from-green-500 to-emerald-600"
             }
         ]

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Download, Search, Filter, LogOut, ChevronDown, ChevronUp, Users } from 'lucide-react';
+import { Download, Search, Filter, LogOut, ChevronDown, ChevronUp, Users, FileText, Eye, X } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const AdminPanel = () => {
@@ -17,6 +17,9 @@ const AdminPanel = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [fetchError, setFetchError] = useState(null);
     const [expandedRow, setExpandedRow] = useState(null);
+    const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
+    const [currentPdfUrl, setCurrentPdfUrl] = useState(null);
+    const [pdfLoading, setPdfLoading] = useState(false);
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -94,9 +97,9 @@ const AdminPanel = () => {
             // Check if it's a team event
             const isTeamEvent = reg.events?.event_name?.includes("BGMI") || 
                                reg.events?.event_name?.includes("Free Fire") || 
-                               reg.events?.event_name?.includes("Hackathon") ||
+                               reg.events?.event_name?.includes("Hackastra") ||
                                reg.events?.event_name?.includes("Fun Fusion") ||
-                               reg.events?.event_name?.includes("Ramp Walk");
+                               reg.events?.event_name?.includes("Fashion Flex");
 
             if (isTeamEvent) {
                 return {
@@ -106,9 +109,17 @@ const AdminPanel = () => {
                     "Leader Phone": reg.phone || '-',
                     "Leader Class": reg.class || '-',
                     "Leader College": reg.college || '-',
-                    "Member 2": reg.player2_name || '-',
-                    "Member 3": reg.player3_name || '-',
-                    "Member 4": reg.player4_name || '-',
+                    "Leader Roll No": reg.roll_no || '-',
+                    "Team College IDs": reg.college_id_url ? 'Uploaded' : 'Not Uploaded',
+                    "Member 2 Name": reg.player2_name || '-',
+                    "Member 2 Roll No": reg.player2_roll_no || '-',
+                    "Member 2 College": reg.player2_college || '-',
+                    "Member 3 Name": reg.player3_name || '-',
+                    "Member 3 Roll No": reg.player3_roll_no || '-',
+                    "Member 3 College": reg.player3_college || '-',
+                    "Member 4 Name": reg.player4_name || '-',
+                    "Member 4 Roll No": reg.player4_roll_no || '-',
+                    "Member 4 College": reg.player4_college || '-',
                     "Event": reg.events?.event_name || '-',
                     "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
                 };
@@ -120,6 +131,8 @@ const AdminPanel = () => {
                 "Phone": reg.phone || '-',
                 "Class": reg.class || '-',
                 "College": reg.college || '-',
+                "Roll No": reg.roll_no || '-',
+                "College ID": reg.college_id_url ? 'Uploaded' : 'Not Uploaded',
                 "Event": reg.events?.event_name || '-',
                 "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
             };
@@ -130,6 +143,40 @@ const AdminPanel = () => {
         XLSX.utils.book_append_sheet(wb, ws, "Registrations");
         const fileName = selectedEvent !== 'all' ? `${selectedEvent}_Registrations.xlsx` : 'All_Registrations.xlsx';
         XLSX.writeFile(wb, fileName);
+    };
+
+    const viewPdf = async (filePath, memberName) => {
+        if (!filePath) {
+            alert('No PDF uploaded for this member');
+            return;
+        }
+
+        setPdfLoading(true);
+        try {
+            // Generate signed URL for private file access
+            const { data, error } = await supabase.storage
+                .from('college-ids')
+                .createSignedUrl(filePath, 3600); // 1 hour expiry
+
+            if (error) {
+                console.error('Error generating signed URL:', error);
+                alert('Error accessing PDF file');
+                return;
+            }
+
+            setCurrentPdfUrl(data.signedUrl);
+            setPdfViewerOpen(true);
+        } catch (error) {
+            console.error('Error viewing PDF:', error);
+            alert('Error viewing PDF file');
+        } finally {
+            setPdfLoading(false);
+        }
+    };
+
+    const closePdfViewer = () => {
+        setPdfViewerOpen(false);
+        setCurrentPdfUrl(null);
     };
 
     if (loading) return <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">Loading...</div>;
@@ -232,12 +279,41 @@ const AdminPanel = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
                     <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-white/10 rounded-xl p-6">
                         <h3 className="text-gray-400 text-sm font-medium mb-1">Total Registrations</h3>
                         <p className="text-3xl font-bold text-white">{filteredRegistrations.length}</p>
                     </div>
-                    {/* Add more stats if needed */}
+                    <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-white/10 rounded-xl p-6">
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">PDFs Uploaded</h3>
+                        <p className="text-3xl font-bold text-white">
+                            {filteredRegistrations.filter(reg => reg.college_id_url).length}
+                        </p>
+                    </div>
+                    <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-white/10 rounded-xl p-6">
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">Team Events</h3>
+                        <p className="text-3xl font-bold text-white">
+                            {filteredRegistrations.filter(reg => 
+                                reg.events?.event_name?.includes("BGMI") || 
+                                reg.events?.event_name?.includes("Free Fire") || 
+                                reg.events?.event_name?.includes("Hackastra") ||
+                                reg.events?.event_name?.includes("Fun Fusion") ||
+                                reg.events?.event_name?.includes("Fashion Flex")
+                            ).length}
+                        </p>
+                    </div>
+                    <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-white/10 rounded-xl p-6">
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">Individual Events</h3>
+                        <p className="text-3xl font-bold text-white">
+                            {filteredRegistrations.filter(reg => 
+                                !reg.events?.event_name?.includes("BGMI") && 
+                                !reg.events?.event_name?.includes("Free Fire") && 
+                                !reg.events?.event_name?.includes("Hackastra") &&
+                                !reg.events?.event_name?.includes("Fun Fusion") &&
+                                !reg.events?.event_name?.includes("Fashion Flex")
+                            ).length}
+                        </p>
+                    </div>
                 </div>
 
                 {/* Table */}
@@ -259,9 +335,9 @@ const AdminPanel = () => {
                                     filteredRegistrations.map((reg) => {
                                         const isTeamEvent = reg.events?.event_name?.includes("BGMI") || 
                                                            reg.events?.event_name?.includes("Free Fire") || 
-                                                           reg.events?.event_name?.includes("Hackathon") ||
+                                                           reg.events?.event_name?.includes("Hackastra") ||
                                                            reg.events?.event_name?.includes("Fun Fusion") ||
-                                                           reg.events?.event_name?.includes("Ramp Walk");
+                                                           reg.events?.event_name?.includes("Fashion Flex");
                                         const isExpanded = expandedRow === reg.id;
                                         
                                         return (
@@ -270,6 +346,40 @@ const AdminPanel = () => {
                                                     <td className="px-6 py-4">
                                                         <div className="font-semibold text-white">{reg.name}</div>
                                                         {isTeamEvent && <div className="text-xs text-gray-500 mt-1">Leader/IGL</div>}
+                                                        {!isTeamEvent && (
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                <div className={`text-xs ${reg.college_id_url ? 'text-green-400' : 'text-red-400'}`}>
+                                                                    ID: {reg.college_id_url ? '✓' : '✗'}
+                                                                </div>
+                                                                {reg.college_id_url && (
+                                                                    <button
+                                                                        onClick={() => viewPdf(reg.college_id_url, reg.name)}
+                                                                        disabled={pdfLoading}
+                                                                        className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs transition-colors disabled:opacity-50"
+                                                                    >
+                                                                        <Eye size={10} />
+                                                                        View
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        )}
+                                                        {isTeamEvent && (
+                                                            <div className="flex items-center gap-2 mt-1">
+                                                                <div className={`text-xs ${reg.college_id_url ? 'text-green-400' : 'text-red-400'}`}>
+                                                                    Team IDs: {reg.college_id_url ? '✓' : '✗'}
+                                                                </div>
+                                                                {reg.college_id_url && (
+                                                                    <button
+                                                                        onClick={() => viewPdf(reg.college_id_url, `${reg.team_name} Team`)}
+                                                                        disabled={pdfLoading}
+                                                                        className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs transition-colors disabled:opacity-50"
+                                                                    >
+                                                                        <Eye size={10} />
+                                                                        View
+                                                                    </button>
+                                                                )}
+                                                            </div>
+                                                        )}
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <div className="text-white">{reg.email}</div>
@@ -312,33 +422,57 @@ const AdminPanel = () => {
                                                     <tr className="bg-white/5">
                                                         <td colSpan="6" className="px-6 py-4">
                                                             <div className="bg-black/20 rounded-lg p-4 border border-white/10">
-                                                                <h4 className="text-white font-semibold mb-3 flex items-center gap-2">
-                                                                    <Users size={16} className="text-cyan-400" />
-                                                                    Team Members
-                                                                </h4>
+                                                                <div className="flex items-center justify-between mb-4">
+                                                                    <h4 className="text-white font-semibold flex items-center gap-2">
+                                                                        <Users size={16} className="text-cyan-400" />
+                                                                        Team Members
+                                                                    </h4>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <div className={`text-sm ${reg.college_id_url ? 'text-green-400' : 'text-red-400'}`}>
+                                                                            Team College IDs: {reg.college_id_url ? '✓ Uploaded' : '✗ Not Uploaded'}
+                                                                        </div>
+                                                                        {reg.college_id_url && (
+                                                                            <button
+                                                                                onClick={() => viewPdf(reg.college_id_url, `${reg.team_name} Team`)}
+                                                                                disabled={pdfLoading}
+                                                                                className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-sm transition-colors disabled:opacity-50"
+                                                                            >
+                                                                                <Eye size={14} />
+                                                                                View Team PDFs
+                                                                            </button>
+                                                                        )}
+                                                                    </div>
+                                                                </div>
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                     <div className="bg-white/5 rounded-lg p-3">
                                                                         <div className="text-xs text-gray-500 mb-1">Leader / IGL</div>
                                                                         <div className="text-white font-medium">{reg.name}</div>
                                                                         <div className="text-gray-400 text-sm mt-1">{reg.email}</div>
                                                                         <div className="text-gray-400 text-sm">{reg.phone}</div>
+                                                                        <div className="text-gray-400 text-sm">Roll: {reg.roll_no || 'N/A'}</div>
                                                                     </div>
                                                                     {reg.player2_name && (
                                                                         <div className="bg-white/5 rounded-lg p-3">
                                                                             <div className="text-xs text-gray-500 mb-1">Member 2</div>
                                                                             <div className="text-white font-medium">{reg.player2_name}</div>
+                                                                            <div className="text-gray-400 text-sm">Roll: {reg.player2_roll_no || 'N/A'}</div>
+                                                                            <div className="text-gray-400 text-sm">College: {reg.player2_college || 'N/A'}</div>
                                                                         </div>
                                                                     )}
                                                                     {reg.player3_name && (
                                                                         <div className="bg-white/5 rounded-lg p-3">
                                                                             <div className="text-xs text-gray-500 mb-1">Member 3</div>
                                                                             <div className="text-white font-medium">{reg.player3_name}</div>
+                                                                            <div className="text-gray-400 text-sm">Roll: {reg.player3_roll_no || 'N/A'}</div>
+                                                                            <div className="text-gray-400 text-sm">College: {reg.player3_college || 'N/A'}</div>
                                                                         </div>
                                                                     )}
                                                                     {reg.player4_name && (
                                                                         <div className="bg-white/5 rounded-lg p-3">
                                                                             <div className="text-xs text-gray-500 mb-1">Member 4</div>
                                                                             <div className="text-white font-medium">{reg.player4_name}</div>
+                                                                            <div className="text-gray-400 text-sm">Roll: {reg.player4_roll_no || 'N/A'}</div>
+                                                                            <div className="text-gray-400 text-sm">College: {reg.player4_college || 'N/A'}</div>
                                                                         </div>
                                                                     )}
                                                                 </div>
@@ -365,6 +499,43 @@ const AdminPanel = () => {
                     </div>
                 </div>
             </div>
+
+            {/* PDF Viewer Modal */}
+            {pdfViewerOpen && currentPdfUrl && (
+                <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="relative w-full h-full max-w-6xl max-h-[90vh] bg-white rounded-lg overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 bg-gray-900 text-white p-4 flex items-center justify-between z-10">
+                            <div className="flex items-center gap-2">
+                                <FileText size={20} />
+                                <span className="font-medium">College ID Document</span>
+                            </div>
+                            <button
+                                onClick={closePdfViewer}
+                                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="pt-16 h-full">
+                            <iframe
+                                src={currentPdfUrl}
+                                className="w-full h-full border-none"
+                                title="College ID PDF"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading overlay for PDF operations */}
+            {pdfLoading && (
+                <div className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                    <div className="bg-white/10 border border-white/20 rounded-lg p-6 text-white text-center">
+                        <div className="animate-spin w-8 h-8 border-2 border-white/30 border-t-white rounded-full mx-auto mb-3"></div>
+                        <p>Loading PDF...</p>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

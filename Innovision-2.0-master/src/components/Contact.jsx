@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Mail, MapPin, Phone, User, Github, Linkedin, Instagram } from 'lucide-react';
+import { Mail, MapPin, Phone, User, Instagram } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -90,7 +90,7 @@ const Contact = () => {
                                         <User className="text-cyber-blue" size={28} />
                                     </div>
                                     <div>
-                                        <h4 className="text-white font-bold text-2xl font-orbitron">YASH</h4>
+                                        <h4 className="text-white font-bold text-2xl font-orbitron">YASH RAJBHAR</h4>
                                         <p className="text-cyber-blue text-sm uppercase tracking-wider">Event Coordinator</p>
                                     </div>
                                 </div>
@@ -99,13 +99,13 @@ const Contact = () => {
                                     <div className="flex items-center gap-3 group/item">
                                         <Phone className="text-gray-400 group-hover/item:text-green-500 transition-colors" size={18} />
                                         <span className="text-gray-300 group-hover/item:text-white transition-colors">
-                                            [Contact Number - To be added]
+                                            +91 90297 03989
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-3 group/item">
                                         <Mail className="text-gray-400 group-hover/item:text-cyber-blue transition-colors" size={18} />
                                         <span className="text-gray-300 group-hover/item:text-white transition-colors">
-                                            innovit2026@gmail.com
+                                            innovision.it.dept@gmail.com
                                         </span>
                                     </div>
                                 </div>
@@ -122,7 +122,7 @@ const Contact = () => {
                                         <User className="text-neon-purple" size={28} />
                                     </div>
                                     <div>
-                                        <h4 className="text-white font-bold text-2xl font-orbitron">MINOLI</h4>
+                                        <h4 className="text-white font-bold text-2xl font-orbitron">MINOLI MADHYAN</h4>
                                         <p className="text-neon-purple text-sm uppercase tracking-wider">Event Coordinator</p>
                                     </div>
                                 </div>
@@ -131,13 +131,13 @@ const Contact = () => {
                                     <div className="flex items-center gap-3 group/item">
                                         <Phone className="text-gray-400 group-hover/item:text-green-500 transition-colors" size={18} />
                                         <span className="text-gray-300 group-hover/item:text-white transition-colors">
-                                            [Contact Number - To be added]
+                                            +91 75063 03940
                                         </span>
                                     </div>
                                     <div className="flex items-center gap-3 group/item">
                                         <Mail className="text-gray-400 group-hover/item:text-neon-purple transition-colors" size={18} />
                                         <span className="text-gray-300 group-hover/item:text-white transition-colors">
-                                            innovit2026@gmail.com
+                                            innovision.it.dept@gmail.com
                                         </span>
                                     </div>
                                 </div>
@@ -171,7 +171,7 @@ const Contact = () => {
                                 <div>
                                     <h4 className="text-white font-bold text-lg mb-1 font-orbitron">Comms Channel</h4>
                                     <p className="text-gray-400 text-sm">
-                                        innovit2026@gmail.com
+                                        innovision.it.dept@gmail.com
                                     </p>
                                 </div>
                             </div>
@@ -181,22 +181,28 @@ const Contact = () => {
                                     <Phone className="text-gray-400 group-hover:text-green-500 transition-colors" size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="text-white font-bold text-lg mb-1 font-orbitron">Emergency Line</h4>
+                                    <h4 className="text-white font-bold text-lg mb-1 font-orbitron">Faculty Contact</h4>
                                     <p className="text-gray-400 text-sm">
-                                        +91 98765 43210 (Student Rep)<br />
-                                        +91 0251 123456 (College Admin)
+                                        +91 90281 05269 (Rupali Patil Mam)
                                     </p>
                                 </div>
                             </div>
-                        </div>
 
-                        {/* Social Links */}
-                        <div className="pt-8 border-t border-white/10">
-                            <h5 className="text-white/60 text-sm font-bold mb-4 uppercase tracking-widest">Connect With Us</h5>
-                            <div className="flex gap-4">
-                                <a href="#" className="p-3 bg-white/5 rounded-lg hover:bg-white/10 hover:text-cyber-blue transition-all border border-white/5 hover:border-cyber-blue/30"><Github size={20} /></a>
-                                <a href="#" className="p-3 bg-white/5 rounded-lg hover:bg-white/10 hover:text-blue-500 transition-all border border-white/5 hover:border-blue-500/30"><Linkedin size={20} /></a>
-                                <a href="#" className="p-3 bg-white/5 rounded-lg hover:bg-white/10 hover:text-pink-500 transition-all border border-white/5 hover:border-pink-500/30"><Instagram size={20} /></a>
+                            <div className="flex items-start gap-4 group">
+                                <div className="p-4 bg-white/5 rounded-full border border-white/10 group-hover:border-pink-500/50 group-hover:bg-pink-500/10 transition-all duration-300">
+                                    <Instagram className="text-gray-400 group-hover:text-pink-500 transition-colors" size={24} />
+                                </div>
+                                <div>
+                                    <h4 className="text-white font-bold text-lg mb-1 font-orbitron">Follow Us</h4>
+                                    <a 
+                                        href="https://www.instagram.com/innovision_it?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="text-gray-400 text-sm hover:text-pink-500 transition-colors"
+                                    >
+                                        @innovision_it
+                                    </a>
+                                </div>
                             </div>
                         </div>
 

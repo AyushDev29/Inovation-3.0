@@ -1,5 +1,5 @@
 import React from 'react';
-import { Github, Twitter, Instagram, Linkedin, ArrowUp } from 'lucide-react';
+import { Instagram, ArrowUp } from 'lucide-react';
 import gsap from 'gsap';
 
 const Footer = () => {
@@ -47,23 +47,14 @@ const Footer = () => {
                     <div>
                         <h3 className="text-xl font-orbitron font-bold text-white mb-6">Connect</h3>
                         <div className="flex space-x-4">
-                            <a href="https://github.com/Sachin844123" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-neon-purple hover:text-white transition-all duration-300">
-                                <Github size={20} />
-                            </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-cyber-blue hover:text-white transition-all duration-300">
-                                <Twitter size={20} />
-                            </a>
-                            <a href="#" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all duration-300">
+                            <a 
+                                href="https://www.instagram.com/innovision_it?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                                className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-pink-500 hover:text-white transition-all duration-300"
+                            >
                                 <Instagram size={20} />
                             </a>
-                            <a href="https://www.linkedin.com/in/sachin-singh-5977b5306" className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center hover:bg-blue-600 hover:text-white transition-all duration-300">
-                                <Linkedin size={20} />
-                            </a>
-                        </div>
-                        <div className="mt-8">
-                            <h4 className="text-sm font-bold text-gray-300 mb-2">Faculty Coordinators</h4>
-                            <p className="text-gray-500 text-sm">Prof. 1</p>
-                            <p className="text-gray-500 text-sm">Prof. 2</p>
                         </div>
                     </div>
                 </div>

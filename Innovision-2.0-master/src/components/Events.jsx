@@ -12,65 +12,65 @@ gsap.registerPlugin(ScrollTrigger);
 const eventsData = [
     {
         id: 1,
-        title: "BGMI Tournament",
+        title: "BGMI Esports Tournament",
         category: "E-Sports",
         description: "Competitive BGMI battle with ranked matches across two days",
         date: "Day 1 & Day 2 (5–6 Feb), 9:00 AM – 12:00 PM",
         venue: "College Campus",
         teamSize: "4 Members",
-        prize: "TBA",
+        prize: "₹6,000",
         image: "/images/free_fire.png",
         color: "from-orange-500 to-red-600",
         registrationLink: ""
     },
     {
         id: 2,
-        title: "Free Fire Tournament",
+        title: "Free Fire Esports Tournament",
         category: "E-Sports",
         description: "High-intensity Free Fire battle royale tournament",
         date: "Day 3 (7 Feb), 9:00 AM – 11:00 AM",
         venue: "College Campus",
         teamSize: "4 Members",
-        prize: "TBA",
+        prize: "₹5,000",
         image: "/images/free_fire.png",
         color: "from-blue-500 to-cyan-500",
         registrationLink: ""
     },
     {
         id: 3,
-        title: "Blind Typing",
+        title: "Tech Triathlon",
         category: "Technical / Fun",
-        description: "Speed typing challenge without looking at the keyboard",
+        description: "From flawless typing to sharp debugging and logical thinking, Tech Triathlon tests every core skill a modern coder needs.",
         date: "Day 2 (6 Feb), 11:00 AM – 12:00 PM",
         venue: "Computer Lab",
         teamSize: "Individual",
-        prize: "TBA",
+        prize: "",
         image: "/images/blind_type.png",
         color: "from-yellow-500 to-amber-600",
         registrationLink: ""
     },
     {
         id: 4,
-        title: "Ramp Walk",
+        title: "Fashion Flex",
         category: "Fun / Cultural",
-        description: "Traditional attire ramp walk competition",
+        description: "Traditional attire ramp walk competition with Q&A round",
         date: "Day 1 (5 Feb), 11:00 AM – 1:00 PM",
         venue: "Auditorium",
-        teamSize: "4 Members",
-        prize: "TBA",
+        teamSize: "2 Members (Duo)",
+        prize: "",
         image: "/images/ui_ux.png",
         color: "from-purple-500 to-pink-600",
         registrationLink: ""
     },
     {
         id: 5,
-        title: "Hackathon",
+        title: "Hackastra",
         category: "Technical",
         description: "Team-based problem-solving and innovation challenge",
         date: "Day 3 (7 Feb), 11:00 AM – 2:00 PM",
         venue: "Seminar Hall",
-        teamSize: "2–4 Members",
-        prize: "TBA",
+        teamSize: "2-3 Members",
+        prize: "",
         image: "/images/hackathon.png",
         color: "from-green-500 to-emerald-600",
         registrationLink: ""
@@ -83,7 +83,7 @@ const eventsData = [
         date: "Day 2 (6 Feb), 12:00 PM – 2:00 PM",
         venue: "Activity Zone",
         teamSize: "4–6 Members",
-        prize: "TBA",
+        prize: "",
         image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1000&auto=format&fit=crop",
         color: "from-indigo-500 to-violet-600",
         registrationLink: ""
@@ -109,9 +109,11 @@ const EventCardLeft = ({ event, onClick }) => {
                         <span className={`inline-block px-2 py-0.5 text-[10px] sm:text-xs font-bold rounded-full bg-gradient-to-r ${event.color} text-white whitespace-nowrap`}>
                             {event.category}
                         </span>
-                        <span className="text-neon-purple font-bold text-xs sm:text-sm">
-                            {event.prize}
-                        </span>
+                        {event.prize && (
+                            <span className="text-neon-purple font-bold text-xs sm:text-sm">
+                                {event.prize}
+                            </span>
+                        )}
                     </div>
                     <h4 className="text-base sm:text-lg md:text-xl font-orbitron font-bold text-white mb-1 sm:mb-2 group-hover:text-cyber-blue transition-colors leading-tight">
                         {event.title}
@@ -147,9 +149,11 @@ const EventCardRight = ({ event, onClick }) => {
             <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 justify-end">
                 <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2 justify-end">
-                        <span className="text-neon-purple font-bold text-xs sm:text-sm">
-                            {event.prize}
-                        </span>
+                        {event.prize && (
+                            <span className="text-neon-purple font-bold text-xs sm:text-sm">
+                                {event.prize}
+                            </span>
+                        )}
                         <span className={`inline-block px-2 py-0.5 text-[10px] sm:text-xs font-bold rounded-full bg-gradient-to-r ${event.color} text-white whitespace-nowrap`}>
                             {event.category}
                         </span>
@@ -227,7 +231,7 @@ const EventModal = ({ event, onClose, onRegister, onViewRules }) => {
                         {event.description}
                     </p>
 
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+                    <div className={`grid grid-cols-2 ${event.prize ? 'md:grid-cols-4' : 'md:grid-cols-3'} gap-4 sm:gap-6 mb-6 sm:mb-8`}>
                         <div className="flex flex-col">
                             <span className="text-gray-500 text-xs sm:text-sm mb-1 flex items-center"><Calendar size={14} className="mr-1" /> Date</span>
                             <span className="text-white font-medium text-sm sm:text-base">{event.date}</span>
@@ -240,10 +244,12 @@ const EventModal = ({ event, onClose, onRegister, onViewRules }) => {
                             <span className="text-gray-500 text-xs sm:text-sm mb-1 flex items-center"><Users size={14} className="mr-1" /> Team Size</span>
                             <span className="text-white font-medium text-sm sm:text-base">{event.teamSize}</span>
                         </div>
-                        <div className="flex flex-col">
-                            <span className="text-gray-500 text-xs sm:text-sm mb-1 flex items-center"><Trophy size={14} className="mr-1" /> Prize</span>
-                            <span className="text-white font-medium text-neon-purple text-sm sm:text-base">{event.prize}</span>
-                        </div>
+                        {event.prize && (
+                            <div className="flex flex-col">
+                                <span className="text-gray-500 text-xs sm:text-sm mb-1 flex items-center"><Trophy size={14} className="mr-1" /> Prize</span>
+                                <span className="text-white font-medium text-neon-purple text-sm sm:text-base">{event.prize}</span>
+                            </div>
+                        )}
                     </div>
 
                     <div className="space-y-3">
@@ -376,13 +382,27 @@ const Events = () => {
                 {registeringEvent && (
                     <RegistrationModal
                         event={registeringEvent}
-                        onClose={() => setRegisteringEvent(null)}
+                        onClose={() => {
+                            // Scroll to events section when closing
+                            const eventsSection = document.getElementById('events');
+                            if (eventsSection) {
+                                eventsSection.scrollIntoView({ behavior: 'smooth' });
+                            }
+                            setRegisteringEvent(null);
+                        }}
                     />
                 )}
                 {rulesEventId && (
                     <RulesModal
                         eventId={rulesEventId}
-                        onClose={() => setRulesEventId(null)}
+                        onClose={() => {
+                            // Scroll to events section when closing
+                            const eventsSection = document.getElementById('events');
+                            if (eventsSection) {
+                                eventsSection.scrollIntoView({ behavior: 'smooth' });
+                            }
+                            setRulesEventId(null);
+                        }}
                     />
                 )}
             </AnimatePresence>

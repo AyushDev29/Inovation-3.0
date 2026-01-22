@@ -150,3 +150,85 @@
   background-color: rgba(168, 85, 247, 0.3);
   color: #ffffff;
 }
+
+/* Mobile Modal Scrolling Fix */
+@media (max-width: 768px) {
+  /* Ensure proper scrolling on mobile */
+  .mobile-modal-fix {
+    height: 100vh;
+    height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    scroll-behavior: smooth;
+    /* Disable custom cursor on mobile */
+    cursor: auto !important;
+  }
+  
+  /* Enhanced touch scrolling */
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    -webkit-transform: translateZ(0);
+    transform: translateZ(0);
+    will-change: scroll-position;
+    touch-action: pan-y;
+    /* Ensure cursor is visible */
+    cursor: auto !important;
+  }
+  
+  /* Fix for mobile viewport issues */
+  .mobile-modal-content {
+    min-height: 100%;
+    padding-bottom: env(safe-area-inset-bottom, 20px);
+    /* Disable any cursor interference */
+    cursor: auto !important;
+  }
+  
+  /* Ensure form elements are scrollable */
+  .mobile-modal-fix form {
+    touch-action: pan-y;
+    cursor: auto !important;
+  }
+  
+  /* Fix iOS Safari scrolling issues */
+  .mobile-modal-fix {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+  
+  /* Disable custom cursor completely in modals on mobile */
+  .mobile-modal-fix * {
+    cursor: auto !important;
+  }
+  
+  /* Override any pointer-events that might interfere */
+  .mobile-modal-fix input,
+  .mobile-modal-fix textarea,
+  .mobile-modal-fix button,
+  .mobile-modal-fix select {
+    pointer-events: auto !important;
+    touch-action: manipulation !important;
+    cursor: auto !important;
+  }
+}
+
+/* Custom scrollbar for modal */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 4px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 2px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}

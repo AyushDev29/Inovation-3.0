@@ -127,10 +127,11 @@ const Hero = () => {
                     {/* College Name & Department - Top */}
                     <div className="mb-4 md:mb-6">
                         <h2 className="text-sm sm:text-base md:text-xl font-orbitron font-bold text-white tracking-[0.1em] sm:tracking-[0.15em] uppercase group-hover:text-cyber-blue group-active:text-cyber-blue transition-all duration-300 leading-tight">
-                            KV Pendharkar College of Arts, Science & Commerce (Autonomous)
+                            K.V. Pendharkar College of Arts, Science & Commerce (Autonomous)
                         </h2>
                         <p className="mt-1 md:mt-2 text-neon-purple tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm md:text-base font-semibold uppercase group-hover:text-cyber-blue group-active:text-cyber-blue transition-colors leading-tight">
-                            Organised by the Department of Information Technology
+                             The Department of Information Technology 
+                             <p >Presents</p>
                         </p>
                     </div>
 
@@ -153,7 +154,7 @@ const Hero = () => {
                     />
                     <HUDBox
                         title="VENUE"
-                        value="KV PENDHARKAR"
+                        value="K.V. PENDHARKAR"
                         subtext="College Campus"
                         delay="400"
                     />

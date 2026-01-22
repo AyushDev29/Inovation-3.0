@@ -8,65 +8,37 @@ const SponsorsPage = () => {
     const navigate = useNavigate();
     const containerRef = useRef(null);
 
-    // Sample sponsor data - you can replace this with your actual data
-    const sponsors = {
-        title: [
-            {
-                id: 1,
-                name: "TechCorp Solutions",
-                logo: "/images/sponsor1.png", // You'll add actual logos
-                tier: "Title Sponsor",
-                description: "Leading technology solutions provider",
-                website: "https://techcorp.com"
-            }
-        ],
-        platinum: [
-            {
-                id: 2,
-                name: "InnovateTech",
-                logo: "/images/sponsor2.png",
-                tier: "Platinum Sponsor",
-                description: "Innovation in technology",
-                website: "https://innovatetech.com"
-            },
-            {
-                id: 3,
-                name: "FutureSoft",
-                logo: "/images/sponsor3.png",
-                tier: "Platinum Sponsor", 
-                description: "Software development excellence",
-                website: "https://futuresoft.com"
-            }
-        ],
-        gold: [
-            {
-                id: 4,
-                name: "CodeMasters",
-                logo: "/images/sponsor4.png",
-                tier: "Gold Sponsor",
-                description: "Coding bootcamp and training",
-                website: "https://codemasters.com"
-            },
-            {
-                id: 5,
-                name: "DataFlow Systems",
-                logo: "/images/sponsor5.png",
-                tier: "Gold Sponsor",
-                description: "Data analytics and insights",
-                website: "https://dataflow.com"
-            }
-        ],
-        silver: [
-            {
-                id: 6,
-                name: "StartupHub",
-                logo: "/images/sponsor6.png",
-                tier: "Silver Sponsor",
-                description: "Startup incubation platform",
-                website: "https://startuphub.com"
-            }
-        ]
-    };
+    // Updated sponsor data with correct Instagram URLs
+    const sponsors = [
+        {
+            id: 1,
+            name: "Pretty Moon",
+            logo: "/images/sponsors/prettymoon.jpg",
+            instagram: "@prettymoon_official",
+            instagramUrl: "https://www.instagram.com/prettymoon.in?igsh=MTg5MHg4ZjU0dW92NA=="
+        },
+        {
+            id: 2,
+            name: "Kalastra",
+            logo: "/images/sponsors/kala_stra.jpg",
+            instagram: "@kalastra_official",
+            instagramUrl: "https://www.instagram.com/kala_stra?igsh=MTdsZG1oMGMxMHBjaw=="
+        },
+        {
+            id: 3,
+            name: "Kaam Done",
+            logo: "/images/sponsors/kaam.done.jpg",
+            instagram: "@kaamdone_official",
+            instagramUrl: "https://www.instagram.com/kaam.done?igsh=Z2xqa2RoazNoenRn"
+        },
+        {
+            id: 4,
+            name: "Oriflame",
+            logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNEY0NkU1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9yaWZsYW1lPC90ZXh0Pgo8L3N2Zz4K",
+            instagram: "@oriflame_india",
+            instagramUrl: null // No Instagram link for 4th sponsor as requested
+        }
+    ];
 
     useEffect(() => {
         // Add sponsor-specific mobile CSS for the sponsors page
@@ -208,24 +180,6 @@ const SponsorsPage = () => {
         });
     };
 
-    const getTierIcon = (tier) => {
-        switch(tier) {
-            case 'Title Sponsor': return <Award className="w-5 h-5 text-yellow-400" />;
-            case 'Platinum Sponsor': return <Star className="w-5 h-5 text-gray-300" />;
-            case 'Gold Sponsor': return <Zap className="w-5 h-5 text-yellow-500" />;
-            default: return <Star className="w-4 h-4 text-gray-400" />;
-        }
-    };
-
-    const getTierColor = (tier) => {
-        switch(tier) {
-            case 'Title Sponsor': return 'from-yellow-400 to-orange-500';
-            case 'Platinum Sponsor': return 'from-gray-300 to-gray-500';
-            case 'Gold Sponsor': return 'from-yellow-400 to-yellow-600';
-            default: return 'from-gray-400 to-gray-600';
-        }
-    };
-
     const SponsorCard = ({ sponsor }) => (
         <motion.div
             className="sponsor-card group relative bg-black/40 border border-white/10 rounded-xl p-6 hover:border-cyber-blue/50 transition-all duration-300 hover:bg-black/60"
@@ -234,30 +188,44 @@ const SponsorsPage = () => {
         >
             {/* Sponsor Logo Placeholder */}
             <div className="w-full h-32 bg-white/5 rounded-lg mb-4 flex items-center justify-center border border-white/10 group-hover:border-cyber-blue/30 transition-colors duration-300">
-                <div className="text-white/50 text-sm font-mono group-hover:text-cyber-blue/70 transition-colors duration-300">LOGO</div>
+                <img 
+                    src={sponsor.logo} 
+                    alt={`${sponsor.name} logo`}
+                    className="max-h-full max-w-full object-contain filter brightness-90 group-hover:brightness-110 transition-all duration-300 p-2"
+                    onError={(e) => {
+                        // Show fallback text if logo fails to load
+                        e.target.style.display = 'none';
+                        e.target.nextElementSibling.style.display = 'flex';
+                    }}
+                />
+                <div className="hidden items-center justify-center text-white/50 text-sm font-mono group-hover:text-cyber-blue/70 transition-colors duration-300">
+                    {sponsor.name}
+                </div>
             </div>
 
             {/* Sponsor Info */}
-            <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                    {getTierIcon(sponsor.tier)}
-                    <span className={`text-xs font-mono uppercase tracking-wider bg-gradient-to-r ${getTierColor(sponsor.tier)} bg-clip-text text-transparent`}>
-                        {sponsor.tier}
-                    </span>
-                </div>
-                
+            <div className="space-y-3 text-center">
                 <h3 className="text-lg font-orbitron font-bold text-white group-hover:text-cyber-blue transition-colors duration-300">
                     {sponsor.name}
                 </h3>
                 
-                <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-300 transition-colors duration-300">
-                    {sponsor.description}
+                <p className="text-cyber-blue text-sm font-mono group-hover:text-neon-purple transition-colors duration-300">
+                    {sponsor.instagram}
                 </p>
 
-                {/* Visit Website Button */}
-                <button className="w-full mt-4 py-2 px-4 bg-white/5 border border-white/20 rounded-lg text-xs font-mono text-white hover:bg-cyber-blue/20 hover:border-cyber-blue/50 transition-all duration-300">
-                    Visit Website
-                </button>
+                {/* Visit Instagram Button */}
+                {sponsor.instagramUrl ? (
+                    <button 
+                        onClick={() => window.open(sponsor.instagramUrl, '_blank')}
+                        className="w-full mt-4 py-2 px-4 bg-white/5 border border-white/20 rounded-lg text-xs font-mono text-white hover:bg-cyber-blue/20 hover:border-cyber-blue/50 transition-all duration-300"
+                    >
+                        Follow on Instagram
+                    </button>
+                ) : (
+                    <div className="w-full mt-4 py-2 px-4 bg-gray-500/20 border border-gray-500/30 rounded-lg text-xs font-mono text-gray-500 cursor-not-allowed">
+                        Follow on Instagram
+                    </div>
+                )}
             </div>
 
             {/* Simple hover glow effect */}
@@ -265,32 +233,6 @@ const SponsorsPage = () => {
         </motion.div>
     );
 
-    const TierSection = ({ title, sponsors, delay = 0 }) => (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay }}
-            className="mb-12"
-        >
-            <div className="tier-header flex items-center gap-3 mb-6">
-                <div className="h-[1px] bg-gradient-to-r from-transparent via-cyber-blue to-transparent flex-1" />
-                <h2 className="text-xl md:text-2xl font-orbitron font-bold text-white tracking-wider">
-                    {title}
-                </h2>
-                <div className="h-[1px] bg-gradient-to-r from-transparent via-cyber-blue to-transparent flex-1" />
-            </div>
-            
-            <div className={`grid gap-6 ${
-                sponsors.length === 1 ? 'grid-cols-1 max-w-md mx-auto' :
-                sponsors.length === 2 ? 'grid-cols-1 md:grid-cols-2 max-w-4xl mx-auto' :
-                'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-            }`}>
-                {sponsors.map((sponsor) => (
-                    <SponsorCard key={sponsor.id} sponsor={sponsor} />
-                ))}
-            </div>
-        </motion.div>
-    );
 
     return (
         <motion.div
@@ -328,23 +270,28 @@ const SponsorsPage = () => {
                     </p>
                 </div>
 
-                {/* Sponsors by Tier */}
-                <div className="max-w-7xl mx-auto">
-                    {sponsors.title.length > 0 && (
-                        <TierSection title="TITLE SPONSORS" sponsors={sponsors.title} delay={0.1} />
-                    )}
-                    
-                    {sponsors.platinum.length > 0 && (
-                        <TierSection title="PLATINUM SPONSORS" sponsors={sponsors.platinum} delay={0.2} />
-                    )}
-                    
-                    {sponsors.gold.length > 0 && (
-                        <TierSection title="GOLD SPONSORS" sponsors={sponsors.gold} delay={0.3} />
-                    )}
-                    
-                    {sponsors.silver.length > 0 && (
-                        <TierSection title="SILVER SPONSORS" sponsors={sponsors.silver} delay={0.4} />
-                    )}
+                {/* Sponsors Grid */}
+                <div className="max-w-6xl mx-auto">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.6, delay: 0.3 }}
+                        className="mb-12"
+                    >
+                        <div className="flex items-center gap-3 mb-8">
+                            <div className="h-[1px] bg-gradient-to-r from-transparent via-cyber-blue to-transparent flex-1" />
+                            <h2 className="text-xl md:text-2xl font-orbitron font-bold text-white tracking-wider">
+                                OUR SPONSORS
+                            </h2>
+                            <div className="h-[1px] bg-gradient-to-r from-transparent via-cyber-blue to-transparent flex-1" />
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                            {sponsors.map((sponsor) => (
+                                <SponsorCard key={sponsor.id} sponsor={sponsor} />
+                            ))}
+                        </div>
+                    </motion.div>
                 </div>
 
                 {/* Call to Action */}

@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CheckCircle, AlertCircle } from 'lucide-react';
+import { X, CheckCircle, AlertCircle, Upload, FileText } from 'lucide-react';
 import { supabase } from '../supabaseClient';
 
 const RegistrationModal = ({ event, onClose }) => {
     const isBGMI = event.title.includes("BGMI");
     const isFreeFire = event.title.includes("Free Fire");
-    const isHackathon = event.title.includes("Hackathon");
+    const isHackastra = event.title.includes("Hackastra");
     const isFunFusion = event.title.includes("Fun Fusion");
-    const isRampWalk = event.title.includes("Ramp Walk");
-    const isTeamEvent = isBGMI || isFreeFire || isHackathon || isFunFusion || isRampWalk;
+    const isFashionFlex = event.title.includes("Fashion Flex");
+    const isTeamEvent = isBGMI || isFreeFire || isHackastra || isFunFusion || isFashionFlex;
 
     const [formData, setFormData] = useState({
         name: '',
@@ -17,18 +17,69 @@ const RegistrationModal = ({ event, onClose }) => {
         phone: '',
         class: '',
         college: '',
+        roll_no: '',
         team_name: '',
         player2_name: '',
+        player2_roll_no: '',
+        player2_college: '',
         player3_name: '',
-        player4_name: ''
+        player3_roll_no: '',
+        player3_college: '',
+        player4_name: '',
+        player4_roll_no: '',
+        player4_college: ''
     });
+    const [files, setFiles] = useState({
+        college_id: null
+    });
+    const [uploadProgress, setUploadProgress] = useState({});
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null); // 'success', 'error'
-    const [message, setMessage] = useState('');
+    const handleClose = () => {
+        onClose();
+    };
 
     // Lock background scroll when modal is open
     useEffect(() => {
-        document.body.style.overflow = 'hidden';
+        // Only lock background scroll, don't fix position
+        const originalOverflow = document.body.style.overflow;
+        const originalPosition = document.body.style.position;
+        
+        // Add modal-open class for mobile-specific styles
+        document.body.classList.add('modal-open');
+        
+        // For mobile devices, prevent background scroll but allow modal scroll
+        if (window.innerWidth <= 768) {
+            document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.height = '100%';
+            // Ensure cursor is visible on mobile (override custom cursor)
+            document.body.style.cursor = 'auto';
+            
+            // Force enable touch scrolling on mobile with a slight delay
+            setTimeout(() => {
+                const modalContainer = document.querySelector('.mobile-modal-fix');
+                if (modalContainer) {
+                    modalContainer.style.webkitOverflowScrolling = 'touch';
+                    modalContainer.style.overflowY = 'auto';
+                    modalContainer.style.touchAction = 'pan-y';
+                    modalContainer.style.cursor = 'auto';
+                    modalContainer.style.pointerEvents = 'auto';
+                    
+                    // Also ensure all child elements allow touch
+                    const allElements = modalContainer.querySelectorAll('*');
+                    allElements.forEach(el => {
+                        if (el.tagName !== 'INPUT' && el.tagName !== 'TEXTAREA' && el.tagName !== 'BUTTON') {
+                            el.style.pointerEvents = 'auto';
+                            el.style.touchAction = 'pan-y';
+                        }
+                    });
+                }
+            }, 100);
+        } else {
+            document.body.style.overflow = 'hidden';
+        }
         
         // Stop Lenis smooth scroll
         const lenisInstance = window.lenis;
@@ -39,13 +90,21 @@ const RegistrationModal = ({ event, onClose }) => {
         // Handle ESC key to close modal
         const handleEscape = (e) => {
             if (e.key === 'Escape') {
-                onClose();
+                handleClose();
             }
         };
         window.addEventListener('keydown', handleEscape);
         
         return () => {
-            document.body.style.overflow = '';
+            // Remove modal-open class
+            document.body.classList.remove('modal-open');
+            
+            // Restore original styles
+            document.body.style.overflow = originalOverflow;
+            document.body.style.position = originalPosition;
+            document.body.style.width = '';
+            document.body.style.height = '';
+            document.body.style.cursor = '';
             
             // Restart Lenis
             if (lenisInstance) {
@@ -53,7 +112,7 @@ const RegistrationModal = ({ event, onClose }) => {
             }
             window.removeEventListener('keydown', handleEscape);
         };
-    }, [onClose]);
+    }, [handleClose]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -64,6 +123,45 @@ const RegistrationModal = ({ event, onClose }) => {
             setFormData({ ...formData, [name]: digitsOnly });
         } else {
             setFormData({ ...formData, [name]: value });
+        }
+    };
+
+    const handleFileChange = (e, fieldName) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type (PDF only)
+            if (file.type !== 'application/pdf') {
+                alert('Please upload only PDF files for college ID verification.');
+                return;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('File size must be less than 5MB.');
+                return;
+            }
+            
+            setFiles({ ...files, [fieldName]: file });
+        }
+    };
+
+    const uploadFile = async (file, fileName) => {
+        if (!file) return null;
+        
+        try {
+            const fileExt = file.name.split('.').pop();
+            const filePath = `${Date.now()}-${fileName}.${fileExt}`;
+            
+            const { data, error } = await supabase.storage
+                .from('college-ids')
+                .upload(filePath, file);
+            
+            if (error) throw error;
+            
+            return data.path;
+        } catch (error) {
+            console.error('File upload error:', error);
+            throw new Error(`Failed to upload ${fileName}: ${error.message}`);
         }
     };
 
@@ -86,21 +184,39 @@ const RegistrationModal = ({ event, onClose }) => {
                 throw new Error("Event not found in database. Please contact admin.");
             }
 
-            // 2. Prepare payload
+            // 2. Upload files
+            setMessage('Uploading college ID documents...');
+            const uploadedFiles = {};
+            
+            // Upload team college IDs (combined PDF)
+            if (files.college_id) {
+                uploadedFiles.college_id_url = await uploadFile(files.college_id, `team-${formData.email}`);
+            }
+
+            // 3. Prepare payload
+            setMessage('Saving registration...');
             const payload = {
                 name: formData.name, // IGL Name
                 email: formData.email, // IGL Email
                 phone: formData.phone, // IGL Phone
                 class: formData.class,
                 college: formData.college,
-                event_id: eventData.id
+                roll_no: formData.roll_no,
+                event_id: eventData.id,
+                ...uploadedFiles
             };
 
             if (isTeamEvent) {
                 payload.team_name = formData.team_name;
                 payload.player2_name = formData.player2_name;
+                payload.player2_roll_no = formData.player2_roll_no;
+                payload.player2_college = formData.player2_college;
                 payload.player3_name = formData.player3_name;
+                payload.player3_roll_no = formData.player3_roll_no;
+                payload.player3_college = formData.player3_college;
                 payload.player4_name = formData.player4_name;
+                payload.player4_roll_no = formData.player4_roll_no;
+                payload.player4_college = formData.player4_college;
             }
 
             const { error: insertError } = await supabase
@@ -117,8 +233,13 @@ const RegistrationModal = ({ event, onClose }) => {
             setStatus('success');
             setMessage('Registration successful! Get ready for the event.');
             setFormData({
-                name: '', email: '', phone: '', class: '', college: '',
-                team_name: '', player2_name: '', player3_name: '', player4_name: ''
+                name: '', email: '', phone: '', class: '', college: '', roll_no: '',
+                team_name: '', player2_name: '', player2_roll_no: '', player2_college: '',
+                player3_name: '', player3_roll_no: '', player3_college: '',
+                player4_name: '', player4_roll_no: '', player4_college: ''
+            });
+            setFiles({
+                college_id: null
             });
 
         } catch (error) {
@@ -135,70 +256,89 @@ const RegistrationModal = ({ event, onClose }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 md:p-6 overflow-hidden"
-            onClick={onClose}
+            className="fixed inset-0 z-[2000] bg-black/90 backdrop-blur-md"
+            onClick={handleClose}
         >
-            <motion.div
-                initial={{ scale: 0.95, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.95, y: 20 }}
-                onClick={(e) => e.stopPropagation()}
-                className="relative z-[2001] w-full sm:w-[92vw] md:w-[85vw] lg:w-[75vw] xl:w-[65vw] max-w-2xl bg-[#0f0f0f] border border-white/10 rounded-xl sm:rounded-2xl shadow-2xl flex flex-col max-h-[95vh] sm:max-h-[90vh] md:max-h-[88vh] lg:max-h-[85vh]"
+            <div 
+                className="h-full overflow-y-scroll p-1 sm:p-2 md:p-4 lg:p-6 mobile-modal-fix touch-scroll"
+                style={{
+                    WebkitOverflowScrolling: 'touch',
+                    overscrollBehavior: 'contain',
+                    touchAction: 'pan-y',
+                    cursor: 'auto',
+                    pointerEvents: 'auto',
+                    position: 'relative',
+                    zIndex: 2001
+                }}
             >
-                {/* Header - Fixed at top */}
-                <div className="flex-shrink-0 bg-[#0f0f0f] border-b border-white/10 px-4 sm:px-5 md:px-6 lg:px-8 py-3 sm:py-3.5 md:py-4 flex items-start justify-between rounded-t-xl sm:rounded-t-2xl">
-                    <div className="flex-1 pr-2">
-                        <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-orbitron font-bold text-white leading-tight">
-                            Register for <span className="text-neon-purple">{event.title}</span>
-                        </h2>
-                        <p className="text-gray-400 text-[10px] sm:text-xs md:text-sm mt-1">Fill in your details to secure your spot.</p>
-                    </div>
-                    <button
-                        onClick={onClose}
-                        className="flex-shrink-0 p-2 sm:p-2.5 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
+                <div className="min-h-full flex items-center justify-center py-2 sm:py-4 mobile-modal-content">
+                    <motion.div
+                        initial={{ scale: 0.95, y: 20 }}
+                        animate={{ scale: 1, y: 0 }}
+                        exit={{ scale: 0.95, y: 20 }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full sm:w-[95vw] md:w-[90vw] lg:w-[80vw] xl:w-[70vw] max-w-2xl bg-[#0f0f0f] border border-white/10 rounded-lg sm:rounded-xl shadow-2xl max-h-[98vh] overflow-hidden"
+                        style={{ 
+                            touchAction: 'auto',
+                            cursor: 'auto',
+                            pointerEvents: 'auto'
+                        }}
                     >
-                        <X size={18} className="sm:hidden" />
-                        <X size={20} className="hidden sm:block md:hidden" />
-                        <X size={22} className="hidden md:block" />
-                    </button>
-                </div>
+                        {/* Header - Fixed at top */}
+                        <div className="flex-shrink-0 bg-[#0f0f0f] border-b border-white/10 px-3 sm:px-4 md:px-6 lg:px-8 py-2 sm:py-3 md:py-4 flex items-start justify-between rounded-t-xl sm:rounded-t-2xl">
+                            <div className="flex-1 pr-2">
+                                <h2 className="text-sm sm:text-base md:text-lg lg:text-xl font-orbitron font-bold text-white leading-tight">
+                                    Register for <span className="text-neon-purple">{event.title}</span>
+                                </h2>
+                                <p className="text-gray-400 text-[9px] sm:text-[10px] md:text-xs mt-0.5">Fill in your details to secure your spot.</p>
+                            </div>
+                            <button
+                                onClick={handleClose}
+                                className="flex-shrink-0 p-1.5 sm:p-2 rounded-full bg-white/5 hover:bg-white/10 text-white transition-colors"
+                            >
+                                <X size={16} className="sm:hidden" />
+                                <X size={18} className="hidden sm:block md:hidden" />
+                                <X size={20} className="hidden md:block" />
+                            </button>
+                        </div>
 
-                {/* Scrollable Content Area */}
-                <div 
-                    className="flex-1 overflow-y-auto px-4 sm:px-5 md:px-6 lg:px-8 py-4 sm:py-5 md:py-6 custom-scrollbar"
-                    style={{
-                        WebkitOverflowScrolling: 'touch',
-                        overscrollBehavior: 'contain'
-                    }}
-                >
+                        {/* Content */}
+                        <div 
+                            className="px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6"
+                            style={{ 
+                                touchAction: 'pan-y',
+                                cursor: 'auto',
+                                pointerEvents: 'auto'
+                            }}
+                        >
 
                         {status === 'success' ? (
-                            <div className="flex flex-col items-center justify-center py-8 sm:py-10 md:py-12 text-center">
-                                <CheckCircle size={56} className="sm:hidden text-green-500 mb-4" />
-                                <CheckCircle size={64} className="hidden sm:block md:hidden text-green-500 mb-4" />
-                                <CheckCircle size={72} className="hidden md:block text-green-500 mb-5" />
-                                <h3 className="text-xl sm:text-2xl font-bold text-white mb-3">Success!</h3>
-                                <p className="text-gray-300 text-sm sm:text-base md:text-lg">{message}</p>
+                            <div className="flex flex-col items-center justify-center py-6 sm:py-8 text-center">
+                                <CheckCircle size={48} className="sm:hidden text-green-500 mb-3" />
+                                <CheckCircle size={56} className="hidden sm:block md:hidden text-green-500 mb-4" />
+                                <CheckCircle size={64} className="hidden md:block text-green-500 mb-4" />
+                                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">Success!</h3>
+                                <p className="text-gray-300 text-xs sm:text-sm md:text-base">{message}</p>
                                 <button
                                     type="button"
-                                    onClick={onClose}
-                                    className="mt-6 sm:mt-8 px-6 sm:px-8 py-2.5 sm:py-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors text-sm sm:text-base md:text-lg font-medium"
+                                    onClick={handleClose}
+                                    className="mt-4 sm:mt-6 px-4 sm:px-6 py-2 sm:py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors text-xs sm:text-sm font-medium"
                                 >
                                     Close
                                 </button>
                             </div>
                         ) : (
-                            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4 md:space-y-5">
+                            <form onSubmit={handleSubmit} className="space-y-2 sm:space-y-3 md:space-y-4">
                                 {status === 'error' && (
-                                    <div className="flex items-start p-3 sm:p-3.5 md:p-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-xs sm:text-sm md:text-base">
-                                        <AlertCircle size={16} className="sm:hidden mr-2 mt-0.5 flex-shrink-0" />
-                                        <AlertCircle size={18} className="hidden sm:block mr-2.5 mt-0.5 flex-shrink-0" />
+                                    <div className="flex items-start p-2 sm:p-3 bg-red-500/10 border border-red-500/20 rounded-lg text-red-200 text-[10px] sm:text-xs">
+                                        <AlertCircle size={14} className="sm:hidden mr-2 mt-0.5 flex-shrink-0" />
+                                        <AlertCircle size={16} className="hidden sm:block mr-2.5 mt-0.5 flex-shrink-0" />
                                         <span>{message}</span>
                                     </div>
                                 )}
 
-                        <div className="space-y-1 sm:space-y-1.5">
-                            <label className="text-[10px] sm:text-xs md:text-sm text-gray-500 uppercase tracking-wider ml-1">
+                        <div className="space-y-1">
+                            <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-300 uppercase tracking-wider ml-1 font-medium">
                                 {isFreeFire ? "IGL Name" : (isTeamEvent ? "Leader Name" : "Full Name")}
                             </label>
                             <input
@@ -207,14 +347,14 @@ const RegistrationModal = ({ event, onClose }) => {
                                 required
                                 value={formData.name}
                                 onChange={handleChange}
-                                className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                 placeholder={isFreeFire ? "Enter IGL Name" : (isTeamEvent ? "Enter Leader Name" : "Enter your full name")}
                             />
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
-                            <div className="space-y-0.5 sm:space-y-1">
-                                <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">
+                        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                            <div className="space-y-1">
+                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
                                     {isFreeFire ? "IGL Email" : (isTeamEvent ? "Leader Email" : "Email")}
                                 </label>
                                 <input
@@ -223,12 +363,12 @@ const RegistrationModal = ({ event, onClose }) => {
                                     required
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                    className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                     placeholder="your@email.com"
                                 />
                             </div>
-                            <div className="space-y-0.5 sm:space-y-1">
-                                <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">
+                            <div className="space-y-1">
+                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
                                     {isFreeFire ? "IGL Phone" : (isTeamEvent ? "Leader Phone" : "Phone")}
                                 </label>
                                 <input
@@ -241,85 +381,214 @@ const RegistrationModal = ({ event, onClose }) => {
                                     maxLength="10"
                                     minLength="10"
                                     title="Please enter exactly 10 digits"
-                                    className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                    className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                     placeholder="10-digit number"
                                 />
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
-                            <div className="space-y-0.5 sm:space-y-1">
-                                <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">Class</label>
+                        <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
+                            <div className="space-y-1">
+                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">Class</label>
                                 <input
                                     type="text"
                                     name="class"
                                     required
                                     value={formData.class}
                                     onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                    className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                     placeholder="e.g. SYBSCIT"
                                 />
                             </div>
-                            <div className="space-y-0.5 sm:space-y-1">
-                                <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">College</label>
+                            <div className="space-y-1">
+                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">Roll Number</label>
                                 <input
                                     type="text"
-                                    name="college"
+                                    name="roll_no"
                                     required
-                                    value={formData.college}
+                                    value={formData.roll_no}
                                     onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                    placeholder="College Name"
+                                    className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                    placeholder="e.g. 2023001"
                                 />
                             </div>
+                        </div>
+
+                        <div className="space-y-1">
+                            <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">College</label>
+                            <input
+                                type="text"
+                                name="college"
+                                required
+                                value={formData.college}
+                                onChange={handleChange}
+                                className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                placeholder="College Name"
+                            />
+                        </div>
+
+                        {/* College ID Upload */}
+                        <div className="space-y-1">
+                            <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
+                                {isTeamEvent ? "Team College IDs (All Members in One PDF)" : "College ID (PDF)"}
+                            </label>
+                            <div className="relative">
+                                <input
+                                    type="file"
+                                    accept=".pdf"
+                                    onChange={(e) => handleFileChange(e, 'college_id')}
+                                    className="hidden"
+                                    id="college_id_upload"
+                                    required
+                                />
+                                <label
+                                    htmlFor="college_id_upload"
+                                    className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs text-white hover:border-neon-purple transition-all cursor-pointer flex items-center gap-1.5"
+                                >
+                                    <Upload size={14} />
+                                    {files.college_id ? (
+                                        <span className="text-green-400 truncate">{files.college_id.name}</span>
+                                    ) : (
+                                        <span className="text-gray-400 text-[10px] sm:text-[11px]">
+                                            {isTeamEvent ? "Upload All Team College IDs (PDF, max 5MB)" : "Upload College ID (PDF, max 5MB)"}
+                                        </span>
+                                    )}
+                                </label>
+                            </div>
+                            {isTeamEvent && (
+                                <p className="text-[9px] text-gray-300 mt-0.5 ml-1">
+                                    📄 Combine all team members' college IDs into one PDF
+                                </p>
+                            )}
                         </div>
 
                         {/* Team Specific Fields */}
                         {isTeamEvent && (
                             <>
-                                <div className="space-y-0.5 sm:space-y-1">
-                                    <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-500 uppercase tracking-wider ml-1">Team Name</label>
+                                <div className="space-y-1">
+                                    <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">Team Name</label>
                                     <input
                                         type="text"
                                         name="team_name"
                                         required
                                         value={formData.team_name}
                                         onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                        className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                         placeholder="Enter Team Name"
                                     />
                                 </div>
-                                <div className="space-y-2 sm:space-y-2.5 md:space-y-3 pt-1 sm:pt-1.5 md:pt-2">
-                                    <span className="text-[10px] sm:text-xs md:text-sm font-semibold text-white">
+                                <div className="space-y-1.5 pt-1">
+                                    <span className="text-[9px] sm:text-[10px] md:text-xs font-semibold text-gray-200">
                                         {isFreeFire ? "Squad Members" : "Team Members"}
                                     </span>
-                                    <input
-                                        type="text"
-                                        name="player2_name"
-                                        required
-                                        value={formData.player2_name}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                        placeholder={isFreeFire ? "Player 2 Name" : "Member 2 Name"}
-                                    />
-                                    <input
-                                        type="text"
-                                        name="player3_name"
-                                        required
-                                        value={formData.player3_name}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                        placeholder={isFreeFire ? "Player 3 Name" : "Member 3 Name"}
-                                    />
-                                    <input
-                                        type="text"
-                                        name="player4_name"
-                                        required={isFreeFire || isBGMI || isRampWalk ? true : false}
-                                        value={formData.player4_name}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded-md sm:rounded-lg px-2.5 py-2 sm:px-3 sm:py-2.5 md:px-4 md:py-3 text-xs sm:text-sm md:text-base text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                        placeholder={isFreeFire ? "Player 4 Name" : (isBGMI || isRampWalk) ? "Member 4 Name" : "Member 4 Name (Optional)"}
-                                    />
+                                    
+                                    {/* Member 2 */}
+                                    <div className="bg-white/5 rounded-md p-2 border border-white/10">
+                                        <div className="text-[9px] text-gray-300 mb-1 font-semibold">Member 2</div>
+                                        <input
+                                            type="text"
+                                            name="player2_name"
+                                            required
+                                            value={formData.player2_name}
+                                            onChange={handleChange}
+                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600 mb-1"
+                                            placeholder={isFreeFire ? "Player 2 Name" : "Member 2 Name"}
+                                        />
+                                        <div className="grid grid-cols-2 gap-1.5">
+                                            <input
+                                                type="text"
+                                                name="player2_roll_no"
+                                                required
+                                                value={formData.player2_roll_no}
+                                                onChange={handleChange}
+                                                className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                                placeholder="Roll Number"
+                                            />
+                                            <input
+                                                type="text"
+                                                name="player2_college"
+                                                required
+                                                value={formData.player2_college}
+                                                onChange={handleChange}
+                                                className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                                placeholder="College Name"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Member 3 */}
+                                    <div className="bg-white/5 rounded-md p-2 border border-white/10">
+                                        <div className="text-[9px] text-gray-300 mb-1 font-semibold">
+                                            {isHackastra ? "Member 3 (Optional)" : "Member 3"}
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="player3_name"
+                                            required={!isHackastra}
+                                            value={formData.player3_name}
+                                            onChange={handleChange}
+                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600 mb-1"
+                                            placeholder={isFreeFire ? "Player 3 Name" : isHackastra ? "Member 3 Name (Optional)" : "Member 3 Name"}
+                                        />
+                                        <div className="grid grid-cols-2 gap-1.5">
+                                            <input
+                                                type="text"
+                                                name="player3_roll_no"
+                                                required={!isHackastra && formData.player3_name}
+                                                value={formData.player3_roll_no}
+                                                onChange={handleChange}
+                                                className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                                placeholder="Roll Number"
+                                            />
+                                            <input
+                                                type="text"
+                                                name="player3_college"
+                                                required={!isHackastra && formData.player3_name}
+                                                value={formData.player3_college}
+                                                onChange={handleChange}
+                                                className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                                placeholder="College Name"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    {/* Member 4 - Hidden for Hackastra */}
+                                    {!isHackastra && (
+                                        <div className="bg-white/5 rounded-md p-2 border border-white/10">
+                                            <div className="text-[9px] text-gray-300 mb-1 font-semibold">
+                                                {isFunFusion ? "Member 4 (Optional)" : "Member 4"}
+                                            </div>
+                                            <input
+                                                type="text"
+                                                name="player4_name"
+                                                required={isFreeFire || isBGMI || isFashionFlex || isFunFusion ? true : false}
+                                                value={formData.player4_name}
+                                                onChange={handleChange}
+                                                className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600 mb-1"
+                                                placeholder={isFreeFire ? "Player 4 Name" : (isBGMI || isFunFusion) ? "Member 4 Name" : "Member 4 Name (Optional)"}
+                                            />
+                                            <div className="grid grid-cols-2 gap-1.5">
+                                                <input
+                                                    type="text"
+                                                    name="player4_roll_no"
+                                                    required={formData.player4_name && (isFreeFire || isBGMI || isFashionFlex || isFunFusion)}
+                                                    value={formData.player4_roll_no}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                                    placeholder="Roll Number"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    name="player4_college"
+                                                    required={formData.player4_name && (isFreeFire || isBGMI || isFashionFlex || isFunFusion)}
+                                                    value={formData.player4_college}
+                                                    onChange={handleChange}
+                                                    className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
+                                                    placeholder="College Name"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             </>
                         )}
@@ -327,14 +596,16 @@ const RegistrationModal = ({ event, onClose }) => {
                                 <button
                                     type="submit"
                                     disabled={loading}
-                                    className="w-full mt-3 sm:mt-4 py-2 sm:py-2.5 md:py-3 bg-gradient-to-r from-neon-purple to-cyber-blue text-white font-bold font-orbitron tracking-wider rounded-lg sm:rounded-xl hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-xs sm:text-sm md:text-base"
+                                    className="w-full mt-2 sm:mt-3 py-2 sm:py-2.5 bg-gradient-to-r from-neon-purple to-cyber-blue text-white font-bold font-orbitron tracking-wider rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-[11px] sm:text-xs md:text-sm"
                                 >
                                     {loading ? 'REGISTERING...' : 'CONFIRM REGISTRATION'}
                                 </button>
                             </form>
                         )}
+                        </div>
+                    </motion.div>
                 </div>
-            </motion.div>
+            </div>
         </motion.div>
     );
 };

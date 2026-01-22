@@ -5,42 +5,35 @@ import { ArrowRight, Star } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Real sponsor data - Add your logo images in public/images/sponsors/ folder
+// Real sponsor data - Updated with actual sponsors
 const sponsorsData = [
     {
         id: 1,
-        name: "कलाSTRA",
-        logo: "/images/sponsors/kalastra-logo.png", // Add actual logo here
-        handle: "@kala_stra",
+        name: "Pretty Moon",
+        logo: "/images/sponsors/prettymoon.jpg",
+        handle: "@prettymoon_official",
         platform: "Instagram"
     },
     {
         id: 2,
-        name: "PrettyMoon", 
-        logo: "/images/sponsors/prettymoon-logo.png", // Add actual logo here
-        handle: "@prettymoon.in",
+        name: "Kalastra", 
+        logo: "/images/sponsors/kala_stra.jpg",
+        handle: "@kalastra_official",
         platform: "Instagram"
     },
     {
         id: 3,
-        name: "Sponsor 3",
-        logo: "/images/sponsors/sponsor3-logo.png", // Add actual logo here
-        handle: "@sponsor3",
-        platform: "Coming Soon"
+        name: "Kaam Done",
+        logo: "/images/sponsors/kaam.done.jpg",
+        handle: "@kaamdone_official",
+        platform: "Instagram"
     },
     {
         id: 4,
-        name: "Sponsor 4",
-        logo: "/images/sponsors/sponsor4-logo.png", // Add actual logo here
-        handle: "@sponsor4",
-        platform: "Coming Soon"
-    },
-    {
-        id: 5,
-        name: "Sponsor 5",
-        logo: "/images/sponsors/sponsor5-logo.png", // Add actual logo here
-        handle: "@sponsor5",
-        platform: "Coming Soon"
+        name: "Oriflame",
+        logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNEY0NkU1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9yaWZsYW1lPC90ZXh0Pgo8L3N2Zz4K",
+        handle: "@oriflame_india",
+        platform: "Instagram"
     }
 ];
 
@@ -136,9 +129,9 @@ const SponsorsIntro = () => {
 
                 {/* Sponsors Grid */}
                 <div className="sponsors-grid mb-12">
-                    {/* First 4 sponsors in 2x2 grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8 mb-6">
-                        {sponsorsData.slice(0, 4).map((sponsor, index) => (
+                    {/* All 4 sponsors in a single grid */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                        {sponsorsData.map((sponsor, index) => (
                             <div 
                                 key={sponsor.id}
                                 className="sponsor-card group relative p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:border-cyber-blue/50 hover:bg-white/10 transition-all duration-300 cursor-pointer"
@@ -180,47 +173,6 @@ const SponsorsIntro = () => {
                                 <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-cyber-blue/30 group-hover:border-cyber-blue transition-colors"></div>
                             </div>
                         ))}
-                    </div>
-
-                    {/* 5th sponsor centered below */}
-                    <div className="flex justify-center">
-                        <div className="sponsor-card group relative p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:border-cyber-blue/50 hover:bg-white/10 transition-all duration-300 cursor-pointer w-full max-w-[200px] md:max-w-[250px]">
-                            {/* Hover glow effect */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-cyber-blue/20 to-neon-purple/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
-                            
-                            <div className="relative z-10 text-center">
-                                <div className="mb-4 flex items-center justify-center h-20 bg-gray-800/30 rounded-lg border border-gray-700/50 p-3">
-                                    <img 
-                                        src={sponsorsData[4].logo} 
-                                        alt={`${sponsorsData[4].name} logo`}
-                                        className="max-h-full max-w-full object-contain filter brightness-90 group-hover:brightness-110 transition-all duration-300"
-                                        onError={(e) => {
-                                            // Show sponsor name if logo fails to load
-                                            e.target.style.display = 'none';
-                                            e.target.nextElementSibling.style.display = 'flex';
-                                        }}
-                                    />
-                                    <div className="hidden items-center justify-center text-white font-orbitron font-bold text-sm">
-                                        {sponsorsData[4].name}
-                                    </div>
-                                </div>
-                                <h4 className="text-white font-orbitron font-semibold text-sm mb-1 group-hover:text-cyber-blue transition-colors">
-                                    {sponsorsData[4].name}
-                                </h4>
-                                <div className="text-xs text-gray-400 group-hover:text-neon-purple transition-colors font-medium">
-                                    {sponsorsData[4].handle}
-                                </div>
-                                <div className="text-xs text-gray-500 mt-1">
-                                    {sponsorsData[4].platform}
-                                </div>
-                            </div>
-
-                            {/* Corner decorations */}
-                            <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-cyber-blue/30 group-hover:border-cyber-blue transition-colors"></div>
-                            <div className="absolute top-0 right-0 w-3 h-3 border-t border-r border-cyber-blue/30 group-hover:border-cyber-blue transition-colors"></div>
-                            <div className="absolute bottom-0 left-0 w-3 h-3 border-b border-l border-cyber-blue/30 group-hover:border-cyber-blue transition-colors"></div>
-                            <div className="absolute bottom-0 right-0 w-3 h-3 border-b border-r border-cyber-blue/30 group-hover:border-cyber-blue transition-colors"></div>
-                        </div>
                     </div>
                 </div>
 
