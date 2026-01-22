@@ -129,10 +129,10 @@ const Hero = () => {
                         <h2 className="text-sm sm:text-base md:text-xl font-orbitron font-bold text-white tracking-[0.1em] sm:tracking-[0.15em] uppercase group-hover:text-cyber-blue group-active:text-cyber-blue transition-all duration-300 leading-tight">
                             K.V. Pendharkar College of Arts, Science & Commerce (Autonomous)
                         </h2>
-                        <p className="mt-1 md:mt-2 text-neon-purple tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm md:text-base font-semibold uppercase group-hover:text-cyber-blue group-active:text-cyber-blue transition-colors leading-tight">
-                             The Department of Information Technology 
-                             <p >Presents</p>
-                        </p>
+                        <div className="mt-1 md:mt-2 text-neon-purple tracking-[0.2em] sm:tracking-[0.3em] text-xs sm:text-sm md:text-base font-semibold uppercase group-hover:text-cyber-blue group-active:text-cyber-blue transition-colors leading-tight">
+                             <p>The Department of Information Technology</p>
+                             <p>Presents</p>
+                        </div>
                     </div>
 
                     {/* INNOVISION Title - Below */}

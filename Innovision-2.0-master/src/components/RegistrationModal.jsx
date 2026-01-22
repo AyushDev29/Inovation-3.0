@@ -35,6 +35,7 @@ const RegistrationModal = ({ event, onClose }) => {
     const [uploadProgress, setUploadProgress] = useState({});
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null); // 'success', 'error'
+    const [message, setMessage] = useState('');
     const handleClose = () => {
         onClose();
     };
@@ -556,7 +557,7 @@ const RegistrationModal = ({ event, onClose }) => {
                                     {!isHackastra && (
                                         <div className="bg-white/5 rounded-md p-2 border border-white/10">
                                             <div className="text-[9px] text-gray-300 mb-1 font-semibold">
-                                                {isFunFusion ? "Member 4 (Optional)" : "Member 4"}
+                                                {isFunFusion ? "Member 4" : "Member 4"}
                                             </div>
                                             <input
                                                 type="text"
@@ -565,7 +566,7 @@ const RegistrationModal = ({ event, onClose }) => {
                                                 value={formData.player4_name}
                                                 onChange={handleChange}
                                                 className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600 mb-1"
-                                                placeholder={isFreeFire ? "Player 4 Name" : (isBGMI || isFunFusion) ? "Member 4 Name" : "Member 4 Name (Optional)"}
+                                                placeholder={isFreeFire ? "Player 4 Name" : (isBGMI || isFunFusion) ? "Member 4 Name" : "Member 4 Name"}
                                             />
                                             <div className="grid grid-cols-2 gap-1.5">
                                                 <input

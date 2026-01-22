@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import SmoothScroll from './SmoothScroll';
 import CustomCursor from './CustomCursor';
 import Navbar from './Navbar';
@@ -23,6 +23,62 @@ const LandingPage = () => {
         setLoading(false);
         sessionStorage.setItem('preloaderShown', 'true'); // Mark as shown
     };
+
+    // Handle hash navigation after component mounts
+    useEffect(() => {
+        const handleHashNavigation = () => {
+            const hash = window.location.hash;
+            if (hash) {
+                // Wait for the page to fully render and Lenis to initialize
+                const scrollToElement = () => {
+                    const element = document.querySelector(hash);
+                    if (element) {
+                        if (window.lenis) {
+                            // Use Lenis scrollTo for smooth scrolling
+                            window.lenis.scrollTo(element, {
+                                duration: 1.5,
+                                easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+                                offset: -80 // Account for navbar height
+                            });
+                        } else {
+                            // Fallback to native scrolling if Lenis is not available
+                            const elementTop = element.offsetTop - 80; // Account for navbar
+                            window.scrollTo({
+                                top: elementTop,
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                };
+
+                // Try multiple times to ensure Lenis is ready
+                let attempts = 0;
+                const maxAttempts = 10;
+                const tryScroll = () => {
+                    attempts++;
+                    if (window.lenis || attempts >= maxAttempts) {
+                        scrollToElement();
+                    } else {
+                        setTimeout(tryScroll, 100);
+                    }
+                };
+
+                setTimeout(tryScroll, 200);
+            }
+        };
+
+        // Handle hash navigation when component mounts
+        if (!loading) {
+            handleHashNavigation();
+        }
+
+        // Handle hash changes
+        window.addEventListener('hashchange', handleHashNavigation);
+        
+        return () => {
+            window.removeEventListener('hashchange', handleHashNavigation);
+        };
+    }, [loading]);
 
     return (
         <>

@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Calendar, MapPin, Users, Trophy, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import RegistrationModal from './RegistrationModal';
 import RulesModal from './RulesModal';
 import { useScrollHover } from '../hooks/useScrollHover';
 
@@ -82,7 +82,7 @@ const eventsData = [
         description: "Team-based indoor games and challenges",
         date: "Day 2 (6 Feb), 12:00 PM – 2:00 PM",
         venue: "Activity Zone",
-        teamSize: "4–6 Members",
+        teamSize: "4 Members",
         prize: "",
         image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1000&auto=format&fit=crop",
         color: "from-indigo-500 to-violet-600",
@@ -190,8 +190,20 @@ const EventCardRight = ({ event, onClick }) => {
     );
 };
 
-const EventModal = ({ event, onClose, onRegister, onViewRules }) => {
+const EventModal = ({ event, onClose, onViewRules, navigate }) => {
     if (!event) return null;
+
+    const getRegistrationPath = (eventTitle) => {
+        const pathMap = {
+            "BGMI Esports Tournament": "/register/bgmi",
+            "Free Fire Esports Tournament": "/register/freefire",
+            "Tech Triathlon": "/register/tech-triathlon",
+            "Fashion Flex": "/register/fashion-flex",
+            "Hackastra": "/register/hackastra",
+            "Fun Fusion": "/register/fun-fusion"
+        };
+        return pathMap[eventTitle] || "/";
+    };
 
     return (
         <motion.div
@@ -261,7 +273,7 @@ const EventModal = ({ event, onClose, onRegister, onViewRules }) => {
                             VIEW RULES
                         </button>
                         <button
-                            onClick={() => onRegister(event)}
+                            onClick={() => navigate(getRegistrationPath(event.title))}
                             className="block w-full py-3 sm:py-4 bg-gradient-to-r from-neon-purple to-cyber-blue text-white text-center font-bold font-orbitron tracking-wider rounded-xl hover:opacity-90 transition-opacity text-sm sm:text-base"
                         >
                             REGISTER NOW
@@ -274,13 +286,25 @@ const EventModal = ({ event, onClose, onRegister, onViewRules }) => {
 };
 
 const Events = () => {
+    const navigate = useNavigate();
     const [selectedEvent, setSelectedEvent] = useState(null);
-    const [registeringEvent, setRegisteringEvent] = useState(null);
     const [rulesEventId, setRulesEventId] = useState(null);
     const containerRef = useRef(null);
 
     // Auto-trigger hover effects on mobile when scrolling
     useScrollHover('.event-card', { threshold: 0.5, removeOnExit: true });
+
+    const getRegistrationPath = (eventTitle) => {
+        const pathMap = {
+            "BGMI Esports Tournament": "/register/bgmi",
+            "Free Fire Esports Tournament": "/register/freefire",
+            "Tech Triathlon": "/register/tech-triathlon",
+            "Fashion Flex": "/register/fashion-flex",
+            "Hackastra": "/register/hackastra",
+            "Fun Fusion": "/register/fun-fusion"
+        };
+        return pathMap[eventTitle] || "/";
+    };
 
     useEffect(() => {
         const ctx = gsap.context(() => {
@@ -369,6 +393,7 @@ const Events = () => {
                 {selectedEvent && (
                     <EventModal
                         event={selectedEvent}
+                        navigate={navigate}
                         onClose={() => {
                             // Scroll to events section when closing
                             const eventsSection = document.getElementById('events');
@@ -376,26 +401,9 @@ const Events = () => {
                                 eventsSection.scrollIntoView({ behavior: 'smooth' });
                             }
                             setSelectedEvent(null);
-                        }}
-                        onRegister={(event) => {
-                            setSelectedEvent(null);
-                            setRegisteringEvent(event);
                         }}
                         onViewRules={(eventId) => {
                             setRulesEventId(eventId);
-                        }}
-                    />
-                )}
-                {registeringEvent && (
-                    <RegistrationModal
-                        event={registeringEvent}
-                        onClose={() => {
-                            // Scroll to events section when closing
-                            const eventsSection = document.getElementById('events');
-                            if (eventsSection) {
-                                eventsSection.scrollIntoView({ behavior: 'smooth' });
-                            }
-                            setRegisteringEvent(null);
                         }}
                     />
                 )}
