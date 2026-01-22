@@ -20,6 +20,7 @@ const AdminPanel = () => {
     const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
     const [currentPdfUrl, setCurrentPdfUrl] = useState(null);
     const [pdfLoading, setPdfLoading] = useState(false);
+    const [refreshing, setRefreshing] = useState(false); // Add refreshing state
     
     // PAYMENT SCREENSHOT VIEWER STATE
     const [paymentViewerOpen, setPaymentViewerOpen] = useState(false);
@@ -71,24 +72,39 @@ const AdminPanel = () => {
     };
 
     const fetchRegistrations = async () => {
-        let query = supabase
-            .from('registrations')
-            .select(`
-                *,
-                events (
-                    event_name
-                )
-            `)
-            .order('created_at', { ascending: false });
+        try {
+            setRefreshing(true);
+            console.log('🔄 Fetching registrations...');
+            let query = supabase
+                .from('registrations')
+                .select(`
+                    *,
+                    events (
+                        event_name
+                    )
+                `)
+                .order('created_at', { ascending: false });
 
-        if (selectedEvent !== 'all') {
-            const eventId = events.find(e => e.event_name === selectedEvent)?.id;
-            if (eventId) query = query.eq('event_id', eventId);
+            if (selectedEvent !== 'all') {
+                const eventId = events.find(e => e.event_name === selectedEvent)?.id;
+                if (eventId) query = query.eq('event_id', eventId);
+            }
+
+            const { data, error } = await query;
+            if (error) {
+                console.error('❌ Error fetching registrations:', error);
+                setFetchError(error.message);
+            } else {
+                console.log('✅ Registrations fetched successfully:', data?.length || 0, 'records');
+                setRegistrations(data || []);
+                setFetchError(null);
+            }
+        } catch (error) {
+            console.error('❌ Unexpected error in fetchRegistrations:', error);
+            setFetchError(error.message);
+        } finally {
+            setRefreshing(false);
         }
-
-        const { data, error } = await query;
-        if (error) setFetchError(error.message);
-        else setRegistrations(data);
     };
 
     // Filter by search term
@@ -246,94 +262,108 @@ const AdminPanel = () => {
         setCurrentPaymentUrl(null);
     };
 
-    // PAYMENT STATUS UPDATE FUNCTION - FIXED AND IMPROVED
+    // PAYMENT STATUS UPDATE - NUCLEAR OPTION (BYPASS ALL ISSUES)
     const updatePaymentStatus = async (registrationId, newStatus) => {
         setStatusUpdateLoading(registrationId);
         try {
-            console.log('🔄 Starting payment status update:', { registrationId, newStatus });
+            console.log('🔄 NUCLEAR OPTION: Direct database update');
+            console.log('Registration ID:', registrationId);
+            console.log('New Status:', newStatus);
             
-            // Step 1: Update the database with explicit transaction
-            const { data, error } = await supabase
-                .from('registrations')
-                .update({ 
-                    payment_status: newStatus
-                })
-                .eq('id', registrationId)
-                .select('id, payment_status');
-
-            if (error) {
-                console.error('❌ Database update error:', error);
-                alert(`Error updating payment status: ${error.message}`);
-                return;
-            }
-
-            if (!data || data.length === 0) {
-                console.error('❌ No data returned from update');
-                alert('Error: Update failed - no record found');
-                return;
-            }
-
-            const updatedRecord = data[0];
-            console.log('✅ Database update successful:', updatedRecord);
-
-            // Step 2: Verify the status was actually changed
-            if (updatedRecord.payment_status !== newStatus) {
-                console.error('❌ Status mismatch after update:', { 
-                    expected: newStatus, 
-                    actual: updatedRecord.payment_status 
-                });
-                alert(`Error: Status update failed. Expected: ${newStatus}, Got: ${updatedRecord.payment_status}`);
-                return;
-            }
-
-            // Step 3: Update local state immediately and prevent race conditions
-            setRegistrations(prevRegistrations => {
-                const updated = prevRegistrations.map(reg => 
-                    reg.id === registrationId 
-                        ? { 
-                            ...reg, 
-                            payment_status: updatedRecord.payment_status
-                        }
-                        : reg
-                );
-                console.log('✅ Local state updated');
-                return updated;
+            // STEP 1: Use raw SQL to bypass any Supabase client issues
+            const { data: rawUpdate, error: rawError } = await supabase.rpc('update_payment_status_raw', {
+                reg_id: registrationId,
+                new_status: newStatus
             });
 
-            // Step 4: Double-check with a fresh fetch after a short delay
-            setTimeout(async () => {
-                try {
-                    const { data: verifyData, error: verifyError } = await supabase
-                        .from('registrations')
-                        .select('id, payment_status')
-                        .eq('id', registrationId)
-                        .single();
+            if (rawError) {
+                console.error('❌ Raw update failed, trying direct approach:', rawError);
+                
+                // STEP 2: Fallback to direct update with explicit transaction
+                const { data: directUpdate, error: directError } = await supabase
+                    .from('registrations')
+                    .update({ 
+                        payment_status: newStatus
+                    })
+                    .eq('id', registrationId)
+                    .select('id, name, payment_status');
 
-                    if (!verifyError && verifyData) {
-                        if (verifyData.payment_status !== newStatus) {
-                            console.warn('⚠️ Status reverted, re-updating local state');
-                            // If status reverted, try to update again
-                            setRegistrations(prevRegistrations => 
-                                prevRegistrations.map(reg => 
-                                    reg.id === registrationId 
-                                        ? { ...reg, payment_status: verifyData.payment_status }
-                                        : reg
-                                )
-                            );
-                        } else {
-                            console.log('✅ Status verification successful');
-                        }
-                    }
-                } catch (verifyError) {
-                    console.error('Verification error:', verifyError);
+                if (directError) {
+                    console.error('❌ Direct update failed:', directError);
+                    alert(`Update failed: ${directError.message}`);
+                    return;
                 }
-            }, 1000);
 
-            alert(`✅ Payment status updated to: ${newStatus.toUpperCase()}`);
+                console.log('✅ Direct update result:', directUpdate);
+            } else {
+                console.log('✅ Raw update successful:', rawUpdate);
+            }
+
+            // STEP 3: Immediate verification with fresh connection
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait 1 second
+            
+            const { data: verifyData, error: verifyError } = await supabase
+                .from('registrations')
+                .select('id, name, payment_status, payment_required')
+                .eq('id', registrationId)
+                .single();
+
+            if (verifyError) {
+                console.error('❌ Verification failed:', verifyError);
+                alert('Could not verify update');
+                return;
+            }
+
+            console.log('🔍 Verification result:', verifyData);
+
+            if (verifyData.payment_status !== newStatus) {
+                console.error('❌ STATUS STILL WRONG!');
+                console.error('Expected:', newStatus);
+                console.error('Got:', verifyData.payment_status);
+                
+                // STEP 4: Try one more time with different approach
+                console.log('🔄 Trying alternative update method...');
+                
+                const { error: altError } = await supabase
+                    .from('registrations')
+                    .upsert({ 
+                        id: registrationId,
+                        payment_status: newStatus
+                    }, { 
+                        onConflict: 'id',
+                        ignoreDuplicates: false 
+                    });
+
+                if (altError) {
+                    console.error('❌ Alternative update failed:', altError);
+                    alert(`CRITICAL: Status update completely failed. Database issue detected.`);
+                    return;
+                }
+
+                // Final verification
+                const { data: finalCheck } = await supabase
+                    .from('registrations')
+                    .select('payment_status')
+                    .eq('id', registrationId)
+                    .single();
+
+                if (finalCheck?.payment_status !== newStatus) {
+                    alert(`CRITICAL DATABASE ISSUE: Status keeps reverting. Expected: ${newStatus}, Got: ${finalCheck?.payment_status}`);
+                    return;
+                }
+            }
+
+            // STEP 5: Force complete refresh
+            console.log('🔄 Force refreshing admin panel...');
+            setRegistrations([]);
+            await new Promise(resolve => setTimeout(resolve, 500));
+            await fetchRegistrations();
+            
+            alert(`✅ SUCCESS: Payment status updated to ${newStatus.toUpperCase()}`);
 
         } catch (error) {
-            console.error('❌ Unexpected error:', error);
-            alert(`Unexpected error: ${error.message}`);
+            console.error('❌ NUCLEAR OPTION FAILED:', error);
+            alert(`CRITICAL ERROR: ${error.message}`);
         } finally {
             setStatusUpdateLoading(null);
         }
@@ -385,12 +415,31 @@ const AdminPanel = () => {
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                     <h1 className="text-3xl font-orbitron font-bold">Registration Dashboard</h1>
-                    <button
-                        onClick={handleLogout}
-                        className="flex items-center px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors"
-                    >
-                        <LogOut size={16} className="mr-2" /> Logout
-                    </button>
+                    <div className="flex gap-3">
+                        <button
+                            onClick={() => {
+                                console.log('🔄 Manual refresh triggered');
+                                fetchRegistrations();
+                            }}
+                            disabled={refreshing}
+                            className="flex items-center px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 rounded-lg transition-colors disabled:opacity-50"
+                        >
+                            {refreshing ? (
+                                <div className="animate-spin w-4 h-4 mr-2 border-2 border-blue-500 border-t-transparent rounded-full"></div>
+                            ) : (
+                                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                            )}
+                            {refreshing ? 'Refreshing...' : 'Refresh'}
+                        </button>
+                        <button
+                            onClick={handleLogout}
+                            className="flex items-center px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors"
+                        >
+                            <LogOut size={16} className="mr-2" /> Logout
+                        </button>
+                    </div>
                 </div>
 
                 {/* Filters */}
@@ -672,11 +721,20 @@ const AdminPanel = () => {
                                                                                 {reg.payment_status === 'pending' && (
                                                                                     <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 pt-3 border-t border-white/10">
                                                                                         <span className="text-sm text-gray-400 mb-2 sm:mb-0">Update Status:</span>
+                                                                                        
+                                                                                        {/* DEBUG INFO */}
+                                                                                        <div className="text-xs text-gray-500 mb-2 font-mono bg-gray-800 p-2 rounded">
+                                                                                            <div>ID: {reg.id}</div>
+                                                                                            <div>Status: {reg.payment_status}</div>
+                                                                                            <div>Required: {reg.payment_required ? 'Yes' : 'No'}</div>
+                                                                                            <div>Amount: ₹{reg.payment_amount || 'N/A'}</div>
+                                                                                        </div>
+                                                                                        
                                                                                         <div className="flex gap-2 w-full sm:w-auto">
                                                                                             <button
                                                                                                 onClick={() => {
                                                                                                     if (statusUpdateLoading === reg.id) return; // Prevent double-click
-                                                                                                    console.log('Verify button clicked for registration:', reg.id);
+                                                                                                    console.log('Verify button clicked for registration:', reg.id, 'Name:', reg.name);
                                                                                                     updatePaymentStatus(reg.id, 'verified');
                                                                                                 }}
                                                                                                 disabled={statusUpdateLoading === reg.id}
@@ -694,7 +752,7 @@ const AdminPanel = () => {
                                                                                             <button
                                                                                                 onClick={() => {
                                                                                                     if (statusUpdateLoading === reg.id) return; // Prevent double-click
-                                                                                                    console.log('Reject button clicked for registration:', reg.id);
+                                                                                                    console.log('Reject button clicked for registration:', reg.id, 'Name:', reg.name);
                                                                                                     updatePaymentStatus(reg.id, 'rejected');
                                                                                                 }}
                                                                                                 disabled={statusUpdateLoading === reg.id}
