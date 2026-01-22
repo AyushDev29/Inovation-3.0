@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Download, Search, Filter, LogOut, ChevronDown, ChevronUp, Users, FileText, Eye, X } from 'lucide-react';
+import { Download, Search, Filter, LogOut, ChevronDown, ChevronUp, Users, FileText, Eye, X, CreditCard } from 'lucide-react';
 import * as XLSX from 'xlsx';
 
 const AdminPanel = () => {
@@ -20,6 +20,12 @@ const AdminPanel = () => {
     const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
     const [currentPdfUrl, setCurrentPdfUrl] = useState(null);
     const [pdfLoading, setPdfLoading] = useState(false);
+    
+    // PAYMENT SCREENSHOT VIEWER STATE
+    const [paymentViewerOpen, setPaymentViewerOpen] = useState(false);
+    const [currentPaymentUrl, setCurrentPaymentUrl] = useState(null);
+    const [paymentLoading, setPaymentLoading] = useState(false);
+    const [statusUpdateLoading, setStatusUpdateLoading] = useState(null);
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -101,8 +107,12 @@ const AdminPanel = () => {
                                reg.events?.event_name?.includes("Fun Fusion") ||
                                reg.events?.event_name?.includes("Fashion Flex");
 
+            // Check if it's a paid event (BGMI or Free Fire)
+            const isPaidEvent = reg.events?.event_name?.includes("BGMI") || 
+                               reg.events?.event_name?.includes("Free Fire");
+
             if (isTeamEvent) {
-                return {
+                const baseData = {
                     "Team Name": reg.team_name || '-',
                     "Leader/IGL Name": reg.name || '-',
                     "Leader Email": reg.email || '-',
@@ -123,9 +133,20 @@ const AdminPanel = () => {
                     "Event": reg.events?.event_name || '-',
                     "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
                 };
+
+                // Add payment information for paid events
+                if (isPaidEvent) {
+                    baseData["Payment Required"] = reg.payment_required ? 'Yes' : 'No';
+                    baseData["Entry Fee"] = reg.payment_amount ? `₹${reg.payment_amount}` : '-';
+                    baseData["Payment Status"] = reg.payment_status || 'Not Required';
+                    baseData["Transaction ID"] = reg.payment_transaction_id || '-';
+                    baseData["Payment Screenshot"] = reg.payment_screenshot_url ? 'Uploaded' : 'Not Uploaded';
+                }
+
+                return baseData;
             }
 
-            return {
+            const baseData = {
                 "Name": reg.name || '-',
                 "Email": reg.email || '-',
                 "Phone": reg.phone || '-',
@@ -136,6 +157,17 @@ const AdminPanel = () => {
                 "Event": reg.events?.event_name || '-',
                 "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
             };
+
+            // Add payment information for paid events (shouldn't happen for individual events, but just in case)
+            if (isPaidEvent) {
+                baseData["Payment Required"] = reg.payment_required ? 'Yes' : 'No';
+                baseData["Entry Fee"] = reg.payment_amount ? `₹${reg.payment_amount}` : '-';
+                baseData["Payment Status"] = reg.payment_status || 'Not Required';
+                baseData["Transaction ID"] = reg.payment_transaction_id || '-';
+                baseData["Payment Screenshot"] = reg.payment_screenshot_url ? 'Uploaded' : 'Not Uploaded';
+            }
+
+            return baseData;
         });
 
         const ws = XLSX.utils.json_to_sheet(dataToExport);
@@ -177,6 +209,137 @@ const AdminPanel = () => {
     const closePdfViewer = () => {
         setPdfViewerOpen(false);
         setCurrentPdfUrl(null);
+    };
+
+    // PAYMENT SCREENSHOT FUNCTIONS
+    const viewPaymentScreenshot = async (screenshotPath, teamName) => {
+        if (!screenshotPath) {
+            alert('No payment screenshot uploaded');
+            return;
+        }
+
+        setPaymentLoading(true);
+        try {
+            // Generate signed URL for private payment screenshot
+            const { data, error } = await supabase.storage
+                .from('payment-screenshots')
+                .createSignedUrl(screenshotPath, 3600); // 1 hour expiry
+
+            if (error) {
+                console.error('Error generating payment screenshot URL:', error);
+                alert('Error accessing payment screenshot');
+                return;
+            }
+
+            setCurrentPaymentUrl(data.signedUrl);
+            setPaymentViewerOpen(true);
+        } catch (error) {
+            console.error('Error viewing payment screenshot:', error);
+            alert('Error viewing payment screenshot');
+        } finally {
+            setPaymentLoading(false);
+        }
+    };
+
+    const closePaymentViewer = () => {
+        setPaymentViewerOpen(false);
+        setCurrentPaymentUrl(null);
+    };
+
+    // PAYMENT STATUS UPDATE FUNCTION - FIXED AND IMPROVED
+    const updatePaymentStatus = async (registrationId, newStatus) => {
+        setStatusUpdateLoading(registrationId);
+        try {
+            console.log('🔄 Starting payment status update:', { registrationId, newStatus });
+            
+            // Step 1: Update the database with explicit transaction
+            const { data, error } = await supabase
+                .from('registrations')
+                .update({ 
+                    payment_status: newStatus,
+                    // Add timestamp to ensure we can track the update
+                    updated_at: new Date().toISOString()
+                })
+                .eq('id', registrationId)
+                .select('id, payment_status, updated_at');
+
+            if (error) {
+                console.error('❌ Database update error:', error);
+                alert(`Error updating payment status: ${error.message}`);
+                return;
+            }
+
+            if (!data || data.length === 0) {
+                console.error('❌ No data returned from update');
+                alert('Error: Update failed - no record found');
+                return;
+            }
+
+            const updatedRecord = data[0];
+            console.log('✅ Database update successful:', updatedRecord);
+
+            // Step 2: Verify the status was actually changed
+            if (updatedRecord.payment_status !== newStatus) {
+                console.error('❌ Status mismatch after update:', { 
+                    expected: newStatus, 
+                    actual: updatedRecord.payment_status 
+                });
+                alert(`Error: Status update failed. Expected: ${newStatus}, Got: ${updatedRecord.payment_status}`);
+                return;
+            }
+
+            // Step 3: Update local state immediately and prevent race conditions
+            setRegistrations(prevRegistrations => {
+                const updated = prevRegistrations.map(reg => 
+                    reg.id === registrationId 
+                        ? { 
+                            ...reg, 
+                            payment_status: updatedRecord.payment_status,
+                            updated_at: updatedRecord.updated_at
+                        }
+                        : reg
+                );
+                console.log('✅ Local state updated');
+                return updated;
+            });
+
+            // Step 4: Double-check with a fresh fetch after a short delay
+            setTimeout(async () => {
+                try {
+                    const { data: verifyData, error: verifyError } = await supabase
+                        .from('registrations')
+                        .select('id, payment_status')
+                        .eq('id', registrationId)
+                        .single();
+
+                    if (!verifyError && verifyData) {
+                        if (verifyData.payment_status !== newStatus) {
+                            console.warn('⚠️ Status reverted, re-updating local state');
+                            // If status reverted, try to update again
+                            setRegistrations(prevRegistrations => 
+                                prevRegistrations.map(reg => 
+                                    reg.id === registrationId 
+                                        ? { ...reg, payment_status: verifyData.payment_status }
+                                        : reg
+                                )
+                            );
+                        } else {
+                            console.log('✅ Status verification successful');
+                        }
+                    }
+                } catch (verifyError) {
+                    console.error('Verification error:', verifyError);
+                }
+            }, 1000);
+
+            alert(`✅ Payment status updated to: ${newStatus.toUpperCase()}`);
+
+        } catch (error) {
+            console.error('❌ Unexpected error:', error);
+            alert(`Unexpected error: ${error.message}`);
+        } finally {
+            setStatusUpdateLoading(null);
+        }
     };
 
     if (loading) return <div className="min-h-screen bg-[#0f0f0f] text-white flex items-center justify-center">Loading...</div>;
@@ -279,7 +442,7 @@ const AdminPanel = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
                     <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-white/10 rounded-xl p-6">
                         <h3 className="text-gray-400 text-sm font-medium mb-1">Total Registrations</h3>
                         <p className="text-3xl font-bold text-white">{filteredRegistrations.length}</p>
@@ -291,27 +454,21 @@ const AdminPanel = () => {
                         </p>
                     </div>
                     <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-white/10 rounded-xl p-6">
-                        <h3 className="text-gray-400 text-sm font-medium mb-1">Team Events</h3>
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">Paid Events</h3>
                         <p className="text-3xl font-bold text-white">
-                            {filteredRegistrations.filter(reg => 
-                                reg.events?.event_name?.includes("BGMI") || 
-                                reg.events?.event_name?.includes("Free Fire") || 
-                                reg.events?.event_name?.includes("Hackastra") ||
-                                reg.events?.event_name?.includes("Fun Fusion") ||
-                                reg.events?.event_name?.includes("Fashion Flex")
-                            ).length}
+                            {filteredRegistrations.filter(reg => reg.payment_required).length}
+                        </p>
+                    </div>
+                    <div className="bg-gradient-to-br from-red-500/20 to-pink-500/20 border border-white/10 rounded-xl p-6">
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">Payment Pending</h3>
+                        <p className="text-3xl font-bold text-white">
+                            {filteredRegistrations.filter(reg => reg.payment_status === 'pending').length}
                         </p>
                     </div>
                     <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-white/10 rounded-xl p-6">
-                        <h3 className="text-gray-400 text-sm font-medium mb-1">Individual Events</h3>
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">Free Events</h3>
                         <p className="text-3xl font-bold text-white">
-                            {filteredRegistrations.filter(reg => 
-                                !reg.events?.event_name?.includes("BGMI") && 
-                                !reg.events?.event_name?.includes("Free Fire") && 
-                                !reg.events?.event_name?.includes("Hackastra") &&
-                                !reg.events?.event_name?.includes("Fun Fusion") &&
-                                !reg.events?.event_name?.includes("Fashion Flex")
-                            ).length}
+                            {filteredRegistrations.filter(reg => !reg.payment_required).length}
                         </p>
                     </div>
                 </div>
@@ -442,6 +599,154 @@ const AdminPanel = () => {
                                                                             </button>
                                                                         )}
                                                                     </div>
+                                                                    {/* PAYMENT INFORMATION - ENHANCED RESPONSIVE UI */}
+                                                                    {reg.payment_required && (
+                                                                        <div className="mt-3 pt-3 border-t border-white/10">
+                                                                            <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg p-3 sm:p-4">
+                                                                                <div className="flex items-center justify-between mb-3">
+                                                                                    <h4 className="text-sm sm:text-base font-semibold text-yellow-400 flex items-center gap-2">
+                                                                                        <CreditCard size={16} />
+                                                                                        Payment Details
+                                                                                    </h4>
+                                                                                    <div className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                                                                        reg.payment_status === 'verified' ? 'bg-green-500/20 text-green-400' :
+                                                                                        reg.payment_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400' :
+                                                                                        reg.payment_status === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                                                                                        'bg-gray-500/20 text-gray-400'
+                                                                                    }`}>
+                                                                                        {reg.payment_status === 'verified' ? '✓ Verified' :
+                                                                                         reg.payment_status === 'pending' ? '⏳ Pending' :
+                                                                                         reg.payment_status === 'rejected' ? '✗ Rejected' :
+                                                                                         reg.payment_status || 'Unknown'}
+                                                                                    </div>
+                                                                                </div>
+                                                                                
+                                                                                {/* Payment Info Grid - Responsive */}
+                                                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-3">
+                                                                                    <div className="bg-black/20 rounded-lg p-2">
+                                                                                        <div className="text-xs text-gray-400">Entry Fee</div>
+                                                                                        <div className="text-sm font-semibold text-yellow-400">
+                                                                                            ₹{reg.payment_amount}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    
+                                                                                    <div className="bg-black/20 rounded-lg p-2">
+                                                                                        <div className="text-xs text-gray-400">Transaction ID</div>
+                                                                                        <div className="text-sm font-mono text-cyan-400 truncate">
+                                                                                            {reg.payment_transaction_id || 'N/A'}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    
+                                                                                    <div className="bg-black/20 rounded-lg p-2">
+                                                                                        <div className="text-xs text-gray-400">Screenshot</div>
+                                                                                        <div className="flex items-center gap-2">
+                                                                                            <div className={`text-sm ${reg.payment_screenshot_url ? 'text-green-400' : 'text-red-400'}`}>
+                                                                                                {reg.payment_screenshot_url ? '✓ Uploaded' : '✗ Missing'}
+                                                                                            </div>
+                                                                                            {reg.payment_screenshot_url && (
+                                                                                                <button
+                                                                                                    onClick={() => viewPaymentScreenshot(reg.payment_screenshot_url, reg.team_name)}
+                                                                                                    disabled={paymentLoading}
+                                                                                                    className="px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs transition-colors disabled:opacity-50"
+                                                                                                >
+                                                                                                    View
+                                                                                                </button>
+                                                                                            )}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    
+                                                                                    <div className="bg-black/20 rounded-lg p-2">
+                                                                                        <div className="text-xs text-gray-400">Status</div>
+                                                                                        <div className={`text-sm font-medium ${
+                                                                                            reg.payment_status === 'verified' ? 'text-green-400' :
+                                                                                            reg.payment_status === 'pending' ? 'text-yellow-400' :
+                                                                                            reg.payment_status === 'rejected' ? 'text-red-400' :
+                                                                                            'text-gray-400'
+                                                                                        }`}>
+                                                                                            {reg.payment_status === 'verified' ? 'Verified' :
+                                                                                             reg.payment_status === 'pending' ? 'Pending' :
+                                                                                             reg.payment_status === 'rejected' ? 'Rejected' :
+                                                                                             reg.payment_status || 'Unknown'}
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+
+                                                                                {/* Action Buttons - Responsive */}
+                                                                                {reg.payment_status === 'pending' && (
+                                                                                    <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 pt-3 border-t border-white/10">
+                                                                                        <span className="text-sm text-gray-400 mb-2 sm:mb-0">Update Status:</span>
+                                                                                        <div className="flex gap-2 w-full sm:w-auto">
+                                                                                            <button
+                                                                                                onClick={() => {
+                                                                                                    if (statusUpdateLoading === reg.id) return; // Prevent double-click
+                                                                                                    console.log('Verify button clicked for registration:', reg.id);
+                                                                                                    updatePaymentStatus(reg.id, 'verified');
+                                                                                                }}
+                                                                                                disabled={statusUpdateLoading === reg.id}
+                                                                                                className="flex-1 sm:flex-none px-4 py-2 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                                                                            >
+                                                                                                {statusUpdateLoading === reg.id ? (
+                                                                                                    <>
+                                                                                                        <div className="animate-spin w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full"></div>
+                                                                                                        Verifying...
+                                                                                                    </>
+                                                                                                ) : (
+                                                                                                    <>✓ Verify Payment</>
+                                                                                                )}
+                                                                                            </button>
+                                                                                            <button
+                                                                                                onClick={() => {
+                                                                                                    if (statusUpdateLoading === reg.id) return; // Prevent double-click
+                                                                                                    console.log('Reject button clicked for registration:', reg.id);
+                                                                                                    updatePaymentStatus(reg.id, 'rejected');
+                                                                                                }}
+                                                                                                disabled={statusUpdateLoading === reg.id}
+                                                                                                className="flex-1 sm:flex-none px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                                                                            >
+                                                                                                {statusUpdateLoading === reg.id ? (
+                                                                                                    <>
+                                                                                                        <div className="animate-spin w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full"></div>
+                                                                                                        Rejecting...
+                                                                                                    </>
+                                                                                                ) : (
+                                                                                                    <>✗ Reject Payment</>
+                                                                                                )}
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+
+                                                                                {/* Final Status Display */}
+                                                                                {reg.payment_status !== 'pending' && (
+                                                                                    <div className="pt-3 border-t border-white/10">
+                                                                                        <div className="flex items-center justify-between">
+                                                                                            <div className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium ${
+                                                                                                reg.payment_status === 'verified' ? 'bg-green-500/20 text-green-400' :
+                                                                                                reg.payment_status === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                                                                                                'bg-gray-500/20 text-gray-400'
+                                                                                            }`}>
+                                                                                                {reg.payment_status === 'verified' ? '✓ Payment Verified - Registration Complete' :
+                                                                                                 reg.payment_status === 'rejected' ? '✗ Payment Rejected - Registration Invalid' :
+                                                                                                 `Status: ${reg.payment_status}`}
+                                                                                            </div>
+                                                                                            <button
+                                                                                                onClick={() => {
+                                                                                                    if (statusUpdateLoading === reg.id) return;
+                                                                                                    if (confirm(`Reset payment status to pending for ${reg.name}?`)) {
+                                                                                                        updatePaymentStatus(reg.id, 'pending');
+                                                                                                    }
+                                                                                                }}
+                                                                                                disabled={statusUpdateLoading === reg.id}
+                                                                                                className="px-3 py-1.5 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded text-xs font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                                                                                            >
+                                                                                                {statusUpdateLoading === reg.id ? 'Updating...' : 'Reset to Pending'}
+                                                                                            </button>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        </div>
+                                                                    )}
                                                                 </div>
                                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                                     <div className="bg-white/5 rounded-lg p-3">
@@ -533,6 +838,42 @@ const AdminPanel = () => {
                     <div className="bg-white/10 border border-white/20 rounded-lg p-6 text-white text-center">
                         <div className="animate-spin w-8 h-8 border-2 border-white/30 border-t-white rounded-full mx-auto mb-3"></div>
                         <p>Loading PDF...</p>
+                    </div>
+                </div>
+            )}
+            {/* Payment Screenshot Viewer Modal */}
+            {paymentViewerOpen && currentPaymentUrl && (
+                <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="relative w-full h-full max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 bg-gray-900 text-white p-4 flex items-center justify-between z-10">
+                            <div className="flex items-center gap-2">
+                                <CreditCard size={20} />
+                                <span className="font-medium">Payment Screenshot</span>
+                            </div>
+                            <button
+                                onClick={closePaymentViewer}
+                                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="pt-16 h-full flex items-center justify-center">
+                            <img
+                                src={currentPaymentUrl}
+                                alt="Payment Screenshot"
+                                className="max-w-full max-h-full object-contain"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading overlay for payment operations */}
+            {paymentLoading && (
+                <div className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                    <div className="bg-white/10 border border-white/20 rounded-lg p-6 text-white text-center">
+                        <div className="animate-spin w-8 h-8 border-2 border-white/30 border-t-white rounded-full mx-auto mb-3"></div>
+                        <p>Loading Payment Screenshot...</p>
                     </div>
                 </div>
             )}

@@ -17,3 +17,4 @@ SELECT id, event_name, team_size FROM events ORDER BY id;
 
 -- Success message
 SELECT 'Event names and team sizes updated successfully!' as status;
+

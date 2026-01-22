@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowLeft, CheckCircle, AlertCircle, Upload, X } from 'lucide-react';
+import { ArrowLeft, CheckCircle, AlertCircle, Upload, X, CreditCard, QrCode } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 
@@ -10,7 +10,8 @@ const BGMIRegistration = () => {
         id: 1,
         title: "BGMI Esports Tournament",
         teamSize: "4 Members",
-        prize: "₹6,000"
+        prize: "₹6,000",
+        entryFee: 100 // BGMI entry fee
     };
 
     // Scroll to top when component mounts (only for form positioning)
@@ -43,6 +44,15 @@ const BGMIRegistration = () => {
     const [files, setFiles] = useState({
         college_id: null
     });
+    
+    // PAYMENT STATE (NEW - SAFE ADDITION)
+    const [paymentStep, setPaymentStep] = useState(false); // false = form, true = payment
+    const [paymentData, setPaymentData] = useState({
+        screenshot: null,
+        transactionId: ''
+    });
+    const [paymentErrors, setPaymentErrors] = useState({});
+    
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null);
     const [message, setMessage] = useState('');
@@ -100,8 +110,129 @@ const BGMIRegistration = () => {
         }
     };
 
+    // PAYMENT FUNCTIONS (NEW - SAFE ADDITION)
+    const handlePaymentScreenshot = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type (images only)
+            if (!file.type.startsWith('image/')) {
+                setPaymentErrors(prev => ({
+                    ...prev,
+                    screenshot: 'Please upload only image files (JPG, PNG)'
+                }));
+                return;
+            }
+            
+            // Validate file size (max 5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                setPaymentErrors(prev => ({
+                    ...prev,
+                    screenshot: 'File size must be less than 5MB'
+                }));
+                return;
+            }
+            
+            setPaymentData(prev => ({
+                ...prev,
+                screenshot: file
+            }));
+            setPaymentErrors(prev => ({
+                ...prev,
+                screenshot: null
+            }));
+        }
+    };
+
+    const handleTransactionIdChange = (e) => {
+        const value = e.target.value.trim();
+        setPaymentData(prev => ({
+            ...prev,
+            transactionId: value
+        }));
+        
+        // Validate transaction ID
+        if (value.length < 6) {
+            setPaymentErrors(prev => ({
+                ...prev,
+                transactionId: 'Transaction ID must be at least 6 characters'
+            }));
+        } else {
+            setPaymentErrors(prev => ({
+                ...prev,
+                transactionId: null
+            }));
+        }
+    };
+
+    const uploadPaymentScreenshot = async (file) => {
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `bgmi/${Date.now()}-${formData.email.replace('@', '-')}.${fileExt}`;
+            
+            const { data, error } = await supabase.storage
+                .from('payment-screenshots')
+                .upload(fileName, file);
+            
+            if (error) throw error;
+            return data.path;
+        } catch (error) {
+            console.error('Payment screenshot upload error:', error);
+            throw new Error(`Failed to upload payment screenshot: ${error.message}`);
+        }
+    };
+
+    const validatePaymentData = () => {
+        const errors = {};
+        
+        if (!paymentData.screenshot) {
+            errors.screenshot = 'Payment screenshot is required';
+        }
+        
+        if (!paymentData.transactionId || paymentData.transactionId.length < 6) {
+            errors.transactionId = 'Valid transaction ID is required (min 6 characters)';
+        }
+        
+        setPaymentErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const proceedToPayment = (e) => {
+        e.preventDefault();
+        
+        // Validate form data first
+        const requiredFields = ['name', 'email', 'phone', 'class', 'college', 'roll_no', 'team_name', 
+                               'player2_name', 'player2_roll_no', 'player2_college',
+                               'player3_name', 'player3_roll_no', 'player3_college',
+                               'player4_name', 'player4_roll_no', 'player4_college'];
+        
+        const missingFields = requiredFields.filter(field => !formData[field]);
+        
+        if (missingFields.length > 0) {
+            setStatus('error');
+            setMessage('Please fill all required fields before proceeding to payment');
+            return;
+        }
+        
+        if (!files.college_id) {
+            setStatus('error');
+            setMessage('Please upload team college IDs before proceeding to payment');
+            return;
+        }
+        
+        // Switch to payment step
+        setPaymentStep(true);
+        setStatus(null);
+        setMessage('');
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        
+        // Validate payment data first (BGMI requires payment)
+        if (!validatePaymentData()) {
+            return;
+        }
+        
         setLoading(true);
         setStatus(null);
         setMessage('');
@@ -117,14 +248,24 @@ const BGMIRegistration = () => {
 
             let uploadedFiles = {};
             
-            // Try to upload file if provided, but don't fail if bucket doesn't exist
+            // Upload college ID documents
             if (files.college_id) {
                 try {
                     setMessage('Uploading college ID documents...');
                     uploadedFiles.college_id_url = await uploadFile(files.college_id, 'college_id');
                 } catch (uploadError) {
                     console.warn('File upload failed, continuing without file:', uploadError);
-                    // Continue registration without file upload
+                }
+            }
+
+            // Upload payment screenshot (NEW - SAFE ADDITION)
+            let paymentScreenshotUrl = null;
+            if (paymentData.screenshot) {
+                try {
+                    setMessage('Uploading payment screenshot...');
+                    paymentScreenshotUrl = await uploadPaymentScreenshot(paymentData.screenshot);
+                } catch (uploadError) {
+                    throw new Error('Failed to upload payment screenshot. Please try again.');
                 }
             }
 
@@ -148,17 +289,28 @@ const BGMIRegistration = () => {
                 player4_name: formData.player4_name,
                 player4_roll_no: formData.player4_roll_no,
                 player4_college: formData.player4_college,
-                college_id_url: uploadedFiles.college_id_url || null
+                college_id_url: uploadedFiles.college_id_url || null,
+                // PAYMENT FIELDS (NEW - SAFE ADDITION)
+                payment_required: true,
+                payment_amount: event.entryFee,
+                payment_screenshot_url: paymentScreenshotUrl,
+                payment_transaction_id: paymentData.transactionId,
+                payment_status: 'pending'
             };
 
             const { error: insertError } = await supabase
                 .from('registrations')
                 .insert([payload]);
 
-            if (insertError) throw insertError;
+            if (insertError) {
+                if (insertError.code === '23505') {
+                    throw new Error("You/Team have already registered for this event with this email.");
+                }
+                throw insertError;
+            }
 
             setStatus('success');
-            setMessage('Registration successful! Get ready for the event.');
+            setMessage('Registration successful! Your payment is under verification. You will be notified once approved.');
             
         } catch (error) {
             console.error(error);
@@ -480,14 +632,145 @@ const BGMIRegistration = () => {
                                 </div>
                             )}
 
-                            {/* Submit Button */}
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="w-full mt-2 sm:mt-3 py-2 sm:py-2.5 bg-gradient-to-r from-neon-purple to-cyber-blue text-white font-bold font-orbitron tracking-wider rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-[11px] sm:text-xs md:text-sm"
-                            >
-                                {loading ? 'REGISTERING...' : 'CONFIRM REGISTRATION'}
-                            </button>
+                            {/* PAYMENT SECTION (NEW - ONLY FOR BGMI) */}
+                            {!paymentStep ? (
+                                /* STEP 1: PROCEED TO PAYMENT BUTTON */
+                                <button
+                                    type="button"
+                                    onClick={proceedToPayment}
+                                    disabled={loading}
+                                    className="w-full mt-2 sm:mt-3 py-2 sm:py-2.5 bg-gradient-to-r from-yellow-500 to-orange-500 text-white font-bold font-orbitron tracking-wider rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-[11px] sm:text-xs md:text-sm"
+                                >
+                                    <CreditCard size={16} className="inline mr-2" />
+                                    PROCEED TO PAYMENT (₹{event.entryFee})
+                                </button>
+                            ) : (
+                                /* STEP 2: PAYMENT SECTION */
+                                <div className="space-y-3 sm:space-y-4">
+                                    {/* Payment Header - Enhanced */}
+                                    <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-xl p-4 sm:p-6">
+                                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2 bg-yellow-500/20 rounded-lg">
+                                                    <CreditCard size={20} className="text-yellow-500" />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-lg sm:text-xl font-bold text-white">Payment Required</h3>
+                                                    <p className="text-sm text-gray-300">Complete payment to confirm registration</p>
+                                                </div>
+                                            </div>
+                                            <div className="bg-yellow-500/20 px-4 py-2 rounded-lg">
+                                                <div className="text-xs text-yellow-300 uppercase tracking-wider">Entry Fee</div>
+                                                <div className="text-2xl font-bold text-yellow-400">₹{event.entryFee}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* QR Scanner - Enhanced */}
+                                    <div className="bg-white/5 rounded-xl p-4 sm:p-6 border border-white/10">
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <div className="p-2 bg-cyan-500/20 rounded-lg">
+                                                <QrCode size={20} className="text-cyan-400" />
+                                            </div>
+                                            <div>
+                                                <h4 className="text-base sm:text-lg font-semibold text-white">Scan & Pay</h4>
+                                                <p className="text-sm text-gray-400">Use any UPI app to make payment</p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div className="flex flex-col items-center">
+                                            <div className="bg-white p-4 rounded-xl shadow-lg mb-4">
+                                                <img 
+                                                    src="/scanners/bgmi-scanner.jpeg" 
+                                                    alt="BGMI Payment QR Code"
+                                                    className="w-40 h-40 sm:w-48 sm:h-48 object-contain"
+                                                    onError={(e) => {
+                                                        console.log('QR image failed to load:', e.target.src);
+                                                        e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48cmVjdCB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIxMDAlIiBmaWxsPSIjZjNmNGY2Ii8+PHRleHQgeD0iNTAlIiB5PSI1MCUiIGZvbnQtZmFtaWx5PSJBcmlhbCIgZm9udC1zaXplPSIxNCIgZmlsbD0iIzM3NDE1MSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iPkJHTUkgUVIgQ29kZTwvdGV4dD48L3N2Zz4=';
+                                                    }}
+                                                />
+                                            </div>
+                                            <div className="text-center">
+                                                <p className="text-sm sm:text-base text-gray-300 mb-2">
+                                                    Scan this QR code with any UPI app
+                                                </p>
+                                                <div className="bg-yellow-500/20 px-3 py-1 rounded-full inline-block">
+                                                    <span className="text-yellow-400 font-semibold">Pay exactly ₹{event.entryFee}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Payment Screenshot Upload */}
+                                    <div className="space-y-1">
+                                        <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
+                                            Payment Screenshot *
+                                        </label>
+                                        <div className="relative">
+                                            <input
+                                                type="file"
+                                                accept="image/*"
+                                                onChange={handlePaymentScreenshot}
+                                                className="hidden"
+                                                id="payment_screenshot"
+                                                required
+                                            />
+                                            <label
+                                                htmlFor="payment_screenshot"
+                                                className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs text-white hover:border-yellow-500 transition-all cursor-pointer flex items-center gap-1.5"
+                                            >
+                                                <Upload size={14} />
+                                                {paymentData.screenshot ? (
+                                                    <span className="text-green-400 truncate">{paymentData.screenshot.name}</span>
+                                                ) : (
+                                                    <span className="text-gray-400 text-[10px] sm:text-[11px]">
+                                                        Upload Payment Screenshot (JPG, PNG, max 5MB)
+                                                    </span>
+                                                )}
+                                            </label>
+                                        </div>
+                                        {paymentErrors.screenshot && (
+                                            <p className="text-red-400 text-[9px] sm:text-[10px] ml-1">{paymentErrors.screenshot}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Transaction ID */}
+                                    <div className="space-y-1">
+                                        <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
+                                            Transaction ID *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            value={paymentData.transactionId}
+                                            onChange={handleTransactionIdChange}
+                                            className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 transition-all placeholder-gray-600"
+                                            placeholder="Enter Transaction ID from payment app"
+                                            required
+                                        />
+                                        {paymentErrors.transactionId && (
+                                            <p className="text-red-400 text-[9px] sm:text-[10px] ml-1">{paymentErrors.transactionId}</p>
+                                        )}
+                                    </div>
+
+                                    {/* Back to Form Button */}
+                                    <button
+                                        type="button"
+                                        onClick={() => setPaymentStep(false)}
+                                        className="w-full mt-2 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg transition-colors text-[11px] sm:text-xs"
+                                    >
+                                        ← Back to Form
+                                    </button>
+
+                                    {/* Final Submit Button */}
+                                    <button
+                                        type="submit"
+                                        disabled={loading || !paymentData.screenshot || !paymentData.transactionId || paymentErrors.screenshot || paymentErrors.transactionId}
+                                        className="w-full mt-2 sm:mt-3 py-2 sm:py-2.5 bg-gradient-to-r from-neon-purple to-cyber-blue text-white font-bold font-orbitron tracking-wider rounded-lg hover:opacity-90 transition-opacity disabled:opacity-50 disabled:cursor-not-allowed text-[11px] sm:text-xs md:text-sm"
+                                    >
+                                        {loading ? 'REGISTERING...' : 'CONFIRM REGISTRATION'}
+                                    </button>
+                                </div>
+                            )}
                         </form>
                     )}
                 </div>
