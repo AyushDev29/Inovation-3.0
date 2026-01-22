@@ -369,7 +369,14 @@ const Events = () => {
                 {selectedEvent && (
                     <EventModal
                         event={selectedEvent}
-                        onClose={() => setSelectedEvent(null)}
+                        onClose={() => {
+                            // Scroll to events section when closing
+                            const eventsSection = document.getElementById('events');
+                            if (eventsSection) {
+                                eventsSection.scrollIntoView({ behavior: 'smooth' });
+                            }
+                            setSelectedEvent(null);
+                        }}
                         onRegister={(event) => {
                             setSelectedEvent(null);
                             setRegisteringEvent(event);
