@@ -22,6 +22,10 @@ const AdminPanel = () => {
     const [imageLoading, setImageLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false); // Add refreshing state
     
+    // VERIFICATION SYSTEM STATE
+    const [verificationFilter, setVerificationFilter] = useState('normal'); // normal, all, verified, pending, rejected
+    const [verificationUpdateLoading, setVerificationUpdateLoading] = useState(null);
+    
     // PAYMENT SCREENSHOT VIEWER STATE
     const [paymentViewerOpen, setPaymentViewerOpen] = useState(false);
     const [currentPaymentUrl, setCurrentPaymentUrl] = useState(null);
@@ -48,7 +52,7 @@ const AdminPanel = () => {
             fetchEvents();
             fetchRegistrations();
         }
-    }, [session, selectedEvent]);
+    }, [session, selectedEvent, verificationFilter]);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -88,6 +92,21 @@ const AdminPanel = () => {
             if (selectedEvent !== 'all') {
                 const eventId = events.find(e => e.event_name === selectedEvent)?.id;
                 if (eventId) query = query.eq('event_id', eventId);
+            }
+
+            // Apply verification filter - exclude rejected users from normal view
+            if (verificationFilter === 'verified') {
+                query = query.eq('verification_status', 'verified');
+            } else if (verificationFilter === 'pending') {
+                query = query.eq('verification_status', 'pending');
+            } else if (verificationFilter === 'rejected') {
+                query = query.eq('verification_status', 'rejected');
+            } else if (verificationFilter === 'all') {
+                // Show all including rejected for admin review
+                // No additional filter needed
+            } else {
+                // Default 'normal' behavior: exclude rejected users from normal view
+                query = query.neq('verification_status', 'rejected');
             }
 
             const { data, error } = await query;
@@ -137,6 +156,10 @@ const AdminPanel = () => {
                     "Leader College": reg.college || '-',
                     "Leader Roll No": reg.roll_no || '-',
                     "Team College IDs": reg.college_id_url ? 'Photo Uploaded' : 'Not Uploaded',
+                    "Verification Status": reg.verification_status === 'verified' ? 'Verified' :
+                                          reg.verification_status === 'rejected' ? 'Rejected' : 'Pending',
+                    "Verified At": reg.verified_at ? new Date(reg.verified_at).toLocaleString() : '-',
+                    "Verified By": reg.verified_by || '-',
                     "Member 2 Name": reg.player2_name || '-',
                     "Member 2 Roll No": reg.player2_roll_no || '-',
                     "Member 2 Class": reg.player2_class || '-',
@@ -170,6 +193,10 @@ const AdminPanel = () => {
                 "College": reg.college || '-',
                 "Roll No": reg.roll_no || '-',
                 "College ID": reg.college_id_url ? 'Photo Uploaded' : 'Not Uploaded',
+                "Verification Status": reg.verification_status === 'verified' ? 'Verified' :
+                                      reg.verification_status === 'rejected' ? 'Rejected' : 'Pending',
+                "Verified At": reg.verified_at ? new Date(reg.verified_at).toLocaleString() : '-',
+                "Verified By": reg.verified_by || '-',
                 "Event": reg.events?.event_name || '-',
                 "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
             };
@@ -260,6 +287,55 @@ const AdminPanel = () => {
     const closePaymentViewer = () => {
         setPaymentViewerOpen(false);
         setCurrentPaymentUrl(null);
+    };
+
+    // VERIFICATION STATUS UPDATE FUNCTION - USING DATABASE FUNCTION
+    const updateVerificationStatus = async (registrationId, newStatus, rejectionReason = null) => {
+        setVerificationUpdateLoading(registrationId);
+        try {
+            console.log('🔄 Updating verification status using database function');
+            console.log('Registration ID:', registrationId);
+            console.log('New Status:', newStatus);
+            console.log('Rejection Reason:', rejectionReason);
+            
+            // Use the database function for reliable updates
+            const { data, error } = await supabase.rpc('update_verification_status', {
+                reg_id: registrationId,
+                new_status: newStatus,
+                admin_email: session?.user?.email || 'admin',
+                reason: rejectionReason
+            });
+
+            if (error) {
+                console.error('❌ Database function error:', error);
+                alert(`Update failed: ${error.message}`);
+                return;
+            }
+
+            console.log('✅ Database function result:', data);
+
+            // Check if the function reported success
+            if (!data.success) {
+                console.error('❌ Function reported failure:', data.error);
+                alert(`Update failed: ${data.error}`);
+                return;
+            }
+
+            // Verify the update worked
+            console.log('🔍 Verification successful:', data.verification_status);
+
+            // Force refresh the registration list
+            console.log('🔄 Refreshing registration list...');
+            await fetchRegistrations();
+            
+            alert(`✅ SUCCESS: Verification status updated to ${newStatus.toUpperCase()}`);
+
+        } catch (error) {
+            console.error('❌ Verification update error:', error);
+            alert(`CRITICAL ERROR: ${error.message}`);
+        } finally {
+            setVerificationUpdateLoading(null);
+        }
     };
 
     // PAYMENT STATUS UPDATE - NUCLEAR OPTION (BYPASS ALL ISSUES)
@@ -444,7 +520,7 @@ const AdminPanel = () => {
 
                 {/* Filters */}
                 <div className="bg-white/5 border border-white/10 rounded-xl p-6 mb-8 backdrop-blur-sm">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <div className="relative">
                             <label className="block text-sm text-gray-400 mb-2">Search Students</label>
                             <div className="relative">
@@ -476,6 +552,24 @@ const AdminPanel = () => {
                             </div>
                         </div>
 
+                        <div>
+                            <label className="block text-sm text-gray-400 mb-2">Verification Status</label>
+                            <div className="relative">
+                                <Users className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" size={16} />
+                                <select
+                                    value={verificationFilter}
+                                    onChange={(e) => setVerificationFilter(e.target.value)}
+                                    className="w-full bg-black/40 border border-white/10 rounded-lg pl-10 pr-4 py-2.5 text-white focus:border-neon-purple focus:outline-none appearance-none cursor-pointer"
+                                >
+                                    <option value="normal">Normal View (Exclude Rejected)</option>
+                                    <option value="all">All Registrations</option>
+                                    <option value="verified">✓ Verified Only</option>
+                                    <option value="pending">⏳ Pending Only</option>
+                                    <option value="rejected">✗ Rejected Only</option>
+                                </select>
+                            </div>
+                        </div>
+
                         <div className="flex items-end">
                             <button
                                 onClick={exportToExcel}
@@ -488,33 +582,39 @@ const AdminPanel = () => {
                 </div>
 
                 {/* Stats */}
-                <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
                     <div className="bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-white/10 rounded-xl p-6">
                         <h3 className="text-gray-400 text-sm font-medium mb-1">Total Registrations</h3>
                         <p className="text-3xl font-bold text-white">{filteredRegistrations.length}</p>
                     </div>
                     <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-white/10 rounded-xl p-6">
-                        <h3 className="text-gray-400 text-sm font-medium mb-1">ID Photos Uploaded</h3>
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">✓ Verified</h3>
                         <p className="text-3xl font-bold text-white">
-                            {filteredRegistrations.filter(reg => reg.college_id_url).length}
+                            {filteredRegistrations.filter(reg => reg.verification_status === 'verified').length}
                         </p>
                     </div>
                     <div className="bg-gradient-to-br from-yellow-500/20 to-orange-500/20 border border-white/10 rounded-xl p-6">
-                        <h3 className="text-gray-400 text-sm font-medium mb-1">Paid Events</h3>
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">⏳ Pending Verification</h3>
                         <p className="text-3xl font-bold text-white">
-                            {filteredRegistrations.filter(reg => reg.payment_required).length}
+                            {filteredRegistrations.filter(reg => reg.verification_status === 'pending' || !reg.verification_status).length}
                         </p>
                     </div>
                     <div className="bg-gradient-to-br from-red-500/20 to-pink-500/20 border border-white/10 rounded-xl p-6">
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">✗ Rejected</h3>
+                        <p className="text-3xl font-bold text-white">
+                            {filteredRegistrations.filter(reg => reg.verification_status === 'rejected').length}
+                        </p>
+                    </div>
+                    <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-white/10 rounded-xl p-6">
                         <h3 className="text-gray-400 text-sm font-medium mb-1">Payment Pending</h3>
                         <p className="text-3xl font-bold text-white">
                             {filteredRegistrations.filter(reg => reg.payment_required && reg.payment_status === 'pending').length}
                         </p>
                     </div>
-                    <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-white/10 rounded-xl p-6">
-                        <h3 className="text-gray-400 text-sm font-medium mb-1">Free Events</h3>
+                    <div className="bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-white/10 rounded-xl p-6">
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">ID Photos Uploaded</h3>
                         <p className="text-3xl font-bold text-white">
-                            {filteredRegistrations.filter(reg => !reg.payment_required).length}
+                            {filteredRegistrations.filter(reg => reg.college_id_url).length}
                         </p>
                     </div>
                 </div>
@@ -529,6 +629,7 @@ const AdminPanel = () => {
                                     <th className="px-6 py-4 font-medium">Contact</th>
                                     <th className="px-6 py-4 font-medium">Academic Info</th>
                                     <th className="px-6 py-4 font-medium">Event</th>
+                                    <th className="px-6 py-4 font-medium">Verification</th>
                                     <th className="px-6 py-4 font-medium">Date</th>
                                     <th className="px-6 py-4 font-medium">Actions</th>
                                 </tr>
@@ -605,6 +706,61 @@ const AdminPanel = () => {
                                                             {reg.events?.event_name}
                                                         </span>
                                                     </td>
+                                                    <td className="px-6 py-4">
+                                                        <div className="flex flex-col gap-1">
+                                                            <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                                                reg.verification_status === 'verified' ? 'bg-green-500/20 text-green-400' :
+                                                                reg.verification_status === 'rejected' ? 'bg-red-500/20 text-red-400' :
+                                                                'bg-yellow-500/20 text-yellow-400'
+                                                            }`}>
+                                                                {reg.verification_status === 'verified' ? '✓ Verified' :
+                                                                 reg.verification_status === 'rejected' ? '✗ Rejected' :
+                                                                 '⏳ Pending'}
+                                                            </div>
+                                                            {/* Verification Buttons for Pending Status */}
+                                                            {reg.verification_status === 'pending' || !reg.verification_status ? (
+                                                                <div className="flex gap-1 mt-1">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (verificationUpdateLoading === reg.id) return;
+                                                                            console.log('Verify button clicked for registration:', reg.id, 'Name:', reg.name);
+                                                                            updateVerificationStatus(reg.id, 'verified');
+                                                                        }}
+                                                                        disabled={verificationUpdateLoading === reg.id}
+                                                                        className="px-2 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded text-xs transition-colors disabled:opacity-50"
+                                                                    >
+                                                                        {verificationUpdateLoading === reg.id ? '...' : '✓'}
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (verificationUpdateLoading === reg.id) return;
+                                                                            const reason = prompt('Rejection reason (optional):');
+                                                                            console.log('Reject button clicked for registration:', reg.id, 'Name:', reg.name);
+                                                                            updateVerificationStatus(reg.id, 'rejected', reason);
+                                                                        }}
+                                                                        disabled={verificationUpdateLoading === reg.id}
+                                                                        className="px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded text-xs transition-colors disabled:opacity-50"
+                                                                    >
+                                                                        {verificationUpdateLoading === reg.id ? '...' : '✗'}
+                                                                    </button>
+                                                                </div>
+                                                            ) : (
+                                                                /* Reset Button for Verified/Rejected */
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (verificationUpdateLoading === reg.id) return;
+                                                                        if (confirm(`Reset verification status to pending for ${reg.name}?`)) {
+                                                                            updateVerificationStatus(reg.id, 'pending');
+                                                                        }
+                                                                    }}
+                                                                    disabled={verificationUpdateLoading === reg.id}
+                                                                    className="px-2 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded text-xs transition-colors disabled:opacity-50 mt-1"
+                                                                >
+                                                                    {verificationUpdateLoading === reg.id ? 'Updating...' : 'Reset'}
+                                                                </button>
+                                                            )}
+                                                        </div>
+                                                    </td>
                                                     <td className="px-6 py-4 text-gray-400">
                                                         {new Date(reg.created_at).toLocaleDateString()}
                                                     </td>
@@ -623,7 +779,7 @@ const AdminPanel = () => {
                                                 </tr>
                                                 {isTeamEvent && isExpanded && (
                                                     <tr className="bg-white/5">
-                                                        <td colSpan="6" className="px-6 py-4">
+                                                        <td colSpan="7" className="px-6 py-4">
                                                             <div className="bg-black/20 rounded-lg p-4 border border-white/10">
                                                                 <div className="flex items-center justify-between mb-4">
                                                                     <h4 className="text-white font-semibold flex items-center gap-2">
@@ -850,7 +1006,7 @@ const AdminPanel = () => {
                                     })
                                 ) : (
                                     <tr>
-                                        <td colSpan="6" className="px-6 py-8 text-center text-gray-500">
+                                        <td colSpan="7" className="px-6 py-8 text-center text-gray-500">
                                             No registrations found.
                                         </td>
                                     </tr>
