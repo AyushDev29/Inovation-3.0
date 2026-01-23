@@ -58,14 +58,19 @@ const TechTriathlonRegistration = () => {
     const handleFileChange = (e, fieldName) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.type !== 'application/pdf') {
-                alert('Please upload only PDF files');
+            // Validate file type (Images only: JPEG, JPG, PNG, WEBP)
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please upload only image files (JPEG, JPG, PNG, WEBP) for college ID verification.');
                 return;
             }
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 5MB');
+            
+            // Validate file size (max 10MB for images)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Image size must be less than 10MB.');
                 return;
             }
+            
             setFiles(prev => ({
                 ...prev,
                 [fieldName]: file
@@ -343,15 +348,16 @@ const TechTriathlonRegistration = () => {
                                 />
                             </div>
 
-                            {/* College ID Upload */}
+                            {/* College ID Photo Upload */}
                             <div className="space-y-1">
                                 <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                    College ID (PDF)
+                                    College ID Photo
                                 </label>
                                 <div className="relative">
                                     <input
                                         type="file"
-                                        accept=".pdf"
+                                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                                        capture="environment"
                                         onChange={(e) => handleFileChange(e, 'college_id')}
                                         className="hidden"
                                         id="college_id_upload"
@@ -366,11 +372,14 @@ const TechTriathlonRegistration = () => {
                                             <span className="text-green-400 truncate">{files.college_id.name}</span>
                                         ) : (
                                             <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                                Upload College ID (PDF, max 5MB)
+                                                📸 Take Photo or Upload ID (max 10MB)
                                             </span>
                                         )}
                                     </label>
                                 </div>
+                                <p className="text-[11px] sm:text-xs text-gray-300 mt-1 ml-1 leading-relaxed">
+                                    📸 Take a clear photo of your college ID or upload from gallery
+                                </p>
                             </div>
 
                             {/* Loading Message */}

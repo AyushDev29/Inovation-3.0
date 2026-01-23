@@ -17,9 +17,9 @@ const AdminPanel = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [fetchError, setFetchError] = useState(null);
     const [expandedRow, setExpandedRow] = useState(null);
-    const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
-    const [currentPdfUrl, setCurrentPdfUrl] = useState(null);
-    const [pdfLoading, setPdfLoading] = useState(false);
+    const [imageViewerOpen, setImageViewerOpen] = useState(false);
+    const [currentImageUrl, setCurrentImageUrl] = useState(null);
+    const [imageLoading, setImageLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false); // Add refreshing state
     
     // PAYMENT SCREENSHOT VIEWER STATE
@@ -136,7 +136,7 @@ const AdminPanel = () => {
                     "Leader Class": reg.class || '-',
                     "Leader College": reg.college || '-',
                     "Leader Roll No": reg.roll_no || '-',
-                    "Team College IDs": reg.college_id_url ? 'Uploaded' : 'Not Uploaded',
+                    "Team College IDs": reg.college_id_url ? 'Photo Uploaded' : 'Not Uploaded',
                     "Member 2 Name": reg.player2_name || '-',
                     "Member 2 Roll No": reg.player2_roll_no || '-',
                     "Member 2 Class": reg.player2_class || '-',
@@ -169,7 +169,7 @@ const AdminPanel = () => {
                 "Class": reg.class || '-',
                 "College": reg.college || '-',
                 "Roll No": reg.roll_no || '-',
-                "College ID": reg.college_id_url ? 'Uploaded' : 'Not Uploaded',
+                "College ID": reg.college_id_url ? 'Photo Uploaded' : 'Not Uploaded',
                 "Event": reg.events?.event_name || '-',
                 "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
             };
@@ -193,13 +193,13 @@ const AdminPanel = () => {
         XLSX.writeFile(wb, fileName);
     };
 
-    const viewPdf = async (filePath, memberName) => {
+    const viewImage = async (filePath, memberName) => {
         if (!filePath) {
-            alert('No PDF uploaded for this member');
+            alert('No college ID photo uploaded for this member');
             return;
         }
 
-        setPdfLoading(true);
+        setImageLoading(true);
         try {
             // Generate signed URL for private file access
             const { data, error } = await supabase.storage
@@ -208,23 +208,23 @@ const AdminPanel = () => {
 
             if (error) {
                 console.error('Error generating signed URL:', error);
-                alert('Error accessing PDF file');
+                alert('Error accessing college ID photo');
                 return;
             }
 
-            setCurrentPdfUrl(data.signedUrl);
-            setPdfViewerOpen(true);
+            setCurrentImageUrl(data.signedUrl);
+            setImageViewerOpen(true);
         } catch (error) {
-            console.error('Error viewing PDF:', error);
-            alert('Error viewing PDF file');
+            console.error('Error viewing college ID photo:', error);
+            alert('Error viewing college ID photo');
         } finally {
-            setPdfLoading(false);
+            setImageLoading(false);
         }
     };
 
-    const closePdfViewer = () => {
-        setPdfViewerOpen(false);
-        setCurrentPdfUrl(null);
+    const closeImageViewer = () => {
+        setImageViewerOpen(false);
+        setCurrentImageUrl(null);
     };
 
     // PAYMENT SCREENSHOT FUNCTIONS
@@ -494,7 +494,7 @@ const AdminPanel = () => {
                         <p className="text-3xl font-bold text-white">{filteredRegistrations.length}</p>
                     </div>
                     <div className="bg-gradient-to-br from-green-500/20 to-emerald-500/20 border border-white/10 rounded-xl p-6">
-                        <h3 className="text-gray-400 text-sm font-medium mb-1">PDFs Uploaded</h3>
+                        <h3 className="text-gray-400 text-sm font-medium mb-1">ID Photos Uploaded</h3>
                         <p className="text-3xl font-bold text-white">
                             {filteredRegistrations.filter(reg => reg.college_id_url).length}
                         </p>
@@ -556,8 +556,8 @@ const AdminPanel = () => {
                                                                 </div>
                                                                 {reg.college_id_url && (
                                                                     <button
-                                                                        onClick={() => viewPdf(reg.college_id_url, reg.name)}
-                                                                        disabled={pdfLoading}
+                                                                        onClick={() => viewImage(reg.college_id_url, reg.name)}
+                                                                        disabled={imageLoading}
                                                                         className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs transition-colors disabled:opacity-50"
                                                                     >
                                                                         <Eye size={10} />
@@ -573,8 +573,8 @@ const AdminPanel = () => {
                                                                 </div>
                                                                 {reg.college_id_url && (
                                                                     <button
-                                                                        onClick={() => viewPdf(reg.college_id_url, `${reg.team_name} Team`)}
-                                                                        disabled={pdfLoading}
+                                                                        onClick={() => viewImage(reg.college_id_url, `${reg.team_name} Team`)}
+                                                                        disabled={imageLoading}
                                                                         className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs transition-colors disabled:opacity-50"
                                                                     >
                                                                         <Eye size={10} />
@@ -636,12 +636,12 @@ const AdminPanel = () => {
                                                                         </div>
                                                                         {reg.college_id_url && (
                                                                             <button
-                                                                                onClick={() => viewPdf(reg.college_id_url, `${reg.team_name} Team`)}
-                                                                                disabled={pdfLoading}
+                                                                                onClick={() => viewImage(reg.college_id_url, `${reg.team_name} Team`)}
+                                                                                disabled={imageLoading}
                                                                                 className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-sm transition-colors disabled:opacity-50"
                                                                             >
                                                                                 <Eye size={14} />
-                                                                                View Team PDFs
+                                                                                View Team IDs
                                                                             </button>
                                                                         )}
                                                                     </div>
@@ -861,39 +861,40 @@ const AdminPanel = () => {
                 </div>
             </div>
 
-            {/* PDF Viewer Modal */}
-            {pdfViewerOpen && currentPdfUrl && (
+            {/* College ID Image Viewer Modal */}
+            {imageViewerOpen && currentImageUrl && (
                 <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
-                    <div className="relative w-full h-full max-w-6xl max-h-[90vh] bg-white rounded-lg overflow-hidden">
+                    <div className="relative w-full h-full max-w-4xl max-h-[90vh] bg-white rounded-lg overflow-hidden">
                         <div className="absolute top-0 left-0 right-0 bg-gray-900 text-white p-4 flex items-center justify-between z-10">
                             <div className="flex items-center gap-2">
                                 <FileText size={20} />
-                                <span className="font-medium">College ID Document</span>
+                                <span className="font-medium">College ID Photo</span>
                             </div>
                             <button
-                                onClick={closePdfViewer}
+                                onClick={closeImageViewer}
                                 className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
                             >
                                 <X size={20} />
                             </button>
                         </div>
-                        <div className="pt-16 h-full">
-                            <iframe
-                                src={currentPdfUrl}
-                                className="w-full h-full border-none"
-                                title="College ID PDF"
+                        <div className="pt-16 h-full flex items-center justify-center bg-gray-100">
+                            <img
+                                src={currentImageUrl}
+                                alt="College ID"
+                                className="max-w-full max-h-full object-contain"
+                                style={{ maxHeight: 'calc(90vh - 4rem)' }}
                             />
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Loading overlay for PDF operations */}
-            {pdfLoading && (
+            {/* Loading overlay for image operations */}
+            {imageLoading && (
                 <div className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm flex items-center justify-center">
                     <div className="bg-white/10 border border-white/20 rounded-lg p-6 text-white text-center">
                         <div className="animate-spin w-8 h-8 border-2 border-white/30 border-t-white rounded-full mx-auto mb-3"></div>
-                        <p>Loading PDF...</p>
+                        <p>Loading College ID Photo...</p>
                     </div>
                 </div>
             )}

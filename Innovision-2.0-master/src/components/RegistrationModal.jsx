@@ -130,15 +130,16 @@ const RegistrationModal = ({ event, onClose }) => {
     const handleFileChange = (e, fieldName) => {
         const file = e.target.files[0];
         if (file) {
-            // Validate file type (PDF only)
-            if (file.type !== 'application/pdf') {
-                alert('Please upload only PDF files for college ID verification.');
+            // Validate file type (Images only: JPEG, JPG, PNG, WEBP)
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please upload only image files (JPEG, JPG, PNG, WEBP) for college ID verification.');
                 return;
             }
             
-            // Validate file size (max 5MB)
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 5MB.');
+            // Validate file size (max 10MB for images)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Image size must be less than 10MB.');
                 return;
             }
             
@@ -189,7 +190,7 @@ const RegistrationModal = ({ event, onClose }) => {
             setMessage('Uploading college ID documents...');
             const uploadedFiles = {};
             
-            // Upload team college IDs (combined PDF)
+            // Upload team college IDs (combined photo)
             if (files.college_id) {
                 uploadedFiles.college_id_url = await uploadFile(files.college_id, `team-${formData.email}`);
             }
@@ -489,15 +490,16 @@ const RegistrationModal = ({ event, onClose }) => {
                             )}
                         </div>
 
-                        {/* College ID Upload */}
+                        {/* College ID Photo Upload */}
                         <div className="space-y-1">
                             <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                {isTeamEvent ? "Team College IDs (All Members in One PDF)" : "College ID (PDF)"}
+                                {isTeamEvent ? "Team College IDs Photo (All Members)" : "College ID Photo"}
                             </label>
                             <div className="relative">
                                 <input
                                     type="file"
-                                    accept=".pdf"
+                                    accept="image/jpeg,image/jpg,image/png,image/webp"
+                                    capture="environment"
                                     onChange={(e) => handleFileChange(e, 'college_id')}
                                     className="hidden"
                                     id="college_id_upload"
@@ -512,14 +514,27 @@ const RegistrationModal = ({ event, onClose }) => {
                                         <span className="text-green-400 truncate">{files.college_id.name}</span>
                                     ) : (
                                         <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                            {isTeamEvent ? "Upload All Team College IDs (PDF, max 5MB)" : "Upload College ID (PDF, max 5MB)"}
+                                            {isTeamEvent ? "📸 Take Photo or Upload Image (max 10MB)" : "📸 Take Photo or Upload ID (max 10MB)"}
                                         </span>
                                     )}
                                 </label>
                             </div>
                             {isTeamEvent && (
+                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-2 mt-1">
+                                    <p className="text-[9px] text-yellow-400 font-medium mb-1">
+                                        ⚠️ IMPORTANT REQUIREMENTS:
+                                    </p>
+                                    <ul className="text-[8px] text-yellow-300 space-y-0.5 ml-2">
+                                        <li>• All {isHackastra ? '3' : isFashionFlex ? '5' : '4'} team members' college IDs must be clearly visible in ONE photo</li>
+                                        <li>• Arrange all ID cards together and take a clear photo</li>
+                                        <li>• Ensure all text and photos on IDs are readable</li>
+                                        <li>• Poor quality photos may lead to disqualification</li>
+                                    </ul>
+                                </div>
+                            )}
+                            {!isTeamEvent && (
                                 <p className="text-[9px] text-gray-300 mt-0.5 ml-1">
-                                    📄 Combine all team members' college IDs into one PDF
+                                    📸 Take a clear photo of your college ID or upload from gallery
                                 </p>
                             )}
                         </div>

@@ -78,14 +78,19 @@ const FreeFireRegistration = () => {
     const handleFileChange = (e, fieldName) => {
         const file = e.target.files[0];
         if (file) {
-            if (file.type !== 'application/pdf') {
-                alert('Please upload only PDF files');
+            // Validate file type (Images only: JPEG, JPG, PNG, WEBP)
+            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+            if (!allowedTypes.includes(file.type)) {
+                alert('Please upload only image files (JPEG, JPG, PNG, WEBP) for college ID verification.');
                 return;
             }
-            if (file.size > 5 * 1024 * 1024) {
-                alert('File size must be less than 5MB');
+            
+            // Validate file size (max 10MB for images)
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Image size must be less than 10MB.');
                 return;
             }
+            
             setFiles(prev => ({
                 ...prev,
                 [fieldName]: file
@@ -282,7 +287,7 @@ const FreeFireRegistration = () => {
         
         if (!files.college_id) {
             setStatus('error');
-            setMessage('Please upload team college IDs before proceeding to payment');
+            setMessage('Please upload team college ID photo before proceeding to payment');
             return;
         }
         
@@ -599,15 +604,16 @@ const FreeFireRegistration = () => {
                                 </div>
                             </div>
 
-                            {/* College ID Upload */}
+                            {/* College ID Photo Upload */}
                             <div className="space-y-1">
                                 <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                    Team College IDs (All Members in One PDF)
+                                    Team College IDs Photo (All Members)
                                 </label>
                                 <div className="relative">
                                     <input
                                         type="file"
-                                        accept=".pdf"
+                                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                                        capture="environment"
                                         onChange={(e) => handleFileChange(e, 'college_id')}
                                         className="hidden"
                                         id="college_id_upload"
@@ -622,14 +628,22 @@ const FreeFireRegistration = () => {
                                             <span className="text-green-400 truncate">{files.college_id.name}</span>
                                         ) : (
                                             <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                                Upload All Team College IDs (PDF, max 5MB)
+                                                📸 Take Photo or Upload Image (max 10MB)
                                             </span>
                                         )}
                                     </label>
                                 </div>
-                                <p className="text-[9px] text-gray-300 mt-0.5 ml-1">
-                                    📄 Combine all team members' college IDs into one PDF
-                                </p>
+                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-3 mt-2">
+                                    <p className="text-xs sm:text-sm text-yellow-400 font-semibold mb-2">
+                                        ⚠️ IMPORTANT REQUIREMENTS:
+                                    </p>
+                                    <ul className="text-[11px] sm:text-xs text-yellow-300 space-y-1 ml-3 leading-relaxed">
+                                        <li>• All 4 team members' college IDs must be clearly visible in ONE photo</li>
+                                        <li>• Arrange all ID cards together and take a clear photo</li>
+                                        <li>• Ensure all text and photos on IDs are readable</li>
+                                        <li>• Poor visible/blur photos and fake entries and photos may lead to disqualification</li>
+                                    </ul>
+                                </div>
                             </div>
 
                             {/* Team Name */}
