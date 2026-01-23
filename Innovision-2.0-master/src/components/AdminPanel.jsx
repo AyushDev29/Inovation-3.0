@@ -160,6 +160,7 @@ const AdminPanel = () => {
                                           reg.verification_status === 'rejected' ? 'Rejected' : 'Pending',
                     "Verified At": reg.verified_at ? new Date(reg.verified_at).toLocaleString() : '-',
                     "Verified By": reg.verified_by || '-',
+                    "Rejection Reason": reg.rejection_reason || '-',
                     "Member 2 Name": reg.player2_name || '-',
                     "Member 2 Roll No": reg.player2_roll_no || '-',
                     "Member 2 Class": reg.player2_class || '-',
@@ -197,6 +198,7 @@ const AdminPanel = () => {
                                       reg.verification_status === 'rejected' ? 'Rejected' : 'Pending',
                 "Verified At": reg.verified_at ? new Date(reg.verified_at).toLocaleString() : '-',
                 "Verified By": reg.verified_by || '-',
+                "Rejection Reason": reg.rejection_reason || '-',
                 "Event": reg.events?.event_name || '-',
                 "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
             };
@@ -717,6 +719,26 @@ const AdminPanel = () => {
                                                                  reg.verification_status === 'rejected' ? '✗ Rejected' :
                                                                  '⏳ Pending'}
                                                             </div>
+                                                            
+                                                            {/* Show rejection reason if rejected */}
+                                                            {reg.verification_status === 'rejected' && reg.rejection_reason && (
+                                                                <div className="text-xs text-red-300 bg-red-500/10 px-2 py-1 rounded border border-red-500/20 mt-1">
+                                                                    <span className="font-medium">Reason:</span> {reg.rejection_reason}
+                                                                </div>
+                                                            )}
+                                                            
+                                                            {/* Show verification details for verified/rejected */}
+                                                            {(reg.verification_status === 'verified' || reg.verification_status === 'rejected') && (
+                                                                <div className="text-xs text-gray-400 mt-1">
+                                                                    {reg.verified_at && (
+                                                                        <div>On: {new Date(reg.verified_at).toLocaleDateString()}</div>
+                                                                    )}
+                                                                    {reg.verified_by && (
+                                                                        <div>By: {reg.verified_by}</div>
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                            
                                                             {/* Verification Buttons for Pending Status */}
                                                             {reg.verification_status === 'pending' || !reg.verification_status ? (
                                                                 <div className="flex gap-1 mt-1">
@@ -728,6 +750,7 @@ const AdminPanel = () => {
                                                                         }}
                                                                         disabled={verificationUpdateLoading === reg.id}
                                                                         className="px-2 py-1 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded text-xs transition-colors disabled:opacity-50"
+                                                                        title="Verify Registration"
                                                                     >
                                                                         {verificationUpdateLoading === reg.id ? '...' : '✓'}
                                                                     </button>
@@ -740,6 +763,7 @@ const AdminPanel = () => {
                                                                         }}
                                                                         disabled={verificationUpdateLoading === reg.id}
                                                                         className="px-2 py-1 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded text-xs transition-colors disabled:opacity-50"
+                                                                        title="Reject Registration"
                                                                     >
                                                                         {verificationUpdateLoading === reg.id ? '...' : '✗'}
                                                                     </button>
@@ -755,6 +779,7 @@ const AdminPanel = () => {
                                                                     }}
                                                                     disabled={verificationUpdateLoading === reg.id}
                                                                     className="px-2 py-1 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded text-xs transition-colors disabled:opacity-50 mt-1"
+                                                                    title="Reset to Pending"
                                                                 >
                                                                     {verificationUpdateLoading === reg.id ? 'Updating...' : 'Reset'}
                                                                 </button>
