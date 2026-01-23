@@ -57,7 +57,16 @@ const Navbar = () => {
                 {/* Desktop Menu */}
                 <div className="hidden md:flex space-x-8">
                     {navLinks.map((link) => (
-                        link.isRoute ? (
+                        link.name === 'Home' ? (
+                            <button
+                                key={link.name}
+                                onClick={handleHomeClick}
+                                className="text-gray-300 hover:text-white transition-colors relative group font-medium"
+                            >
+                                {link.name}
+                                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-neon-purple transition-all duration-300 group-hover:w-full"></span>
+                            </button>
+                        ) : link.isRoute ? (
                             <Link
                                 key={link.name}
                                 to={link.href}
