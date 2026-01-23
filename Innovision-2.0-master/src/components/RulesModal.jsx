@@ -9,7 +9,7 @@ const rulesData = {
             {
                 heading: "Prize Pool & Event Essentials",
                 items: [
-                    "🏆 Prize Pool: ₹6,000",
+                    "🏆 Prize Pool: ₹7,000",
                     "Time: 09:00 AM – 12:00 PM",
                     "Mode: Squad (Third Person Perspective)",
                     "Platform: Mobile devices only",
@@ -54,7 +54,7 @@ const rulesData = {
             {
                 heading: "Prize Pool & Event Essentials",
                 items: [
-                    "🏆 Prize Pool: ₹5,000",
+                    "🏆 Prize Pool: ₹3,000",
                     "Mode: Clash Squad (4v4)",
                     "Platform: Mobile devices only",
                     "Team Size: 4 players",

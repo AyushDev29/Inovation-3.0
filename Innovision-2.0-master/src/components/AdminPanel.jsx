@@ -139,13 +139,13 @@ const AdminPanel = () => {
                     "Team College IDs": reg.college_id_url ? 'Uploaded' : 'Not Uploaded',
                     "Member 2 Name": reg.player2_name || '-',
                     "Member 2 Roll No": reg.player2_roll_no || '-',
-                    "Member 2 College": reg.player2_college || '-',
+                    "Member 2 Class": reg.player2_class || '-',
                     "Member 3 Name": reg.player3_name || '-',
                     "Member 3 Roll No": reg.player3_roll_no || '-',
-                    "Member 3 College": reg.player3_college || '-',
+                    "Member 3 Class": reg.player3_class || '-',
                     "Member 4 Name": reg.player4_name || '-',
                     "Member 4 Roll No": reg.player4_roll_no || '-',
-                    "Member 4 College": reg.player4_college || '-',
+                    "Member 4 Class": reg.player4_class || '-',
                     "Event": reg.events?.event_name || '-',
                     "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
                 };
@@ -816,7 +816,7 @@ const AdminPanel = () => {
                                                                             <div className="text-xs text-gray-500 mb-1">Member 2</div>
                                                                             <div className="text-white font-medium">{reg.player2_name}</div>
                                                                             <div className="text-gray-400 text-sm">Roll: {reg.player2_roll_no || 'N/A'}</div>
-                                                                            <div className="text-gray-400 text-sm">College: {reg.player2_college || 'N/A'}</div>
+                                                                            <div className="text-gray-400 text-sm">Class: {reg.player2_class || 'N/A'}</div>
                                                                         </div>
                                                                     )}
                                                                     {reg.player3_name && (
@@ -824,7 +824,7 @@ const AdminPanel = () => {
                                                                             <div className="text-xs text-gray-500 mb-1">Member 3</div>
                                                                             <div className="text-white font-medium">{reg.player3_name}</div>
                                                                             <div className="text-gray-400 text-sm">Roll: {reg.player3_roll_no || 'N/A'}</div>
-                                                                            <div className="text-gray-400 text-sm">College: {reg.player3_college || 'N/A'}</div>
+                                                                            <div className="text-gray-400 text-sm">Class: {reg.player3_class || 'N/A'}</div>
                                                                         </div>
                                                                     )}
                                                                     {reg.player4_name && (
@@ -832,13 +832,14 @@ const AdminPanel = () => {
                                                                             <div className="text-xs text-gray-500 mb-1">Member 4</div>
                                                                             <div className="text-white font-medium">{reg.player4_name}</div>
                                                                             <div className="text-gray-400 text-sm">Roll: {reg.player4_roll_no || 'N/A'}</div>
-                                                                            <div className="text-gray-400 text-sm">College: {reg.player4_college || 'N/A'}</div>
+                                                                            <div className="text-gray-400 text-sm">Class: {reg.player4_class || 'N/A'}</div>
                                                                         </div>
                                                                     )}
                                                                 </div>
                                                                 <div className="mt-3 pt-3 border-t border-white/10">
-                                                                    <div className="text-xs text-gray-500">Academic Info</div>
-                                                                    <div className="text-white text-sm mt-1">{reg.class} • {reg.college}</div>
+                                                                    <div className="text-xs text-gray-500">Team College (All Members)</div>
+                                                                    <div className="text-white text-sm mt-1">{reg.college}</div>
+                                                                    <div className="text-xs text-gray-400 mt-1">Leader Class: {reg.class}</div>
                                                                 </div>
                                                             </div>
                                                         </td>
