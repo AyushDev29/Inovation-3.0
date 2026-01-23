@@ -357,7 +357,6 @@ const TechTriathlonRegistration = () => {
                                     <input
                                         type="file"
                                         accept="image/jpeg,image/jpg,image/png,image/webp"
-                                        capture="environment"
                                         onChange={(e) => handleFileChange(e, 'college_id')}
                                         className="hidden"
                                         id="college_id_upload"
@@ -372,13 +371,13 @@ const TechTriathlonRegistration = () => {
                                             <span className="text-green-400 truncate">{files.college_id.name}</span>
                                         ) : (
                                             <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                                📸 Take Photo or Upload ID (max 10MB)
+                                                📸 Take Photo or Choose from Gallery (max 10MB)
                                             </span>
                                         )}
                                     </label>
                                 </div>
                                 <p className="text-[11px] sm:text-xs text-gray-300 mt-1 ml-1 leading-relaxed">
-                                    📸 Take a clear photo of your college ID or upload from gallery
+                                    📸 Take a photo with camera or choose from gallery
                                 </p>
                             </div>
 

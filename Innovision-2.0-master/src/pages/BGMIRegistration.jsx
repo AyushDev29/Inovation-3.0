@@ -613,7 +613,6 @@ const BGMIRegistration = () => {
                                     <input
                                         type="file"
                                         accept="image/jpeg,image/jpg,image/png,image/webp"
-                                        capture="environment"
                                         onChange={(e) => handleFileChange(e, 'college_id')}
                                         className="hidden"
                                         id="college_id_upload"
@@ -628,7 +627,7 @@ const BGMIRegistration = () => {
                                             <span className="text-green-400 truncate">{files.college_id.name}</span>
                                         ) : (
                                             <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                                📸 Take Photo or Upload Image (max 10MB)
+                                                📸 Take Photo or Choose from Gallery (max 10MB)
                                             </span>
                                         )}
                                     </label>
