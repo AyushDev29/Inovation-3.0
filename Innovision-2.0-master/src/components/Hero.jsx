@@ -58,10 +58,10 @@ const Hero = () => {
                 scrollTrigger: {
                     trigger: heroRef.current,
                     start: "top top",
-                    end: "40% top",
+                    end: "90% top",
                     scrub: 1
                 },
-                opacity: 0,
+                opacity: 0.5,
                 y: -50
             });
 

@@ -25,7 +25,7 @@ const scheduleData = {
                 category: "Fun / Cultural",
                 time: "11:00 AM - 1:00 PM",
                 venue: "Auditorium",
-                teamSize: "Individual",
+                teamSize: "Duo",
                 color: "from-purple-500 to-pink-600"
             }
         ]

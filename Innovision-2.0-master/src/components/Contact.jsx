@@ -112,7 +112,7 @@ const Contact = () => {
                             </div>
                         </div>
 
-                        {/* Coordinator 2 - Minoli */}
+                        {/* Coordinator 2 - Minnoli */}
                         <div className="bg-white/5 backdrop-blur-md p-8 rounded-2xl border border-white/10 shadow-2xl relative overflow-hidden group hover:border-neon-purple/30 transition-all duration-300">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-neon-purple/10 rounded-full blur-[50px] -mr-16 -mt-16 pointer-events-none"></div>
                             
@@ -122,7 +122,7 @@ const Contact = () => {
                                         <User className="text-neon-purple" size={28} />
                                     </div>
                                     <div>
-                                        <h4 className="text-white font-bold text-2xl font-orbitron">MINOLI MADHYAN</h4>
+                                        <h4 className="text-white font-bold text-2xl font-orbitron">MINNOLI MADHYAN</h4>
                                         <p className="text-neon-purple text-sm uppercase tracking-wider">Event Coordinator</p>
                                     </div>
                                 </div>
@@ -176,17 +176,17 @@ const Contact = () => {
                                 </div>
                             </div>
 
-                            <div className="flex items-start gap-4 group">
+                            {/* <div className="flex items-start gap-4 group">
                                 <div className="p-4 bg-white/5 rounded-full border border-white/10 group-hover:border-green-500/50 group-hover:bg-green-500/10 transition-all duration-300">
                                     <Phone className="text-gray-400 group-hover:text-green-500 transition-colors" size={24} />
                                 </div>
                                 <div>
-                                    <h4 className="text-white font-bold text-lg mb-1 font-orbitron">Faculty Contact</h4>
+                                    <h4 className="text-white font-bold text-lg mb-1 font-orbitron">Event head Contact</h4>
                                     <p className="text-gray-400 text-sm">
                                         +91 90281 05269 (Rupali Patil Mam)
                                     </p>
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div className="flex items-start gap-4 group">
                                 <div className="p-4 bg-white/5 rounded-full border border-white/10 group-hover:border-pink-500/50 group-hover:bg-pink-500/10 transition-all duration-300">

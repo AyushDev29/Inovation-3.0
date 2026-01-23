@@ -36,7 +36,8 @@ const SponsorsPage = () => {
             name: "Oriflame",
             logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNEY0NkU1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9yaWZsYW1lPC90ZXh0Pgo8L3N2Zz4K",
             instagram: "@oriflame_india",
-            instagramUrl: null // No Instagram link for 4th sponsor as requested
+            instagramUrl: null, // No Instagram link for Oriflame
+            websiteUrl: "https://www.oriflame.com/" // Website link instead
         }
     ];
 
@@ -180,58 +181,72 @@ const SponsorsPage = () => {
         });
     };
 
-    const SponsorCard = ({ sponsor }) => (
-        <motion.div
-            className="sponsor-card group relative bg-black/40 border border-white/10 rounded-xl p-6 hover:border-cyber-blue/50 transition-all duration-300 hover:bg-black/60"
-            whileHover={{ scale: 1.02, y: -5 }}
-            whileTap={{ scale: 0.98 }}
-        >
-            {/* Sponsor Logo Placeholder */}
-            <div className="w-full h-32 bg-white/5 rounded-lg mb-4 flex items-center justify-center border border-white/10 group-hover:border-cyber-blue/30 transition-colors duration-300">
-                <img 
-                    src={sponsor.logo} 
-                    alt={`${sponsor.name} logo`}
-                    className="max-h-full max-w-full object-contain filter brightness-90 group-hover:brightness-110 transition-all duration-300 p-2"
-                    onError={(e) => {
-                        // Show fallback text if logo fails to load
-                        e.target.style.display = 'none';
-                        e.target.nextElementSibling.style.display = 'flex';
-                    }}
-                />
-                <div className="hidden items-center justify-center text-white/50 text-sm font-mono group-hover:text-cyber-blue/70 transition-colors duration-300">
-                    {sponsor.name}
-                </div>
-            </div>
+    const SponsorCard = ({ sponsor }) => {
+        const handleCardClick = () => {
+            if (sponsor.instagramUrl) {
+                window.open(sponsor.instagramUrl, '_blank');
+            } else if (sponsor.websiteUrl) {
+                window.open(sponsor.websiteUrl, '_blank');
+            }
+        };
 
-            {/* Sponsor Info */}
-            <div className="space-y-3 text-center">
-                <h3 className="text-lg font-orbitron font-bold text-white group-hover:text-cyber-blue transition-colors duration-300">
-                    {sponsor.name}
-                </h3>
-                
-                <p className="text-cyber-blue text-sm font-mono group-hover:text-neon-purple transition-colors duration-300">
-                    {sponsor.instagram}
-                </p>
+        const hasLink = sponsor.instagramUrl || sponsor.websiteUrl;
 
-                {/* Visit Instagram Button */}
-                {sponsor.instagramUrl ? (
-                    <button 
-                        onClick={() => window.open(sponsor.instagramUrl, '_blank')}
-                        className="w-full mt-4 py-2 px-4 bg-white/5 border border-white/20 rounded-lg text-xs font-mono text-white hover:bg-cyber-blue/20 hover:border-cyber-blue/50 transition-all duration-300"
-                    >
-                        Follow on Instagram
-                    </button>
-                ) : (
-                    <div className="w-full mt-4 py-2 px-4 bg-gray-500/20 border border-gray-500/30 rounded-lg text-xs font-mono text-gray-500 cursor-not-allowed">
-                        Follow on Instagram
+        return (
+            <motion.div
+                className={`sponsor-card group relative bg-black/40 border border-white/10 rounded-xl p-6 hover:border-cyber-blue/50 transition-all duration-300 hover:bg-black/60 ${hasLink ? 'cursor-pointer' : 'cursor-default'}`}
+                whileHover={{ scale: 1.02, y: -5 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={hasLink ? handleCardClick : undefined}
+            >
+                {/* Sponsor Logo Placeholder */}
+                <div className="w-full h-32 bg-white/5 rounded-lg mb-4 flex items-center justify-center border border-white/10 group-hover:border-cyber-blue/30 transition-colors duration-300">
+                    <img 
+                        src={sponsor.logo} 
+                        alt={`${sponsor.name} logo`}
+                        className="max-h-full max-w-full object-contain filter brightness-90 group-hover:brightness-110 transition-all duration-300 p-2"
+                        onError={(e) => {
+                            // Show fallback text if logo fails to load
+                            e.target.style.display = 'none';
+                            e.target.nextElementSibling.style.display = 'flex';
+                        }}
+                    />
+                    <div className="hidden items-center justify-center text-white/50 text-sm font-mono group-hover:text-cyber-blue/70 transition-colors duration-300">
+                        {sponsor.name}
                     </div>
-                )}
-            </div>
+                </div>
 
-            {/* Simple hover glow effect */}
-            <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyber-blue/0 via-cyber-blue/5 to-neon-purple/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
-        </motion.div>
-    );
+                {/* Sponsor Info */}
+                <div className="space-y-3 text-center">
+                    <h3 className="text-lg font-orbitron font-bold text-white group-hover:text-cyber-blue transition-colors duration-300">
+                        {sponsor.name}
+                    </h3>
+                    
+                    <p className="text-cyber-blue text-sm font-mono group-hover:text-neon-purple transition-colors duration-300">
+                        {sponsor.instagram}
+                    </p>
+
+                    {/* Visit Link Button */}
+                    {sponsor.instagramUrl ? (
+                        <div className="w-full mt-4 py-2 px-4 bg-white/5 border border-white/20 rounded-lg text-xs font-mono text-white group-hover:bg-cyber-blue/20 group-hover:border-cyber-blue/50 transition-all duration-300">
+                            Instagram
+                        </div>
+                    ) : sponsor.websiteUrl ? (
+                        <div className="w-full mt-4 py-2 px-4 bg-white/5 border border-white/20 rounded-lg text-xs font-mono text-white group-hover:bg-cyber-blue/20 group-hover:border-cyber-blue/50 transition-all duration-300">
+                            Website
+                        </div>
+                    ) : (
+                        <div className="w-full mt-4 py-2 px-4 bg-gray-500/20 border border-gray-500/30 rounded-lg text-xs font-mono text-gray-500 cursor-not-allowed">
+                            Instagram
+                        </div>
+                    )}
+                </div>
+
+                {/* Simple hover glow effect */}
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyber-blue/0 via-cyber-blue/5 to-neon-purple/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+            </motion.div>
+        );
+    };
 
 
     return (

@@ -18,8 +18,8 @@ const eventsData = [
         date: "Day 1 & Day 2 (5–6 Feb), 9:00 AM – 12:00 PM",
         venue: "College Campus",
         teamSize: "4 Members",
-        prize: "₹6,000",
-        image: "/images/free_fire.png",
+        prize: "₹7,000",
+        image: "/images/BGMI.png",
         color: "from-orange-500 to-red-600",
         registrationLink: ""
     },
@@ -31,7 +31,7 @@ const eventsData = [
         date: "Day 3 (7 Feb), 9:00 AM – 11:00 AM",
         venue: "College Campus",
         teamSize: "4 Members",
-        prize: "₹5,000",
+        prize: "₹3,000",
         image: "/images/free_fire.png",
         color: "from-blue-500 to-cyan-500",
         registrationLink: ""
@@ -53,7 +53,7 @@ const eventsData = [
         id: 4,
         title: "Fashion Flex",
         category: "Fun / Cultural",
-        description: "Traditional attire ramp walk competition with Q&A round",
+        description: "Style Your way attire ramp walk competition with Q&A round",
         date: "Day 1 (5 Feb), 11:00 AM – 1:00 PM",
         venue: "Auditorium",
         teamSize: "2 Members (Duo)",
@@ -66,7 +66,7 @@ const eventsData = [
         id: 5,
         title: "Hackastra",
         category: "Technical",
-        description: "Team-based problem-solving and innovation challenge",
+        description: "From bold ideas to powerful execution, Hackastra challenges participants to think creatively, code efficiently, and build innovative solutions in a high-intensity coding environment.",
         date: "Day 3 (7 Feb), 11:00 AM – 2:00 PM",
         venue: "Seminar Hall",
         teamSize: "2-3 Members",
@@ -93,7 +93,7 @@ const eventsData = [
 const EventCardLeft = ({ event, onClick }) => {
     return (
         <div
-            className="event-left-card p-4 sm:p-6 md:p-8 border-l-4 border-cyber-blue bg-white/5 backdrop-blur-sm rounded-r-xl hover:bg-white/10 transition-colors duration-300 cursor-pointer group"
+            className="event-left-card h-64 sm:h-72 md:h-80 p-4 sm:p-6 md:p-8 border-l-4 border-cyber-blue bg-white/5 backdrop-blur-sm rounded-r-xl hover:bg-white/10 transition-colors duration-300 cursor-pointer group flex flex-col"
             onClick={() => onClick(event)}
         >
             <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
@@ -120,15 +120,31 @@ const EventCardLeft = ({ event, onClick }) => {
                     </h4>
                 </div>
             </div>
-            <p className="text-gray-400 leading-relaxed text-xs sm:text-sm md:text-base mb-3 sm:mb-4">
+            <p className="text-gray-400 leading-relaxed text-xs sm:text-sm md:text-base mb-3 flex-1 overflow-hidden" style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+            }}>
                 {event.description}
             </p>
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-xs sm:text-sm">
-                <div className="flex flex-col sm:flex-row sm:items-center text-gray-500 gap-1 sm:gap-0">
-                    <span className="truncate">{event.date}</span>
-                    <span className="hidden sm:inline mx-2">•</span>
-                    <span className="truncate">{event.venue}</span>
+            
+            {/* Event Details Section */}
+            <div className="mb-3 space-y-2">
+                <div className="flex items-center gap-2 text-xs sm:text-sm">
+                    <Users size={14} className="text-cyber-blue flex-shrink-0" />
+                    <span className="text-gray-300 font-medium">{event.teamSize}</span>
+                    <span className="text-gray-600">•</span>
+                    <MapPin size={14} className="text-cyber-blue flex-shrink-0" />
+                    <span className="text-gray-300 font-medium truncate">{event.venue}</span>
                 </div>
+                <div className="flex items-center gap-2 text-xs sm:text-sm">
+                    <Calendar size={14} className="text-cyber-blue flex-shrink-0" />
+                    <span className="text-gray-300 font-medium truncate">{event.date}</span>
+                </div>
+            </div>
+            
+            <div className="flex items-center justify-end text-xs sm:text-sm mt-auto">
                 <div className="flex items-center text-cyber-blue font-medium whitespace-nowrap">
                     <span>View Details</span>
                     <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -143,7 +159,7 @@ const EventCardLeft = ({ event, onClick }) => {
 const EventCardRight = ({ event, onClick }) => {
     return (
         <div
-            className="event-right-card p-4 sm:p-6 md:p-8 border-r-4 border-neon-purple bg-white/5 backdrop-blur-sm rounded-l-xl text-right hover:bg-white/10 transition-colors duration-300 cursor-pointer group"
+            className="event-right-card h-64 sm:h-72 md:h-80 p-4 sm:p-6 md:p-8 border-r-4 border-neon-purple bg-white/5 backdrop-blur-sm rounded-l-xl text-right hover:bg-white/10 transition-colors duration-300 cursor-pointer group flex flex-col"
             onClick={() => onClick(event)}
         >
             <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 justify-end">
@@ -170,20 +186,36 @@ const EventCardRight = ({ event, onClick }) => {
                     />
                 </div>
             </div>
-            <p className="text-gray-400 leading-relaxed text-xs sm:text-sm md:text-base mb-3 sm:mb-4">
+            <p className="text-gray-400 leading-relaxed text-xs sm:text-sm md:text-base mb-3 flex-1 overflow-hidden" style={{
+                display: '-webkit-box',
+                WebkitLineClamp: 3,
+                WebkitBoxOrient: 'vertical',
+                overflow: 'hidden'
+            }}>
                 {event.description}
             </p>
-            <div className="flex flex-col-reverse sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 text-xs sm:text-sm">
-                <div className="flex items-center text-neon-purple font-medium whitespace-nowrap justify-end sm:justify-start">
+            
+            {/* Event Details Section */}
+            <div className="mb-3 space-y-2">
+                <div className="flex items-center gap-2 text-xs sm:text-sm justify-end">
+                    <span className="text-gray-300 font-medium truncate">{event.venue}</span>
+                    <MapPin size={14} className="text-neon-purple flex-shrink-0" />
+                    <span className="text-gray-600">•</span>
+                    <span className="text-gray-300 font-medium">{event.teamSize}</span>
+                    <Users size={14} className="text-neon-purple flex-shrink-0" />
+                </div>
+                <div className="flex items-center gap-2 text-xs sm:text-sm justify-end">
+                    <span className="text-gray-300 font-medium truncate">{event.date}</span>
+                    <Calendar size={14} className="text-neon-purple flex-shrink-0" />
+                </div>
+            </div>
+            
+            <div className="flex items-center justify-start text-xs sm:text-sm mt-auto">
+                <div className="flex items-center text-neon-purple font-medium whitespace-nowrap">
                     <svg className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
                     </svg>
                     <span>View Details</span>
-                </div>
-                <div className="flex flex-col sm:flex-row sm:items-center text-gray-500 gap-1 sm:gap-0 text-right">
-                    <span className="truncate">{event.venue}</span>
-                    <span className="hidden sm:inline mx-2">•</span>
-                    <span className="truncate">{event.date}</span>
                 </div>
             </div>
         </div>

@@ -23,7 +23,7 @@ const scheduleData = {
                 category: "Fun / Cultural",
                 time: "11:00 AM - 1:00 PM",
                 venue: "Auditorium",
-                teamSize: "Individual",
+                teamSize: "Duo",
                 color: "from-purple-500 to-pink-600"
             }
         ]
@@ -45,7 +45,7 @@ const scheduleData = {
                 name: "Tech Triathlon",
                 category: "Technical / Fun",
                 time: "11:00 AM - 12:00 PM",
-                venue: "Computer Lab",
+                venue: "IT Lab",
                 teamSize: "Individual",
                 color: "from-yellow-500 to-amber-600"
             },
@@ -77,7 +77,7 @@ const scheduleData = {
                 name: "Hackastra",
                 category: "Technical",
                 time: "11:00 AM - 2:00 PM",
-                venue: "Seminar Hall",
+                venue: "IT lab",
                 teamSize: "2-3 Members",
                 color: "from-green-500 to-emerald-600"
             }

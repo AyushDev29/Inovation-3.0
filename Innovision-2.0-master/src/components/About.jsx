@@ -93,7 +93,7 @@ const About = () => {
                             </div>
                             <p className="text-gray-400 leading-relaxed">
                                 DOMBIVLI SHIKSHAN PRASARAK MANDAL'S <strong className="text-white">K.V. Pendharkar College of Arts, Science and Commerce</strong>.
-                                An Autonomous institution accredited by NAAC. Established in 1979, playing a pivotal role in providing quality higher education in the region.
+                                An Autonomous institution accredited 'A' by NAAC. Established in 1979, playing a pivotal role in providing quality higher education in the region.
                             </p>
                         </div>
                         <div className="college-info-card p-8 border-l-4 border-neon-purple bg-white/5 backdrop-blur-sm rounded-r-xl hover:bg-white/10 transition-colors duration-300">

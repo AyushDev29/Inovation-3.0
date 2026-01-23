@@ -5,35 +5,39 @@ import { ArrowRight, Star } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-// Real sponsor data - Updated with actual sponsors
+// Real sponsor data - Updated with actual sponsors and links
 const sponsorsData = [
     {
         id: 1,
         name: "Pretty Moon",
         logo: "/images/sponsors/prettymoon.jpg",
         handle: "@prettymoon_official",
-        platform: "Instagram"
+        platform: "Instagram",
+        url: "https://www.instagram.com/prettymoon.in?igsh=MTg5MHg4ZjU0dW92NA=="
     },
     {
         id: 2,
         name: "Kalastra", 
         logo: "/images/sponsors/kala_stra.jpg",
         handle: "@kalastra_official",
-        platform: "Instagram"
+        platform: "Instagram",
+        url: "https://www.instagram.com/kala_stra?igsh=MTdsZG1oMGMxMHBjaw=="
     },
     {
         id: 3,
         name: "Kaam Done",
         logo: "/images/sponsors/kaam.done.jpg",
         handle: "@kaamdone_official",
-        platform: "Instagram"
+        platform: "Instagram",
+        url: "https://www.instagram.com/kaam.done?igsh=Z2xxa2RoazNoenRn"
     },
     {
         id: 4,
         name: "Oriflame",
         logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNEY0NkU1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9yaWZsYW1lPC90ZXh0Pgo8L3N2Zz4K",
         handle: "@oriflame_india",
-        platform: "Instagram"
+        platform: "Website",
+        url: "https://www.oriflame.com/"
     }
 ];
 
@@ -135,6 +139,7 @@ const SponsorsIntro = () => {
                             <div 
                                 key={sponsor.id}
                                 className="sponsor-card group relative p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:border-cyber-blue/50 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+                                onClick={() => window.open(sponsor.url, '_blank')}
                             >
                                 {/* Hover glow effect */}
                                 <div className="absolute inset-0 bg-gradient-to-br from-cyber-blue/20 to-neon-purple/20 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-xl"></div>
@@ -182,7 +187,7 @@ const SponsorsIntro = () => {
                         href="/sponsors"
                         className="inline-flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-cyber-blue/20 to-neon-purple/20 border border-cyber-blue/50 hover:border-cyber-blue hover:from-cyber-blue/30 hover:to-neon-purple/30 text-white font-orbitron font-semibold rounded-xl transition-all duration-300 group hover:scale-105"
                     >
-                        <span>Explore All Partners</span>
+                        <span>Explore All sponsors</span>
                         <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                     </a>
                 </div>
