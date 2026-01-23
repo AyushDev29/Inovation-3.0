@@ -33,6 +33,17 @@ const Navbar = () => {
         { name: 'Contact', href: '#contact', id: '06', isRoute: false },
     ];
 
+    const handleHomeClick = () => {
+        setIsOpen(false);
+        // If we're already on the home page, scroll to top
+        if (window.location.pathname === '/') {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } else {
+            // Navigate to home page
+            window.location.href = '/';
+        }
+    };
+
     return (
         <nav
             className={`fixed top-0 left-0 w-full z-[999] transition-all duration-300 ${scrolled ? 'glass-panel py-4' : 'py-6 bg-transparent'
@@ -94,7 +105,20 @@ const Navbar = () => {
                     <div className="container mx-auto px-8 relative z-10 flex flex-col h-full justify-center">
                         <div className="flex flex-col space-y-6">
                             {navLinks.map((link, index) => (
-                                link.isRoute ? (
+                                link.name === 'Home' ? (
+                                    <button
+                                        key={link.name}
+                                        onClick={handleHomeClick}
+                                        className={`group flex items-center justify-between text-3xl font-orbitron text-white border-b border-white/10 pb-4 transition-all duration-500 delay-[${index * 100}ms] ${isOpen ? 'translate-x-0 opacity-100' : 'translate-x-10 opacity-0'
+                                            } text-left w-full`}
+                                    >
+                                        <span className="relative">
+                                            <span className="text-xs font-mono text-neon-purple/70 absolute -top-3 -left-2">{link.id}</span>
+                                            {link.name}
+                                        </span>
+                                        <ChevronRight className="text-white/20 group-hover:text-neon-purple group-hover:translate-x-2 transition-all duration-300" />
+                                    </button>
+                                ) : link.isRoute ? (
                                     <Link
                                         key={link.name}
                                         to={link.href}
