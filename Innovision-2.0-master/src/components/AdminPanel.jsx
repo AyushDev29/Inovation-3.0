@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import { Download, Search, Filter, LogOut, ChevronDown, ChevronUp, Users, FileText, Eye, X, CreditCard } from 'lucide-react';
 import * as XLSX from 'xlsx';
+import { cleanName, cleanEmail, cleanPhone, cleanRollNo, cleanClass, cleanCollege, cleanTeamName } from '../utils/dataCleaners';
 
 const AdminPanel = () => {
     const [session, setSession] = useState(null);
@@ -148,28 +149,28 @@ const AdminPanel = () => {
 
             if (isTeamEvent) {
                 const baseData = {
-                    "Team Name": reg.team_name || '-',
-                    "Leader/IGL Name": reg.name || '-',
-                    "Leader Email": reg.email || '-',
-                    "Leader Phone": reg.phone || '-',
-                    "Leader Class": reg.class || '-',
-                    "Leader College": reg.college || '-',
-                    "Leader Roll No": reg.roll_no || '-',
+                    "Team Name": cleanTeamName(reg.team_name) || '-',
+                    "Leader/IGL Name": cleanName(reg.name) || '-',
+                    "Leader Email": cleanEmail(reg.email) || '-',
+                    "Leader Phone": cleanPhone(reg.phone) || '-',
+                    "Leader Class": cleanClass(reg.class) || '-',
+                    "Leader College": cleanCollege(reg.college) || '-',
+                    "Leader Roll No": cleanRollNo(reg.roll_no) || '-',
                     "Team College IDs": reg.college_id_url ? 'Photo Uploaded' : 'Not Uploaded',
                     "Verification Status": reg.verification_status === 'verified' ? 'Verified' :
                                           reg.verification_status === 'rejected' ? 'Rejected' : 'Pending',
                     "Verified At": reg.verified_at ? new Date(reg.verified_at).toLocaleString() : '-',
                     "Verified By": reg.verified_by || '-',
                     "Rejection Reason": reg.rejection_reason || '-',
-                    "Member 2 Name": reg.player2_name || '-',
-                    "Member 2 Roll No": reg.player2_roll_no || '-',
-                    "Member 2 Class": reg.player2_class || '-',
-                    "Member 3 Name": reg.player3_name || '-',
-                    "Member 3 Roll No": reg.player3_roll_no || '-',
-                    "Member 3 Class": reg.player3_class || '-',
-                    "Member 4 Name": reg.player4_name || '-',
-                    "Member 4 Roll No": reg.player4_roll_no || '-',
-                    "Member 4 Class": reg.player4_class || '-',
+                    "Member 2 Name": cleanName(reg.player2_name) || '-',
+                    "Member 2 Roll No": cleanRollNo(reg.player2_roll_no) || '-',
+                    "Member 2 Class": cleanClass(reg.player2_class) || '-',
+                    "Member 3 Name": cleanName(reg.player3_name) || '-',
+                    "Member 3 Roll No": cleanRollNo(reg.player3_roll_no) || '-',
+                    "Member 3 Class": cleanClass(reg.player3_class) || '-',
+                    "Member 4 Name": cleanName(reg.player4_name) || '-',
+                    "Member 4 Roll No": cleanRollNo(reg.player4_roll_no) || '-',
+                    "Member 4 Class": cleanClass(reg.player4_class) || '-',
                     "Event": reg.events?.event_name || '-',
                     "Registration Date": reg.created_at ? new Date(reg.created_at).toLocaleString() : '-'
                 };
@@ -187,12 +188,12 @@ const AdminPanel = () => {
             }
 
             const baseData = {
-                "Name": reg.name || '-',
-                "Email": reg.email || '-',
-                "Phone": reg.phone || '-',
-                "Class": reg.class || '-',
-                "College": reg.college || '-',
-                "Roll No": reg.roll_no || '-',
+                "Name": cleanName(reg.name) || '-',
+                "Email": cleanEmail(reg.email) || '-',
+                "Phone": cleanPhone(reg.phone) || '-',
+                "Class": cleanClass(reg.class) || '-',
+                "College": cleanCollege(reg.college) || '-',
+                "Roll No": cleanRollNo(reg.roll_no) || '-',
                 "College ID": reg.college_id_url ? 'Photo Uploaded' : 'Not Uploaded',
                 "Verification Status": reg.verification_status === 'verified' ? 'Verified' :
                                       reg.verification_status === 'rejected' ? 'Rejected' : 'Pending',

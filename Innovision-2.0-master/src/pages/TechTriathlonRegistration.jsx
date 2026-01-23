@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, Upload, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { cleanRegistrationData, getPlaceholderExamples } from '../utils/dataCleaners';
 
 const TechTriathlonRegistration = () => {
     const navigate = useNavigate();
@@ -125,13 +126,16 @@ const TechTriathlonRegistration = () => {
 
             setMessage('Saving registration...');
             
+            // Clean all form data before saving
+            const cleanedFormData = cleanRegistrationData(formData);
+            
             const payload = {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                class: formData.class,
-                college: formData.college,
-                roll_no: formData.roll_no,
+                name: cleanedFormData.name,
+                email: cleanedFormData.email,
+                phone: cleanedFormData.phone,
+                class: cleanedFormData.class,
+                college: cleanedFormData.college,
+                roll_no: cleanedFormData.roll_no,
                 event_id: eventData.id,
                 college_id_url: uploadedFiles.college_id_url || null
             };

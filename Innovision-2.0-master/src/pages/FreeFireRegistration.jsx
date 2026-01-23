@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, Upload, X, CreditCard, QrCode } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { cleanRegistrationData, getPlaceholderExamples } from '../utils/dataCleaners';
 
 const FreeFireRegistration = () => {
     const navigate = useNavigate();
@@ -343,30 +344,37 @@ const FreeFireRegistration = () => {
 
             setMessage('Saving registration...');
             
+            // Clean all form data before saving
+            const cleanedFormData = cleanRegistrationData(formData);
+            const cleanedPaymentData = {
+                ...paymentData,
+                transactionId: paymentData.transactionId ? paymentData.transactionId.trim().toUpperCase().replace(/\s+/g, '') : ''
+            };
+            
             const payload = {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                class: formData.class,
-                college: formData.college,
-                roll_no: formData.roll_no,
+                name: cleanedFormData.name,
+                email: cleanedFormData.email,
+                phone: cleanedFormData.phone,
+                class: cleanedFormData.class,
+                college: cleanedFormData.college,
+                roll_no: cleanedFormData.roll_no,
                 event_id: eventData.id,
-                team_name: formData.team_name,
-                player2_name: formData.player2_name,
-                player2_roll_no: formData.player2_roll_no,
-                player2_class: formData.player2_class,
-                player3_name: formData.player3_name,
-                player3_roll_no: formData.player3_roll_no,
-                player3_class: formData.player3_class,
-                player4_name: formData.player4_name,
-                player4_roll_no: formData.player4_roll_no,
-                player4_class: formData.player4_class,
+                team_name: cleanedFormData.team_name,
+                player2_name: cleanedFormData.player2_name,
+                player2_roll_no: cleanedFormData.player2_roll_no,
+                player2_class: cleanedFormData.player2_class,
+                player3_name: cleanedFormData.player3_name,
+                player3_roll_no: cleanedFormData.player3_roll_no,
+                player3_class: cleanedFormData.player3_class,
+                player4_name: cleanedFormData.player4_name,
+                player4_roll_no: cleanedFormData.player4_roll_no,
+                player4_class: cleanedFormData.player4_class,
                 college_id_url: uploadedFiles.college_id_url || null,
                 // PAYMENT FIELDS (NEW - SAFE ADDITION)
                 payment_required: true,
                 payment_amount: event.entryFee,
                 payment_screenshot_url: paymentScreenshotUrl,
-                payment_transaction_id: paymentData.transactionId,
+                payment_transaction_id: cleanedPaymentData.transactionId,
                 payment_status: 'pending'
             };
 
@@ -898,7 +906,7 @@ const FreeFireRegistration = () => {
                                             value={paymentData.transactionId}
                                             onChange={handleTransactionIdChange}
                                             className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-yellow-500 focus:outline-none focus:ring-1 focus:ring-yellow-500 transition-all placeholder-gray-600"
-                                            placeholder="Enter Transaction ID from payment app"
+                                            placeholder={getPlaceholderExamples.transactionId}
                                             required
                                         />
                                         {paymentErrors.transactionId && (

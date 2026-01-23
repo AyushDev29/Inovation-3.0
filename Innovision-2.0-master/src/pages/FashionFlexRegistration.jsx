@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { CheckCircle, AlertCircle, Upload, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
+import { cleanRegistrationData, getPlaceholderExamples } from '../utils/dataCleaners';
 
 const FashionFlexRegistration = () => {
     const navigate = useNavigate();
@@ -129,18 +130,21 @@ const FashionFlexRegistration = () => {
 
             setMessage('Saving registration...');
             
+            // Clean all form data before saving
+            const cleanedFormData = cleanRegistrationData(formData);
+            
             const payload = {
-                name: formData.name,
-                email: formData.email,
-                phone: formData.phone,
-                class: formData.class,
-                college: formData.college,
-                roll_no: formData.roll_no,
+                name: cleanedFormData.name,
+                email: cleanedFormData.email,
+                phone: cleanedFormData.phone,
+                class: cleanedFormData.class,
+                college: cleanedFormData.college,
+                roll_no: cleanedFormData.roll_no,
                 event_id: eventData.id,
-                team_name: formData.team_name,
-                player2_name: formData.player2_name,
-                player2_roll_no: formData.player2_roll_no,
-                player2_class: formData.player2_class,
+                team_name: cleanedFormData.team_name,
+                player2_name: cleanedFormData.player2_name,
+                player2_roll_no: cleanedFormData.player2_roll_no,
+                player2_class: cleanedFormData.player2_class,
                 college_id_url: uploadedFiles.college_id_url || null
             };
 
