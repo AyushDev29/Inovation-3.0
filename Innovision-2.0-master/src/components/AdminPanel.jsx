@@ -508,7 +508,7 @@ const AdminPanel = () => {
                     <div className="bg-gradient-to-br from-red-500/20 to-pink-500/20 border border-white/10 rounded-xl p-6">
                         <h3 className="text-gray-400 text-sm font-medium mb-1">Payment Pending</h3>
                         <p className="text-3xl font-bold text-white">
-                            {filteredRegistrations.filter(reg => reg.payment_status === 'pending').length}
+                            {filteredRegistrations.filter(reg => reg.payment_required && reg.payment_status === 'pending').length}
                         </p>
                     </div>
                     <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-white/10 rounded-xl p-6">

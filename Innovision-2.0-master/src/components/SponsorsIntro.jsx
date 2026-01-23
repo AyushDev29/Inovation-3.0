@@ -34,10 +34,18 @@ const sponsorsData = [
     {
         id: 4,
         name: "Oriflame",
-        logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNEY0NkU1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9yaWZsYW1lPC90ZXh0Pgo8L3N2Zz4K",
+        logo: "/images/sponsors/oriflame.png",
         handle: "@oriflame_india",
         platform: "Website",
         url: "https://www.oriflame.com/"
+    },
+    {
+        id: 5,
+        name: "SB Gaming Cafe",
+        logo: "/images/sponsors/SB-Gaming-Cafe..jpg",
+        handle: "@sbgaming._",
+        platform: "Instagram",
+        url: "https://www.instagram.com/sbgaming._?igsh=cDY1cDlxNXFyMjR1"
     }
 ];
 
@@ -133,12 +141,14 @@ const SponsorsIntro = () => {
 
                 {/* Sponsors Grid */}
                 <div className="sponsors-grid mb-12">
-                    {/* All 4 sponsors in a single grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+                    {/* 5 sponsors with better responsive layout */}
+                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 md:gap-6">
                         {sponsorsData.map((sponsor, index) => (
                             <div 
                                 key={sponsor.id}
-                                className="sponsor-card group relative p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:border-cyber-blue/50 hover:bg-white/10 transition-all duration-300 cursor-pointer"
+                                className={`sponsor-card group relative p-4 md:p-6 bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl hover:border-cyber-blue/50 hover:bg-white/10 transition-all duration-300 cursor-pointer ${
+                                    index === 4 ? 'col-span-2 md:col-span-3 lg:col-span-1 max-w-[200px] md:max-w-[250px] lg:max-w-none mx-auto lg:mx-0' : ''
+                                }`}
                                 onClick={() => window.open(sponsor.url, '_blank')}
                             >
                                 {/* Hover glow effect */}

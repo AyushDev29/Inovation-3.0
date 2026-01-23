@@ -34,10 +34,17 @@ const SponsorsPage = () => {
         {
             id: 4,
             name: "Oriflame",
-            logo: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDIwMCAxMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIyMDAiIGhlaWdodD0iMTAwIiBmaWxsPSIjNEY0NkU1Ii8+Cjx0ZXh0IHg9IjEwMCIgeT0iNTUiIGZvbnQtZmFtaWx5PSJBcmlhbCwgc2Fucy1zZXJpZiIgZm9udC1zaXplPSIxOCIgZmlsbD0id2hpdGUiIHRleHQtYW5jaG9yPSJtaWRkbGUiPk9yaWZsYW1lPC90ZXh0Pgo8L3N2Zz4K",
+            logo: "/images/sponsors/oriflame.png",
             instagram: "@oriflame_india",
             instagramUrl: null, // No Instagram link for Oriflame
             websiteUrl: "https://www.oriflame.com/" // Website link instead
+        },
+        {
+            id: 5,
+            name: "SB Gaming Cafe",
+            logo: "/images/sponsors/SB-Gaming-Cafe..jpg",
+            instagram: "@sbgaming._",
+            instagramUrl: "https://www.instagram.com/sbgaming._?igsh=cDY1cDlxNXFyMjR1"
         }
     ];
 
@@ -301,7 +308,7 @@ const SponsorsPage = () => {
                             <div className="h-[1px] bg-gradient-to-r from-transparent via-cyber-blue to-transparent flex-1" />
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                             {sponsors.map((sponsor) => (
                                 <SponsorCard key={sponsor.id} sponsor={sponsor} />
                             ))}
