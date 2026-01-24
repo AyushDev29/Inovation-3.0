@@ -140,7 +140,6 @@ const AdminPanel = () => {
             const isTeamEvent = reg.events?.event_name?.includes("BGMI") || 
                                reg.events?.event_name?.includes("Free Fire") || 
                                reg.events?.event_name?.includes("Hackastra") ||
-                               reg.events?.event_name?.includes("Fun Fusion") ||
                                reg.events?.event_name?.includes("Fashion Flex");
 
             // Check if it's a paid event (BGMI or Free Fire)
@@ -643,7 +642,6 @@ const AdminPanel = () => {
                                         const isTeamEvent = reg.events?.event_name?.includes("BGMI") || 
                                                            reg.events?.event_name?.includes("Free Fire") || 
                                                            reg.events?.event_name?.includes("Hackastra") ||
-                                                           reg.events?.event_name?.includes("Fun Fusion") ||
                                                            reg.events?.event_name?.includes("Fashion Flex");
                                         const isExpanded = expandedRow === reg.id;
                                         

@@ -10,7 +10,7 @@ const FunFusionRegistration = () => {
     const event = {
         id: 6,
         title: "Fun Fusion",
-        teamSize: "4 Members",
+        teamSize: "Individual",
         prize: ""
     };
 
@@ -28,18 +28,8 @@ const FunFusionRegistration = () => {
         email: '',
         phone: '',
         class: '',
-        college: '', // This will be the TEAM college (common for all members)
-        roll_no: '',
-        team_name: '',
-        player2_name: '',
-        player2_roll_no: '',
-        player2_class: '', // Changed from player2_college to player2_class
-        player3_name: '',
-        player3_roll_no: '',
-        player3_class: '', // Changed from player3_college to player3_class
-        player4_name: '',
-        player4_roll_no: '',
-        player4_class: '' // Changed from player4_college to player4_class
+        college: '',
+        roll_no: ''
     });
     const [files, setFiles] = useState({
         college_id: null
@@ -147,16 +137,6 @@ const FunFusionRegistration = () => {
                 college: cleanedFormData.college,
                 roll_no: cleanedFormData.roll_no,
                 event_id: eventData.id,
-                team_name: cleanedFormData.team_name,
-                player2_name: cleanedFormData.player2_name,
-                player2_roll_no: cleanedFormData.player2_roll_no,
-                player2_class: cleanedFormData.player2_class,
-                player3_name: cleanedFormData.player3_name,
-                player3_roll_no: cleanedFormData.player3_roll_no,
-                player3_class: cleanedFormData.player3_class,
-                player4_name: cleanedFormData.player4_name,
-                player4_roll_no: cleanedFormData.player4_roll_no,
-                player4_class: cleanedFormData.player4_class,
                 college_id_url: uploadedFiles.college_id_url || null
             };
 
@@ -283,10 +263,10 @@ const FunFusionRegistration = () => {
                                 </div>
                             )}
 
-                            {/* Leader Name */}
+                            {/* Participant Name */}
                             <div className="space-y-1">
                                 <label className="text-[9px] sm:text-[10px] md:text-xs text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                    Leader Name
+                                    Participant Name
                                 </label>
                                 <input
                                     type="text"
@@ -295,7 +275,7 @@ const FunFusionRegistration = () => {
                                     value={formData.name}
                                     onChange={handleChange}
                                     className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                    placeholder="Enter Leader Name"
+                                    placeholder="Enter Your Name"
                                 />
                             </div>
 
@@ -303,7 +283,7 @@ const FunFusionRegistration = () => {
                             <div className="grid grid-cols-2 gap-1.5 sm:gap-2">
                                 <div className="space-y-1">
                                     <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                        Leader Email
+                                        Email
                                     </label>
                                     <input
                                         type="email"
@@ -317,7 +297,7 @@ const FunFusionRegistration = () => {
                                 </div>
                                 <div className="space-y-1">
                                     <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                        Leader Phone
+                                        Phone
                                     </label>
                                     <input
                                         type="tel"
@@ -375,16 +355,16 @@ const FunFusionRegistration = () => {
                                     className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                     placeholder="College Name"
                                 />
-                                <div className="text-[8px] sm:text-[9px] text-yellow-400 mt-1 flex items-center gap-1">
-                                    <span>⚠️</span>
-                                    <span>All team members must be from the same college</span>
+                                <div className="text-[8px] sm:text-[9px] text-gray-400 mt-1 flex items-center gap-1">
+                                    <span>ℹ️</span>
+                                    <span>Individual registration for Fun Fusion event</span>
                                 </div>
                             </div>
 
                             {/* College ID Photo Upload */}
                             <div className="space-y-1">
                                 <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                    Team College IDs Photo (All Members)
+                                    College ID Photo
                                 </label>
                                 <div className="relative">
                                     <input
@@ -415,134 +395,10 @@ const FunFusionRegistration = () => {
                                         ⚠️ IMPORTANT REQUIREMENTS:
                                     </p>
                                     <ul className="text-[11px] sm:text-xs text-yellow-300 space-y-1 ml-3 leading-relaxed">
-                                        <li>• All 4 team members' college IDs must be clearly visible in ONE photo</li>
-                                        <li>• Arrange all ID cards together and take a clear photo</li>
-                                        <li>• Ensure all text and photos on IDs are readable</li>
-                                        <li>• Poor visible/blur photos and fake entries and photos may lead to disqualification</li>
+                                        <li>• Upload a clear photo of your college ID</li>
+                                        <li>• Ensure all text and photo on ID are readable</li>
+                                        <li>• Poor visible/blur photos and fake entries may lead to disqualification</li>
                                     </ul>
-                                </div>
-                            </div>
-
-                            {/* Team Name */}
-                            <div className="space-y-1">
-                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">Team Name</label>
-                                <input
-                                    type="text"
-                                    name="team_name"
-                                    required
-                                    value={formData.team_name}
-                                    onChange={handleChange}
-                                    className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                    placeholder="Enter Team Name"
-                                />
-                            </div>
-
-                            {/* Team Members */}
-                            <div className="space-y-1.5 pt-1">
-                                <span className="text-[9px] sm:text-[10px] md:text-xs font-semibold text-gray-200">
-                                    Team Members
-                                </span>
-                                
-                                {/* Member 2 */}
-                                <div className="bg-white/5 rounded-md p-2 border border-white/10">
-                                    <div className="text-[9px] text-gray-300 mb-1 font-semibold">Member 2</div>
-                                    <input
-                                        type="text"
-                                        name="player2_name"
-                                        required
-                                        value={formData.player2_name}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600 mb-1"
-                                        placeholder="Member 2 Name"
-                                    />
-                                    <div className="grid grid-cols-2 gap-1.5">
-                                        <input
-                                            type="text"
-                                            name="player2_roll_no"
-                                            required
-                                            value={formData.player2_roll_no}
-                                            onChange={handleChange}
-                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                            placeholder="Roll Number"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="player2_class"
-                                            required
-                                            value={formData.player2_class}
-                                            onChange={handleChange}
-                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                            placeholder="Class (e.g., SYBSCIT, TYBCA)"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Member 3 */}
-                                <div className="bg-white/5 rounded-md p-2 border border-white/10">
-                                    <div className="text-[9px] text-gray-300 mb-1 font-semibold">Member 3</div>
-                                    <input
-                                        type="text"
-                                        name="player3_name"
-                                        required
-                                        value={formData.player3_name}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600 mb-1"
-                                        placeholder="Member 3 Name"
-                                    />
-                                    <div className="grid grid-cols-2 gap-1.5">
-                                        <input
-                                            type="text"
-                                            name="player3_roll_no"
-                                            required
-                                            value={formData.player3_roll_no}
-                                            onChange={handleChange}
-                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                            placeholder="Roll Number"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="player3_class"
-                                            required
-                                            value={formData.player3_class}
-                                            onChange={handleChange}
-                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                            placeholder="Class (e.g., SYBSCIT, TYBCA)"
-                                        />
-                                    </div>
-                                </div>
-
-                                {/* Member 4 */}
-                                <div className="bg-white/5 rounded-md p-2 border border-white/10">
-                                    <div className="text-[9px] text-gray-300 mb-1 font-semibold">Member 4</div>
-                                    <input
-                                        type="text"
-                                        name="player4_name"
-                                        required
-                                        value={formData.player4_name}
-                                        onChange={handleChange}
-                                        className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600 mb-1"
-                                        placeholder="Member 4 Name"
-                                    />
-                                    <div className="grid grid-cols-2 gap-1.5">
-                                        <input
-                                            type="text"
-                                            name="player4_roll_no"
-                                            required
-                                            value={formData.player4_roll_no}
-                                            onChange={handleChange}
-                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                            placeholder="Roll Number"
-                                        />
-                                        <input
-                                            type="text"
-                                            name="player4_class"
-                                            required
-                                            value={formData.player4_class}
-                                            onChange={handleChange}
-                                            className="w-full bg-black/40 border border-white/10 rounded px-2 py-1.5 text-[11px] sm:text-xs text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                            placeholder="Class (e.g., SYBSCIT, TYBCA)"
-                                        />
-                                    </div>
                                 </div>
                             </div>
 

@@ -57,7 +57,7 @@ const scheduleData = {
                 category: "Fun",
                 time: "12:00 PM - 2:00 PM",
                 venue: "Activity Zone",
-                teamSize: "4-6 Members",
+                teamSize: "Individual",
                 color: "from-indigo-500 to-violet-600"
             }
         ]
