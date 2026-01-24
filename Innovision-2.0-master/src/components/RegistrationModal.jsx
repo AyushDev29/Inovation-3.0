@@ -481,13 +481,7 @@ const RegistrationModal = ({ event, onClose }) => {
                                 className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
                                 placeholder="College Name"
                             />
-                            {isTeamEvent && (
-                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-lg p-2 mt-2">
-                                    <p className="text-yellow-400 text-[9px] sm:text-[10px] font-medium">
-                                        ⚠️ Team Rule: All team members must be from the same college. Enter your college name above - this will be the common college for your entire team.
-                                    </p>
-                                </div>
-                            )}
+
                         </div>
 
                         {/* College ID Photo Upload */}
