@@ -343,9 +343,9 @@ const FashionFlexRegistration = () => {
                                 </div>
                             </div>
 
-                            {/* College */}
+                            {/* Leader College Name */}
                             <div className="space-y-1">
-                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">College</label>
+                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">Leader College Name</label>
                                 <input
                                     type="text"
                                     name="college"
@@ -353,7 +353,7 @@ const FashionFlexRegistration = () => {
                                     value={formData.college}
                                     onChange={handleChange}
                                     className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                    placeholder="College Name"
+                                    placeholder="Leader College Name"
                                 />
                                 <div className="text-[8px] sm:text-[9px] text-yellow-400 mt-1 flex items-center gap-1">
                                     <span>⚠️</span>
@@ -366,8 +366,8 @@ const FashionFlexRegistration = () => {
                                 maxPhotos={2}
                                 onPhotosChange={handlePhotosChange}
                                 memberNames={[
-                                    formData.name || 'Partner 1',
-                                    formData.player2_name || 'Partner 2'
+                                    formData.name || 'Leader',
+                                    formData.player2_name || 'Partner'
                                 ]}
                                 label="Duo College ID Photos (2 Required)"
                                 required={true}

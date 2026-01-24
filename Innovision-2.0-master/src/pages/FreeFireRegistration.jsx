@@ -595,9 +595,9 @@ const FreeFireRegistration = () => {
                                 </div>
                             </div>
 
-                            {/* College */}
+                            {/* IGL College Name */}
                             <div className="space-y-1">
-                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">College</label>
+                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">IGL College Name</label>
                                 <input
                                     type="text"
                                     name="college"
@@ -605,7 +605,7 @@ const FreeFireRegistration = () => {
                                     value={formData.college}
                                     onChange={handleChange}
                                     className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs md:text-sm text-white focus:border-neon-purple focus:outline-none focus:ring-1 focus:ring-neon-purple transition-all placeholder-gray-600"
-                                    placeholder="College Name"
+                                    placeholder="IGL College Name"
                                 />
                                 <div className="text-[8px] sm:text-[9px] text-yellow-400 mt-1 flex items-center gap-1">
                                     <span>⚠️</span>
@@ -618,7 +618,7 @@ const FreeFireRegistration = () => {
                                 maxPhotos={4}
                                 onPhotosChange={handlePhotosChange}
                                 memberNames={[
-                                    formData.name || 'Team Leader',
+                                    formData.name || 'IGL',
                                     formData.player2_name || 'Member 2',
                                     formData.player3_name || 'Member 3',
                                     formData.player4_name || 'Member 4'
