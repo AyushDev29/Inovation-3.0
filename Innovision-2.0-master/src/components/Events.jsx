@@ -81,7 +81,7 @@ const eventsData = [
         category: "Fun",
         description: "Individual indoor games and challenges",
         date: "Day 2 (6 Feb), 12:00 PM – 2:00 PM",
-        venue: "Activity Zone",
+        venue: "Auditorium",
         teamSize: "Individual",
         prize: "",
         image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1000&auto=format&fit=crop",

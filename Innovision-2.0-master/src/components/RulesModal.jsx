@@ -277,10 +277,9 @@ const rulesData = {
                 heading: "Event Format",
                 items: [
                     "3 Rounds of Surprise Games, Revealed on the Spot!",
-                    "Team size: 4-6 members",
-                    "Mixed participation encouraged",
+                    "Individual Participation",
                     "Time: 12:00 PM – 2:00 PM",
-                    "Venue: Activity Zone",
+                    "Venue: Auditorium",
                     "Multiple indoor game stations and team challenges"
                 ]
             },
@@ -297,16 +296,7 @@ const rulesData = {
                     "NO OFFENSE: Maintain the Fun Decorum"
                 ]
             },
-            {
-                heading: "Activity Structure",
-                items: [
-                    "Rotation system between different activity zones",
-                    "Points accumulated across all challenge stations",
-                    "Team coordination and strategy important for success",
-                    "Fun and engaging activities designed for all skill levels",
-                    "All team members must participate actively in challenges"
-                ]
-            },
+            
             {
                 heading: "Participation Guidelines",
                 items: [

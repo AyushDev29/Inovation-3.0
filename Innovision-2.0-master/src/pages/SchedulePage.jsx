@@ -54,7 +54,7 @@ const scheduleData = {
                 name: "Fun Fusion",
                 category: "Fun",
                 time: "12:00 PM - 2:00 PM",
-                venue: "Activity Zone",
+                venue: "Auditorium",
                 teamSize: "Individual",
                 color: "from-indigo-500 to-violet-600"
             }
