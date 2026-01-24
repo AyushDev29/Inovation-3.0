@@ -4,6 +4,7 @@ import { CheckCircle, AlertCircle, Upload, X, CreditCard, QrCode } from 'lucide-
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { cleanRegistrationData, getPlaceholderExamples } from '../utils/dataCleaners';
+import MultiplePhotoUpload from '../components/MultiplePhotoUpload';
 
 const FreeFireRegistration = () => {
     const navigate = useNavigate();
@@ -43,7 +44,7 @@ const FreeFireRegistration = () => {
         player4_class: '' // Changed from player4_college to player4_class
     });
     const [files, setFiles] = useState({
-        college_id: null
+        collegeIdPhotos: [] // Changed to array for multiple photos
     });
     
     // PAYMENT STATE (NEW - SAFE ADDITION)
@@ -76,43 +77,31 @@ const FreeFireRegistration = () => {
         }
     };
 
-    const handleFileChange = (e, fieldName) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type (Images only: JPEG, JPG, PNG, WEBP)
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-            if (!allowedTypes.includes(file.type)) {
-                alert('Please upload only image files (JPEG, JPG, PNG, WEBP) for college ID verification.');
-                return;
-            }
-            
-            // Validate file size (max 10MB for images)
-            if (file.size > 10 * 1024 * 1024) {
-                alert('Image size must be less than 10MB.');
-                return;
-            }
-            
-            setFiles(prev => ({
-                ...prev,
-                [fieldName]: file
-            }));
-        }
+    const handlePhotosChange = (photos) => {
+        setFiles(prev => ({
+            ...prev,
+            collegeIdPhotos: photos
+        }));
     };
 
-    const uploadFile = async (file, fileName) => {
+    const uploadMultipleFiles = async (files, prefix = 'college-id') => {
         try {
-            const fileExt = file.name.split('.').pop();
-            const filePath = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const uploadPromises = files.map(async (file, index) => {
+                const fileExt = file.name.split('.').pop();
+                const filePath = `${prefix}-${Date.now()}-${index}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+                
+                const { data, error } = await supabase.storage
+                    .from('college-ids')
+                    .upload(filePath, file);
+                
+                if (error) throw error;
+                return data.path;
+            });
             
-            const { data, error } = await supabase.storage
-                .from('college-ids')
-                .upload(filePath, file);
-            
-            if (error) throw error;
-            return data.path;
+            return await Promise.all(uploadPromises);
         } catch (error) {
-            console.error('File upload error:', error);
-            throw new Error(`Failed to upload ${fileName}: ${error.message}`);
+            console.error('Multiple file upload error:', error);
+            throw new Error(`Failed to upload photos: ${error.message}`);
         }
     };
 
@@ -286,9 +275,9 @@ const FreeFireRegistration = () => {
             return;
         }
         
-        if (!files.college_id) {
+        if (files.collegeIdPhotos.length !== 4) {
             setStatus('error');
-            setMessage('Please upload team college ID photo before proceeding to payment');
+            setMessage('Please upload all 4 team member college ID photos before proceeding to payment');
             return;
         }
         
@@ -321,13 +310,19 @@ const FreeFireRegistration = () => {
 
             let uploadedFiles = {};
             
-            // Upload college ID documents
-            if (files.college_id) {
+            // Upload college ID documents (multiple photos)
+            if (files.collegeIdPhotos.length > 0) {
                 try {
-                    setMessage('Uploading college ID documents...');
-                    uploadedFiles.college_id_url = await uploadFile(files.college_id, 'college_id');
+                    setMessage('Uploading college ID photos...');
+                    const uploadedPaths = await uploadMultipleFiles(files.collegeIdPhotos, 'team-college-id');
+                    
+                    // Store individual photo URLs
+                    uploadedFiles.player1_college_id_url = uploadedPaths[0] || null;
+                    uploadedFiles.player2_college_id_url = uploadedPaths[1] || null;
+                    uploadedFiles.player3_college_id_url = uploadedPaths[2] || null;
+                    uploadedFiles.player4_college_id_url = uploadedPaths[3] || null;
                 } catch (uploadError) {
-                    console.warn('File upload failed, continuing without file:', uploadError);
+                    console.warn('File upload failed, continuing without files:', uploadError);
                 }
             }
 
@@ -369,7 +364,13 @@ const FreeFireRegistration = () => {
                 player4_name: cleanedFormData.player4_name,
                 player4_roll_no: cleanedFormData.player4_roll_no,
                 player4_class: cleanedFormData.player4_class,
-                college_id_url: uploadedFiles.college_id_url || null,
+                // Individual college ID photos (with fallback for compatibility)
+                player1_college_id_url: uploadedFiles.player1_college_id_url || null,
+                player2_college_id_url: uploadedFiles.player2_college_id_url || null,
+                player3_college_id_url: uploadedFiles.player3_college_id_url || null,
+                player4_college_id_url: uploadedFiles.player4_college_id_url || null,
+                // Fallback to old system if new columns don't exist
+                college_id_url: uploadedFiles.player1_college_id_url || null,
                 // PAYMENT FIELDS (NEW - SAFE ADDITION)
                 payment_required: true,
                 payment_amount: event.entryFee,
@@ -612,47 +613,19 @@ const FreeFireRegistration = () => {
                                 </div>
                             </div>
 
-                            {/* College ID Photo Upload */}
-                            <div className="space-y-1">
-                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                    Team College IDs Photo (All Members)
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        accept="image/jpeg,image/jpg,image/png,image/webp"
-                                        capture="environment"
-                                        onChange={(e) => handleFileChange(e, 'college_id')}
-                                        className="hidden"
-                                        id="college_id_upload"
-                                        required
-                                    />
-                                    <label
-                                        htmlFor="college_id_upload"
-                                        className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs text-white hover:border-neon-purple transition-all cursor-pointer flex items-center gap-1.5"
-                                    >
-                                        <Upload size={14} />
-                                        {files.college_id ? (
-                                            <span className="text-green-400 truncate">{files.college_id.name}</span>
-                                        ) : (
-                                            <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                                📸 Take Photo (max 10MB)
-                                            </span>
-                                        )}
-                                    </label>
-                                </div>
-                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-3 mt-2">
-                                    <p className="text-xs sm:text-sm text-yellow-400 font-semibold mb-2">
-                                        ⚠️ IMPORTANT REQUIREMENTS:
-                                    </p>
-                                    <ul className="text-[11px] sm:text-xs text-yellow-300 space-y-1 ml-3 leading-relaxed">
-                                        <li>• All 4 team members' college IDs must be clearly visible in ONE photo</li>
-                                        <li>• Arrange all ID cards together and take a clear photo</li>
-                                        <li>• Ensure all text and photos on IDs are readable</li>
-                                        <li>• Poor visible/blur photos and fake entries and photos may lead to disqualification</li>
-                                    </ul>
-                                </div>
-                            </div>
+                            {/* Multiple College ID Photos Upload */}
+                            <MultiplePhotoUpload
+                                maxPhotos={4}
+                                onPhotosChange={handlePhotosChange}
+                                memberNames={[
+                                    formData.name || 'Team Leader',
+                                    formData.player2_name || 'Member 2',
+                                    formData.player3_name || 'Member 3',
+                                    formData.player4_name || 'Member 4'
+                                ]}
+                                label="Team College ID Photos (4 Required)"
+                                required={true}
+                            />
 
                             {/* Team Name */}
                             <div className="space-y-1">

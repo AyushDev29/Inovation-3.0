@@ -4,6 +4,7 @@ import { CheckCircle, AlertCircle, Upload, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { cleanRegistrationData, getPlaceholderExamples } from '../utils/dataCleaners';
+import MultiplePhotoUpload from '../components/MultiplePhotoUpload';
 
 const FashionFlexRegistration = () => {
     const navigate = useNavigate();
@@ -36,7 +37,7 @@ const FashionFlexRegistration = () => {
         player2_class: '' // Changed from player2_college to player2_class
     });
     const [files, setFiles] = useState({
-        college_id: null
+        collegeIdPhotos: [] // Changed to array for multiple photos
     });
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null);
@@ -60,43 +61,31 @@ const FashionFlexRegistration = () => {
         }
     };
 
-    const handleFileChange = (e, fieldName) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type (Images only: JPEG, JPG, PNG, WEBP)
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-            if (!allowedTypes.includes(file.type)) {
-                alert('Please upload only image files (JPEG, JPG, PNG, WEBP) for college ID verification.');
-                return;
-            }
-            
-            // Validate file size (max 10MB for images)
-            if (file.size > 10 * 1024 * 1024) {
-                alert('Image size must be less than 10MB.');
-                return;
-            }
-            
-            setFiles(prev => ({
-                ...prev,
-                [fieldName]: file
-            }));
-        }
+    const handlePhotosChange = (photos) => {
+        setFiles(prev => ({
+            ...prev,
+            collegeIdPhotos: photos
+        }));
     };
 
-    const uploadFile = async (file, fileName) => {
+    const uploadMultipleFiles = async (files, prefix = 'college-id') => {
         try {
-            const fileExt = file.name.split('.').pop();
-            const filePath = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+            const uploadPromises = files.map(async (file, index) => {
+                const fileExt = file.name.split('.').pop();
+                const filePath = `${prefix}-${Date.now()}-${index}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+                
+                const { data, error } = await supabase.storage
+                    .from('college-ids')
+                    .upload(filePath, file);
+                
+                if (error) throw error;
+                return data.path;
+            });
             
-            const { data, error } = await supabase.storage
-                .from('college-ids')
-                .upload(filePath, file);
-            
-            if (error) throw error;
-            return data.path;
+            return await Promise.all(uploadPromises);
         } catch (error) {
-            console.error('File upload error:', error);
-            throw new Error(`Failed to upload ${fileName}: ${error.message}`);
+            console.error('Multiple file upload error:', error);
+            throw new Error(`Failed to upload photos: ${error.message}`);
         }
     };
 
@@ -117,13 +106,17 @@ const FashionFlexRegistration = () => {
 
             let uploadedFiles = {};
             
-            // Try to upload file if provided, but don't fail if bucket doesn't exist
-            if (files.college_id) {
+            // Upload college ID documents (multiple photos)
+            if (files.collegeIdPhotos.length > 0) {
                 try {
-                    setMessage('Uploading college ID documents...');
-                    uploadedFiles.college_id_url = await uploadFile(files.college_id, 'college_id');
+                    setMessage('Uploading college ID photos...');
+                    const uploadedPaths = await uploadMultipleFiles(files.collegeIdPhotos, 'duo-college-id');
+                    
+                    // Store individual photo URLs
+                    uploadedFiles.player1_college_id_url = uploadedPaths[0] || null;
+                    uploadedFiles.player2_college_id_url = uploadedPaths[1] || null;
                 } catch (uploadError) {
-                    console.warn('File upload failed, continuing without file:', uploadError);
+                    console.warn('File upload failed, continuing without files:', uploadError);
                     // Continue registration without file upload
                 }
             }
@@ -145,7 +138,11 @@ const FashionFlexRegistration = () => {
                 player2_name: cleanedFormData.player2_name,
                 player2_roll_no: cleanedFormData.player2_roll_no,
                 player2_class: cleanedFormData.player2_class,
-                college_id_url: uploadedFiles.college_id_url || null
+                // Individual college ID photos (with fallback for compatibility)
+                player1_college_id_url: uploadedFiles.player1_college_id_url || null,
+                player2_college_id_url: uploadedFiles.player2_college_id_url || null,
+                // Fallback to old system if new columns don't exist
+                college_id_url: uploadedFiles.player1_college_id_url || null
             };
 
             const { error: insertError } = await supabase
@@ -364,47 +361,17 @@ const FashionFlexRegistration = () => {
                                 </div>
                             </div>
 
-                            {/* College ID Photo Upload */}
-                            <div className="space-y-1">
-                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                    Team College IDs Photo (Both Members)
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        accept="image/jpeg,image/jpg,image/png,image/webp"
-                                        capture="environment"
-                                        onChange={(e) => handleFileChange(e, 'college_id')}
-                                        className="hidden"
-                                        id="college_id_upload"
-                                        required
-                                    />
-                                    <label
-                                        htmlFor="college_id_upload"
-                                        className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs text-white hover:border-neon-purple transition-all cursor-pointer flex items-center gap-1.5"
-                                    >
-                                        <Upload size={14} />
-                                        {files.college_id ? (
-                                            <span className="text-green-400 truncate">{files.college_id.name}</span>
-                                        ) : (
-                                            <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                                📸 Take Photo (max 10MB)
-                                            </span>
-                                        )}
-                                    </label>
-                                </div>
-                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-3 mt-2">
-                                    <p className="text-xs sm:text-sm text-yellow-400 font-semibold mb-2">
-                                        ⚠️ IMPORTANT REQUIREMENTS:
-                                    </p>
-                                    <ul className="text-[11px] sm:text-xs text-yellow-300 space-y-1 ml-3 leading-relaxed">
-                                        <li>• Both team members' college IDs must be clearly visible in ONE photo</li>
-                                        <li>• Arrange both ID cards together and take a clear photo</li>
-                                        <li>• Ensure all text and photos on IDs are readable</li>
-                                        <li>• Poor visible/blur photos and fake entries and photos may lead to disqualification</li>
-                                    </ul>
-                                </div>
-                            </div>
+                            {/* Multiple College ID Photos Upload */}
+                            <MultiplePhotoUpload
+                                maxPhotos={2}
+                                onPhotosChange={handlePhotosChange}
+                                memberNames={[
+                                    formData.name || 'Partner 1',
+                                    formData.player2_name || 'Partner 2'
+                                ]}
+                                label="Duo College ID Photos (2 Required)"
+                                required={true}
+                            />
 
                             {/* Team Name */}
                             <div className="space-y-1">

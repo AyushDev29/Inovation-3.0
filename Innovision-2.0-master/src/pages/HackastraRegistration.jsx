@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, AlertCircle, Upload, X } from 'lucide-react';
+import { CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
-import { cleanRegistrationData, getPlaceholderExamples } from '../utils/dataCleaners';
+import { cleanRegistrationData } from '../utils/dataCleaners';
+import MultiplePhotoUpload from '../components/MultiplePhotoUpload';
 
 const HackastraRegistration = () => {
     const navigate = useNavigate();
@@ -39,7 +40,7 @@ const HackastraRegistration = () => {
         player3_class: '' // Changed from player3_college to player3_class
     });
     const [files, setFiles] = useState({
-        college_id: null
+        college_id_photos: []
     });
     const [loading, setLoading] = useState(false);
     const [status, setStatus] = useState(null);
@@ -63,27 +64,11 @@ const HackastraRegistration = () => {
         }
     };
 
-    const handleFileChange = (e, fieldName) => {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file type (Images only: JPEG, JPG, PNG, WEBP)
-            const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
-            if (!allowedTypes.includes(file.type)) {
-                alert('Please upload only image files (JPEG, JPG, PNG, WEBP) for college ID verification.');
-                return;
-            }
-            
-            // Validate file size (max 10MB for images)
-            if (file.size > 10 * 1024 * 1024) {
-                alert('Image size must be less than 10MB.');
-                return;
-            }
-            
-            setFiles(prev => ({
-                ...prev,
-                [fieldName]: file
-            }));
-        }
+    const handleFileChange = (photos) => {
+        setFiles(prev => ({
+            ...prev,
+            college_id_photos: photos
+        }));
     };
 
     const uploadFile = async (file, fileName) => {
@@ -110,6 +95,14 @@ const HackastraRegistration = () => {
         setMessage('');
 
         try {
+            // Validate photo count (minimum 2, maximum 3)
+            if (!files.college_id_photos || files.college_id_photos.length < 2) {
+                throw new Error('Please upload at least 2 college ID photos.');
+            }
+            if (files.college_id_photos.length > 3) {
+                throw new Error('Please upload maximum 3 college ID photos.');
+            }
+
             const { data: eventData, error: eventError } = await supabase
                 .from('events')
                 .select('id')
@@ -120,13 +113,25 @@ const HackastraRegistration = () => {
 
             let uploadedFiles = {};
             
-            // Try to upload file if provided, but don't fail if bucket doesn't exist
-            if (files.college_id) {
+            // Upload multiple college ID photos if provided
+            if (files.college_id_photos && files.college_id_photos.length > 0) {
                 try {
                     setMessage('Uploading college ID documents...');
-                    uploadedFiles.college_id_url = await uploadFile(files.college_id, 'college_id');
+                    const uploadedPaths = [];
+                    
+                    for (let i = 0; i < files.college_id_photos.length; i++) {
+                        const file = files.college_id_photos[i];
+                        const uploadedPath = await uploadFile(file, `college_id_${i + 1}`);
+                        uploadedPaths.push(uploadedPath);
+                    }
+                    
+                    // Store individual photo URLs
+                    uploadedFiles.player1_college_id_url = uploadedPaths[0] || null;
+                    uploadedFiles.player2_college_id_url = uploadedPaths[1] || null;
+                    uploadedFiles.player3_college_id_url = uploadedPaths[2] || null;
+                    
                 } catch (uploadError) {
-                    console.warn('File upload failed, continuing without file:', uploadError);
+                    console.warn('File upload failed, continuing without files:', uploadError);
                     // Continue registration without file upload
                 }
             }
@@ -151,7 +156,12 @@ const HackastraRegistration = () => {
                 player3_name: cleanedFormData.player3_name || null,
                 player3_roll_no: cleanedFormData.player3_roll_no || null,
                 player3_class: cleanedFormData.player3_class || null,
-                college_id_url: uploadedFiles.college_id_url || null
+                // Individual college ID photos (with fallback for compatibility)
+                player1_college_id_url: uploadedFiles.player1_college_id_url || null,
+                player2_college_id_url: uploadedFiles.player2_college_id_url || null,
+                player3_college_id_url: uploadedFiles.player3_college_id_url || null,
+                // Fallback to old system if new columns don't exist
+                college_id_url: uploadedFiles.player1_college_id_url || null
             };
 
             const { error: insertError } = await supabase
@@ -370,47 +380,25 @@ const HackastraRegistration = () => {
                                 </div>
                             </div>
 
-                            {/* College ID Photo Upload */}
-                            <div className="space-y-1">
-                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
-                                    Team College IDs Photo (All Members)
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="file"
-                                        accept="image/jpeg,image/jpg,image/png,image/webp"
-                                        capture="environment"
-                                        onChange={(e) => handleFileChange(e, 'college_id')}
-                                        className="hidden"
-                                        id="college_id_upload"
-                                        required
-                                    />
-                                    <label
-                                        htmlFor="college_id_upload"
-                                        className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs text-white hover:border-neon-purple transition-all cursor-pointer flex items-center gap-1.5"
-                                    >
-                                        <Upload size={14} />
-                                        {files.college_id ? (
-                                            <span className="text-green-400 truncate">{files.college_id.name}</span>
-                                        ) : (
-                                            <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                                📸 Take Photo (max 10MB)
-                                            </span>
-                                        )}
-                                    </label>
-                                </div>
-                                <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-md p-3 mt-2">
-                                    <p className="text-xs sm:text-sm text-yellow-400 font-semibold mb-2">
-                                        ⚠️ IMPORTANT REQUIREMENTS:
-                                    </p>
-                                    <ul className="text-[11px] sm:text-xs text-yellow-300 space-y-1 ml-3 leading-relaxed">
-                                        <li>• All 3 team members' college IDs must be clearly visible in ONE photo</li>
-                                        <li>• Arrange all ID cards together and take a clear photo</li>
-                                        <li>• Ensure all text and photos on IDs are readable</li>
-                                        <li>• Poor visible/blur photos and fake entries and photos may lead to disqualification</li>
-                                    </ul>
-                                </div>
-                            </div>
+                            {/* College ID Photos Upload */}
+                            <MultiplePhotoUpload
+                                maxPhotos={3}
+                                onPhotosChange={handleFileChange}
+                                memberNames={[
+                                    formData.name || 'Team Leader',
+                                    formData.player2_name || 'Member 2',
+                                    formData.player3_name || 'Member 3 (Optional)'
+                                ]}
+                                required={true}
+                                label="Team College ID Photos (2-3 Photos)"
+                                uploadMessage="Upload 2-3 College ID Photos"
+                                customInstructions={[
+                                    "Upload 2-3 separate college ID photos (minimum 2 required, 3rd optional)",
+                                    "Ensure all text and photos on IDs are clearly readable",
+                                    "Poor quality/blurred photos may lead to disqualification",
+                                    "Upload from gallery - no camera capture needed"
+                                ]}
+                            />
 
                             {/* Team Name */}
                             <div className="space-y-1">

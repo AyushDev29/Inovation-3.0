@@ -23,6 +23,15 @@ const AdminPanel = () => {
     const [imageLoading, setImageLoading] = useState(false);
     const [refreshing, setRefreshing] = useState(false); // Add refreshing state
     
+    // MULTIPLE IMAGES VIEWER STATE
+    const [multipleImagesViewerOpen, setMultipleImagesViewerOpen] = useState(false);
+    const [currentImages, setCurrentImages] = useState([]);
+    const [multipleImagesLoading, setMultipleImagesLoading] = useState(false);
+    
+    // SINGLE IMAGE ZOOM VIEWER STATE
+    const [singleImageViewerOpen, setSingleImageViewerOpen] = useState(false);
+    const [currentSingleImage, setCurrentSingleImage] = useState(null);
+    
     // VERIFICATION SYSTEM STATE
     const [verificationFilter, setVerificationFilter] = useState('normal'); // normal, all, verified, pending, rejected
     const [verificationUpdateLoading, setVerificationUpdateLoading] = useState(null);
@@ -254,6 +263,73 @@ const AdminPanel = () => {
     const closeImageViewer = () => {
         setImageViewerOpen(false);
         setCurrentImageUrl(null);
+    };
+
+    // MULTIPLE IMAGES VIEWER FUNCTIONS
+    const viewMultipleImages = async (registration, teamName) => {
+        const imagePaths = [
+            { path: registration.player1_college_id_url, name: registration.name || 'Team Leader' },
+            { path: registration.player2_college_id_url, name: registration.player2_name || 'Member 2' },
+            { path: registration.player3_college_id_url, name: registration.player3_name || 'Member 3' },
+            { path: registration.player4_college_id_url, name: registration.player4_name || 'Member 4' }
+        ].filter(img => img.path); // Only include images that exist
+
+        if (imagePaths.length === 0) {
+            alert('No college ID photos uploaded for this team');
+            return;
+        }
+
+        setMultipleImagesLoading(true);
+        try {
+            const imagePromises = imagePaths.map(async (img) => {
+                const { data, error } = await supabase.storage
+                    .from('college-ids')
+                    .createSignedUrl(img.path, 3600); // 1 hour expiry
+
+                if (error) {
+                    console.error('Error generating signed URL for', img.name, ':', error);
+                    return null;
+                }
+
+                return {
+                    url: data.signedUrl,
+                    name: img.name,
+                    path: img.path
+                };
+            });
+
+            const resolvedImages = await Promise.all(imagePromises);
+            const validImages = resolvedImages.filter(img => img !== null);
+
+            if (validImages.length === 0) {
+                alert('Error accessing college ID photos');
+                return;
+            }
+
+            setCurrentImages(validImages);
+            setMultipleImagesViewerOpen(true);
+        } catch (error) {
+            console.error('Error viewing multiple college ID photos:', error);
+            alert('Error viewing college ID photos');
+        } finally {
+            setMultipleImagesLoading(false);
+        }
+    };
+
+    const closeMultipleImagesViewer = () => {
+        setMultipleImagesViewerOpen(false);
+        setCurrentImages([]);
+    };
+
+    // SINGLE IMAGE ZOOM VIEWER FUNCTIONS
+    const viewSingleImage = (imageUrl, imageName) => {
+        setCurrentSingleImage({ url: imageUrl, name: imageName });
+        setSingleImageViewerOpen(true);
+    };
+
+    const closeSingleImageViewer = () => {
+        setSingleImageViewerOpen(false);
+        setCurrentSingleImage(null);
     };
 
     // PAYMENT SCREENSHOT FUNCTIONS
@@ -670,17 +746,35 @@ const AdminPanel = () => {
                                                         )}
                                                         {isTeamEvent && (
                                                             <div className="flex items-center gap-2 mt-1">
-                                                                <div className={`text-xs ${reg.college_id_url ? 'text-green-400' : 'text-red-400'}`}>
-                                                                    Team IDs: {reg.college_id_url ? '✓' : '✗'}
+                                                                <div className={`text-xs ${
+                                                                    reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                    reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                                    reg.college_id_url ? 'text-green-400' : 'text-red-400'
+                                                                }`}>
+                                                                    Team IDs: {
+                                                                        reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                        reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                                        reg.college_id_url ? '✓' : '✗'
+                                                                    }
                                                                 </div>
-                                                                {reg.college_id_url && (
+                                                                {(reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                  reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                                  reg.college_id_url) && (
                                                                     <button
-                                                                        onClick={() => viewImage(reg.college_id_url, `${reg.team_name} Team`)}
-                                                                        disabled={imageLoading}
+                                                                        onClick={() => {
+                                                                            // Check if we have individual photos or fallback to old system
+                                                                            if (reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                                reg.player3_college_id_url || reg.player4_college_id_url) {
+                                                                                viewMultipleImages(reg, `${reg.team_name} Team`);
+                                                                            } else {
+                                                                                viewImage(reg.college_id_url, `${reg.team_name} Team`);
+                                                                            }
+                                                                        }}
+                                                                        disabled={multipleImagesLoading || imageLoading}
                                                                         className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs transition-colors disabled:opacity-50"
                                                                     >
                                                                         <Eye size={10} />
-                                                                        View
+                                                                        View All
                                                                     </button>
                                                                 )}
                                                             </div>
@@ -811,17 +905,35 @@ const AdminPanel = () => {
                                                                         Team Members
                                                                     </h4>
                                                                     <div className="flex items-center gap-2">
-                                                                        <div className={`text-sm ${reg.college_id_url ? 'text-green-400' : 'text-red-400'}`}>
-                                                                            Team College IDs: {reg.college_id_url ? '✓ Uploaded' : '✗ Not Uploaded'}
+                                                                        <div className={`text-sm ${
+                                                                            reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                            reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                                            reg.college_id_url ? 'text-green-400' : 'text-red-400'
+                                                                        }`}>
+                                                                            Team College IDs: {
+                                                                                reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                                reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                                                reg.college_id_url ? '✓ Uploaded' : '✗ Not Uploaded'
+                                                                            }
                                                                         </div>
-                                                                        {reg.college_id_url && (
+                                                                        {(reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                          reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                                          reg.college_id_url) && (
                                                                             <button
-                                                                                onClick={() => viewImage(reg.college_id_url, `${reg.team_name} Team`)}
-                                                                                disabled={imageLoading}
+                                                                                onClick={() => {
+                                                                                    // Check if we have individual photos or fallback to old system
+                                                                                    if (reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                                        reg.player3_college_id_url || reg.player4_college_id_url) {
+                                                                                        viewMultipleImages(reg, `${reg.team_name} Team`);
+                                                                                    } else {
+                                                                                        viewImage(reg.college_id_url, `${reg.team_name} Team`);
+                                                                                    }
+                                                                                }}
+                                                                                disabled={multipleImagesLoading || imageLoading}
                                                                                 className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-sm transition-colors disabled:opacity-50"
                                                                             >
                                                                                 <Eye size={14} />
-                                                                                View Team IDs
+                                                                                View All IDs
                                                                             </button>
                                                                         )}
                                                                     </div>
@@ -864,7 +976,7 @@ const AdminPanel = () => {
                                                                                     </div>
                                                                                     
                                                                                     <div className="bg-black/20 rounded-lg p-2">
-                                                                                        <div className="text-xs text-gray-400">Screenshot</div>
+                                                                                        <div className="text-xs text-gray-400">Payment Screenshot</div>
                                                                                         <div className="flex items-center gap-2">
                                                                                             <div className={`text-sm ${reg.payment_screenshot_url ? 'text-green-400' : 'text-red-400'}`}>
                                                                                                 {reg.payment_screenshot_url ? '✓ Uploaded' : '✗ Missing'}
@@ -1065,6 +1177,115 @@ const AdminPanel = () => {
                                 style={{ maxHeight: 'calc(90vh - 4rem)' }}
                             />
                         </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Multiple College ID Images Viewer Modal */}
+            {multipleImagesViewerOpen && currentImages.length > 0 && (
+                <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="relative w-full h-full max-w-7xl max-h-[95vh] bg-white rounded-lg overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 bg-gray-900 text-white p-4 flex items-center justify-between z-10">
+                            <div className="flex items-center gap-2">
+                                <FileText size={20} />
+                                <span className="font-medium">Team College ID Photos ({currentImages.length})</span>
+                            </div>
+                            <button
+                                onClick={closeMultipleImagesViewer}
+                                className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="pt-16 h-full bg-gray-100 overflow-auto">
+                            <div className={`p-4 grid gap-4 ${
+                                currentImages.length === 1 ? 'grid-cols-1' :
+                                currentImages.length === 2 ? 'grid-cols-1 lg:grid-cols-2' :
+                                currentImages.length === 3 ? 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3' :
+                                'grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2'
+                            }`}>
+                                {currentImages.map((image, index) => (
+                                    <div key={index} className="bg-white rounded-lg shadow-lg overflow-hidden">
+                                        <div className="bg-gray-800 text-white p-3 text-center font-medium">
+                                            {image.name}
+                                        </div>
+                                        <div className="p-3">
+                                            <div className="w-full bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
+                                                <img
+                                                    src={image.url}
+                                                    alt={`${image.name} College ID`}
+                                                    className="w-full cursor-pointer hover:scale-105 transition-transform duration-200"
+                                                    style={{ 
+                                                        height: '200px',
+                                                        objectFit: 'contain',
+                                                        backgroundColor: '#f9fafb'
+                                                    }}
+                                                    onClick={() => {
+                                                        // Open single image viewer instead of new tab
+                                                        viewSingleImage(image.url, image.name);
+                                                    }}
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="p-4 text-center text-gray-600 text-sm">
+                                <p>💡 Click any image to view full size • Right-click to save image</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Single Image Zoom Viewer Modal */}
+            {singleImageViewerOpen && currentSingleImage && (
+                <div className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-sm flex items-center justify-center p-4">
+                    <div className="relative w-full h-full max-w-5xl max-h-[95vh] bg-white rounded-lg overflow-hidden">
+                        <div className="absolute top-0 left-0 right-0 bg-gray-900 text-white p-4 flex items-center justify-between z-10">
+                            <div className="flex items-center gap-2">
+                                <FileText size={20} />
+                                <span className="font-medium">{currentSingleImage.name} - College ID</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => window.open(currentSingleImage.url, '_blank')}
+                                    className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm transition-colors"
+                                >
+                                    Open Full Size
+                                </button>
+                                <button
+                                    onClick={closeSingleImageViewer}
+                                    className="p-2 hover:bg-gray-700 rounded-lg transition-colors"
+                                >
+                                    <X size={20} />
+                                </button>
+                            </div>
+                        </div>
+                        <div className="pt-16 h-full bg-gray-100 flex items-center justify-center p-4">
+                            <div className="w-full h-full flex items-center justify-center">
+                                <img
+                                    src={currentSingleImage.url}
+                                    alt={`${currentSingleImage.name} College ID`}
+                                    className="max-w-full max-h-full object-contain rounded-lg shadow-lg"
+                                    style={{ 
+                                        maxHeight: 'calc(95vh - 6rem)',
+                                        backgroundColor: 'white',
+                                        padding: '1rem'
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Loading overlay for multiple images operations */}
+            {multipleImagesLoading && (
+                <div className="fixed inset-0 z-[9998] bg-black/50 backdrop-blur-sm flex items-center justify-center">
+                    <div className="bg-white/10 border border-white/20 rounded-lg p-6 text-white text-center">
+                        <div className="animate-spin w-8 h-8 border-2 border-white/30 border-t-white rounded-full mx-auto mb-3"></div>
+                        <p>Loading Team College ID Photos...</p>
                     </div>
                 </div>
             )}
