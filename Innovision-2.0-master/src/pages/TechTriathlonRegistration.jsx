@@ -103,6 +103,13 @@ const TechTriathlonRegistration = () => {
         setMessage('');
 
         try {
+            // Validate that college ID photo is uploaded
+            if (!files.college_id) {
+                setStatus('error');
+                setMessage('Please upload your college ID photo before registering.');
+                return;
+            }
+
             const { data: eventData, error: eventError } = await supabase
                 .from('events')
                 .select('id')
@@ -113,16 +120,9 @@ const TechTriathlonRegistration = () => {
 
             let uploadedFiles = {};
             
-            // Try to upload file if provided, but don't fail if bucket doesn't exist
-            if (files.college_id) {
-                try {
-                    setMessage('Uploading college ID document...');
-                    uploadedFiles.college_id_url = await uploadFile(files.college_id, 'college_id');
-                } catch (uploadError) {
-                    console.warn('File upload failed, continuing without file:', uploadError);
-                    // Continue registration without file upload
-                }
-            }
+            // Upload college ID photo (now required)
+            setMessage('Uploading college ID document...');
+            uploadedFiles.college_id_url = await uploadFile(files.college_id, 'college_id');
 
             setMessage('Saving registration...');
             
