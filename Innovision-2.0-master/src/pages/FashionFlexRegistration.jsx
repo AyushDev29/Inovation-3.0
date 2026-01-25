@@ -97,6 +97,13 @@ const FashionFlexRegistration = () => {
         setMessage('');
 
         try {
+            // Validate that college ID photos are uploaded (2 required for duo)
+            if (!files.collegeIdPhotos || files.collegeIdPhotos.length < 2) {
+                setStatus('error');
+                setMessage('Please upload college ID photos for both team members before registering.');
+                return;
+            }
+
             const { data: eventData, error: eventError } = await supabase
                 .from('events')
                 .select('id')
@@ -107,20 +114,13 @@ const FashionFlexRegistration = () => {
 
             let uploadedFiles = {};
             
-            // Upload college ID documents (multiple photos)
-            if (files.collegeIdPhotos.length > 0) {
-                try {
-                    setMessage('Uploading college ID photos...');
-                    const uploadedPaths = await uploadMultipleFiles(files.collegeIdPhotos, 'duo-college-id');
-                    
-                    // Store individual photo URLs
-                    uploadedFiles.player1_college_id_url = uploadedPaths[0] || null;
-                    uploadedFiles.player2_college_id_url = uploadedPaths[1] || null;
-                } catch (uploadError) {
-                    console.warn('File upload failed, continuing without files:', uploadError);
-                    // Continue registration without file upload
-                }
-            }
+            // Upload college ID documents (multiple photos) - NOW REQUIRED
+            setMessage('Uploading college ID photos...');
+            const uploadedPaths = await uploadMultipleFiles(files.collegeIdPhotos, 'duo-college-id');
+            
+            // Store individual photo URLs
+            uploadedFiles.player1_college_id_url = uploadedPaths[0] || null;
+            uploadedFiles.player2_college_id_url = uploadedPaths[1] || null;
 
             setMessage('Saving registration...');
             
@@ -158,7 +158,7 @@ const FashionFlexRegistration = () => {
         } catch (error) {
             console.error(error);
             setStatus('error');
-            setMessage(error.message || "Something went wrong. Please try again.");
+            setMessage(getUserFriendlyError(error));
         } finally {
             setLoading(false);
         }
@@ -369,6 +369,16 @@ const FashionFlexRegistration = () => {
                                 label="Duo College ID Photos (2 Required)"
                                 required={true}
                             />
+
+                            {/* Photo Upload Warning */}
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-2 mt-2">
+                                <p className="text-red-300 text-[9px] sm:text-[10px] font-medium mb-1">
+                                    ⚠️ College ID photos are mandatory for both team members.
+                                </p>
+                                <p className="text-red-200 text-[8px] sm:text-[9px]">
+                                    Upload 2 clear photos of college IDs. Poor/blur photos may lead to disqualification.
+                                </p>
+                            </div>
 
                             {/* Team Name */}
                             <div className="space-y-1">

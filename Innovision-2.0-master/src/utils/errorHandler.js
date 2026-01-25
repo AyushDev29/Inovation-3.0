@@ -2,13 +2,20 @@
 export const getUserFriendlyError = (error) => {
     // Convert technical errors to user-friendly messages
     const errorMessage = error.message || error.toString();
+    const errorCode = error.code || '';
     
-    // Database constraint errors
-    if (errorMessage.includes('duplicate key value violates unique constraint')) {
-        if (errorMessage.includes('email')) {
+    // Database constraint errors - Multiple ways Supabase can report duplicates
+    if (errorMessage.includes('duplicate key value violates unique constraint') || 
+        errorMessage.includes('duplicate') || 
+        errorCode === '23505' ||
+        errorMessage.includes('already exists') ||
+        errorMessage.includes('unique constraint') ||
+        errorMessage.includes('UNIQUE constraint failed')) {
+        
+        if (errorMessage.includes('email') || errorMessage.includes('registrations_email_event_id_key')) {
             return "You have already registered for this event with this email address. Each person can only register once per event.";
         }
-        if (errorMessage.includes('phone')) {
+        if (errorMessage.includes('phone') || errorMessage.includes('registrations_phone_event_id_key')) {
             return "This phone number is already registered for this event. Please use a different phone number.";
         }
         return "You have already registered for this event. Each person can only register once per event.";

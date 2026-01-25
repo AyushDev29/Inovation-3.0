@@ -231,7 +231,7 @@ const AdminPanel = () => {
         XLSX.writeFile(wb, fileName);
     };
 
-    const viewImage = async (filePath, memberName) => {
+    const viewImage = async (filePath) => {
         if (!filePath) {
             alert('No college ID photo uploaded for this member');
             return;
@@ -266,7 +266,7 @@ const AdminPanel = () => {
     };
 
     // MULTIPLE IMAGES VIEWER FUNCTIONS
-    const viewMultipleImages = async (registration, teamName) => {
+    const viewMultipleImages = async (registration) => {
         const imagePaths = [
             { path: registration.player1_college_id_url, name: registration.name || 'Team Leader' },
             { path: registration.player2_college_id_url, name: registration.player2_name || 'Member 2' },
@@ -333,7 +333,7 @@ const AdminPanel = () => {
     };
 
     // PAYMENT SCREENSHOT FUNCTIONS
-    const viewPaymentScreenshot = async (screenshotPath, teamName) => {
+    const viewPaymentScreenshot = async (screenshotPath) => {
         if (!screenshotPath) {
             alert('No payment screenshot uploaded');
             return;
@@ -568,15 +568,15 @@ const AdminPanel = () => {
         <div className="min-h-screen bg-[#0f0f0f] text-white p-6">
             <div className="max-w-7xl mx-auto">
                 <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
-                    <h1 className="text-3xl font-orbitron font-bold">Registration Dashboard</h1>
-                    <div className="flex gap-3">
+                    <h1 className="text-2xl md:text-3xl font-orbitron font-bold">Registration Dashboard</h1>
+                    <div className="flex gap-2 md:gap-3 flex-wrap">
                         <button
                             onClick={() => {
                                 console.log('🔄 Manual refresh triggered');
                                 fetchRegistrations();
                             }}
                             disabled={refreshing}
-                            className="flex items-center px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 rounded-lg transition-colors disabled:opacity-50"
+                            className="flex items-center px-3 md:px-4 py-2 bg-blue-500/10 hover:bg-blue-500/20 text-blue-500 rounded-lg transition-colors disabled:opacity-50 text-sm md:text-base"
                         >
                             {refreshing ? (
                                 <div className="animate-spin w-4 h-4 mr-2 border-2 border-blue-500 border-t-transparent rounded-full"></div>
@@ -585,13 +585,15 @@ const AdminPanel = () => {
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                                 </svg>
                             )}
-                            {refreshing ? 'Refreshing...' : 'Refresh'}
+                            <span className="hidden sm:inline">{refreshing ? 'Refreshing...' : 'Refresh'}</span>
+                            <span className="sm:hidden">{refreshing ? '...' : 'Refresh'}</span>
                         </button>
                         <button
                             onClick={handleLogout}
-                            className="flex items-center px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors"
+                            className="flex items-center px-3 md:px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-500 rounded-lg transition-colors text-sm md:text-base"
                         >
-                            <LogOut size={16} className="mr-2" /> Logout
+                            <LogOut size={16} className="mr-2" /> 
+                            <span className="hidden sm:inline">Logout</span>
                         </button>
                     </div>
                 </div>
@@ -697,19 +699,19 @@ const AdminPanel = () => {
                     </div>
                 </div>
 
-                {/* Table */}
+                {/* Table - Mobile Responsive */}
                 <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm">
                     <div className="overflow-x-auto">
-                        <table className="w-full text-left">
-                            <thead className="bg-white/5 text-gray-400 text-sm uppercase">
+                        <table className="w-full text-left text-sm">
+                            <thead className="bg-white/5 text-gray-400 uppercase text-sm">
                                 <tr>
-                                    <th className="px-6 py-4 font-medium">Name</th>
-                                    <th className="px-6 py-4 font-medium">Contact</th>
-                                    <th className="px-6 py-4 font-medium">Academic Info</th>
-                                    <th className="px-6 py-4 font-medium">Event</th>
-                                    <th className="px-6 py-4 font-medium">Verification</th>
-                                    <th className="px-6 py-4 font-medium">Date</th>
-                                    <th className="px-6 py-4 font-medium">Actions</th>
+                                    <th className="font-medium px-6 py-4">Name</th>
+                                    <th className="font-medium px-6 py-4">Contact</th>
+                                    <th className="font-medium px-6 py-4">Academic Info</th>
+                                    <th className="font-medium px-6 py-4">Event</th>
+                                    <th className="font-medium px-6 py-4">Verification</th>
+                                    <th className="font-medium px-6 py-4">Date</th>
+                                    <th className="font-medium px-6 py-4">Actions</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-white/10 text-sm">
@@ -734,7 +736,7 @@ const AdminPanel = () => {
                                                                 </div>
                                                                 {reg.college_id_url && (
                                                                     <button
-                                                                        onClick={() => viewImage(reg.college_id_url, reg.name)}
+                                                                        onClick={() => viewImage(reg.college_id_url)}
                                                                         disabled={imageLoading}
                                                                         className="flex items-center gap-1 px-1.5 py-0.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs transition-colors disabled:opacity-50"
                                                                     >
@@ -765,9 +767,9 @@ const AdminPanel = () => {
                                                                             // Check if we have individual photos or fallback to old system
                                                                             if (reg.player1_college_id_url || reg.player2_college_id_url || 
                                                                                 reg.player3_college_id_url || reg.player4_college_id_url) {
-                                                                                viewMultipleImages(reg, `${reg.team_name} Team`);
+                                                                                viewMultipleImages(reg);
                                                                             } else {
-                                                                                viewImage(reg.college_id_url, `${reg.team_name} Team`);
+                                                                                viewImage(reg.college_id_url);
                                                                             }
                                                                         }}
                                                                         disabled={multipleImagesLoading || imageLoading}
@@ -924,9 +926,9 @@ const AdminPanel = () => {
                                                                                     // Check if we have individual photos or fallback to old system
                                                                                     if (reg.player1_college_id_url || reg.player2_college_id_url || 
                                                                                         reg.player3_college_id_url || reg.player4_college_id_url) {
-                                                                                        viewMultipleImages(reg, `${reg.team_name} Team`);
+                                                                                        viewMultipleImages(reg);
                                                                                     } else {
-                                                                                        viewImage(reg.college_id_url, `${reg.team_name} Team`);
+                                                                                        viewImage(reg.college_id_url);
                                                                                     }
                                                                                 }}
                                                                                 disabled={multipleImagesLoading || imageLoading}
@@ -983,7 +985,7 @@ const AdminPanel = () => {
                                                                                             </div>
                                                                                             {reg.payment_screenshot_url && (
                                                                                                 <button
-                                                                                                    onClick={() => viewPaymentScreenshot(reg.payment_screenshot_url, reg.team_name)}
+                                                                                                    onClick={() => viewPaymentScreenshot(reg.payment_screenshot_url)}
                                                                                                     disabled={paymentLoading}
                                                                                                     className="px-2 py-1 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded text-xs transition-colors disabled:opacity-50"
                                                                                                 >

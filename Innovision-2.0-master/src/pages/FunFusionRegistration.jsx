@@ -146,8 +146,15 @@ const FunFusionRegistration = () => {
                 .insert([payload]);
 
             if (insertError) {
+                console.error('❌ Registration error details:', {
+                    code: insertError.code,
+                    message: insertError.message,
+                    details: insertError.details,
+                    hint: insertError.hint
+                });
+                
                 if (insertError.code === '23505') {
-                    throw new Error("You/Team have already registered for this event with this email.");
+                    throw new Error("You have already registered for this event with this email.");
                 }
                 throw insertError;
             }
