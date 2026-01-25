@@ -699,9 +699,10 @@ const AdminPanel = () => {
                     </div>
                 </div>
 
-                {/* Table - Mobile Responsive */}
+                {/* Table - Desktop and Mobile Responsive */}
                 <div className="bg-white/5 border border-white/10 rounded-xl overflow-hidden backdrop-blur-sm">
-                    <div className="overflow-x-auto">
+                    {/* Desktop Table View */}
+                    <div className="hidden md:block overflow-x-auto">
                         <table className="w-full text-left text-sm">
                             <thead className="bg-white/5 text-gray-400 uppercase text-sm">
                                 <tr>
@@ -790,11 +791,13 @@ const AdminPanel = () => {
                                                         {isTeamEvent ? (
                                                             <div className="text-white">
                                                                 <span className="text-neon-purple text-xs uppercase tracking-wider">Team:</span> {reg.team_name}
+                                                                <div className="text-gray-400 text-xs mt-1">Leader Roll: {reg.roll_no || 'N/A'}</div>
                                                             </div>
                                                         ) : (
                                                             <>
                                                                 <div className="text-white">{reg.class}</div>
                                                                 <div className="text-gray-500 text-xs mt-1">{reg.college}</div>
+                                                                <div className="text-gray-400 text-xs">Roll: {reg.roll_no || 'N/A'}</div>
                                                             </>
                                                         )}
                                                     </td>
@@ -1151,6 +1154,477 @@ const AdminPanel = () => {
                                 )}
                             </tbody>
                         </table>
+                    </div>
+
+                    {/* Mobile Card View - Enhanced */}
+                    <div className="md:hidden">
+                        {filteredRegistrations.length > 0 ? (
+                            <div className="space-y-4 p-4">
+                                {filteredRegistrations.map((reg) => {
+                                    const isTeamEvent = reg.events?.event_name?.includes("BGMI") || 
+                                                       reg.events?.event_name?.includes("Free Fire") || 
+                                                       reg.events?.event_name?.includes("Hackastra") ||
+                                                       reg.events?.event_name?.includes("Fashion Flex");
+                                    const isExpanded = expandedRow === reg.id;
+                                    
+                                    return (
+                                        <div key={reg.id} className="bg-gradient-to-br from-white/5 to-white/10 border border-white/20 rounded-xl p-4 space-y-4 shadow-lg backdrop-blur-sm">
+                                            {/* Header Section */}
+                                            <div className="flex items-start justify-between">
+                                                <div className="flex-1">
+                                                    <h3 className="font-bold text-white text-base">{reg.name}</h3>
+                                                    <div className="flex items-center gap-2 mt-1">
+                                                        <span className="text-xs text-gray-400">
+                                                            {isTeamEvent ? 'Team Leader/IGL' : 'Individual Player'}
+                                                        </span>
+                                                        <span className="text-xs text-gray-500">•</span>
+                                                        <span className="text-xs text-gray-300">
+                                                            {new Date(reg.created_at).toLocaleDateString()}
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex flex-col items-end gap-2">
+                                                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${
+                                                        reg.verification_status === 'verified' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                                                        reg.verification_status === 'rejected' ? 'bg-red-500/20 text-red-400 border border-red-500/30' :
+                                                        'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
+                                                    }`}>
+                                                        {reg.verification_status === 'verified' ? '✓ Verified' :
+                                                         reg.verification_status === 'rejected' ? '✗ Rejected' : '⏳ Pending'}
+                                                    </span>
+                                                </div>
+                                            </div>
+
+                                            {/* Event Badge */}
+                                            <div className="flex justify-center">
+                                                <span className="inline-block px-4 py-2 rounded-full bg-gradient-to-r from-neon-purple/20 to-blue-500/20 text-neon-purple text-sm font-bold border border-neon-purple/30">
+                                                    {reg.events?.event_name}
+                                                </span>
+                                            </div>
+
+                                            {/* Contact & Academic Info Grid */}
+                                            <div className="bg-black/20 rounded-lg p-3 space-y-3">
+                                                <h4 className="text-white font-semibold text-sm border-b border-white/10 pb-2">Contact & Academic Details</h4>
+                                                
+                                                <div className="grid grid-cols-1 gap-3 text-sm">
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-gray-400 font-medium">Email:</span>
+                                                        <span className="text-white text-right break-all">{reg.email}</span>
+                                                    </div>
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-gray-400 font-medium">Phone:</span>
+                                                        <span className="text-white">{reg.phone}</span>
+                                                    </div>
+                                                    
+                                                    {isTeamEvent ? (
+                                                        <>
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-gray-400 font-medium">Team Name:</span>
+                                                                <span className="text-neon-purple font-semibold text-right">{reg.team_name}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-gray-400 font-medium">Leader Roll:</span>
+                                                                <span className="text-white font-mono">{reg.roll_no || 'N/A'}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-gray-400 font-medium">Leader Class:</span>
+                                                                <span className="text-white">{reg.class}</span>
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-gray-400 font-medium">Class:</span>
+                                                                <span className="text-white">{reg.class}</span>
+                                                            </div>
+                                                            <div className="flex justify-between items-center">
+                                                                <span className="text-gray-400 font-medium">Roll Number:</span>
+                                                                <span className="text-white font-mono">{reg.roll_no || 'N/A'}</span>
+                                                            </div>
+                                                        </>
+                                                    )}
+                                                    <div className="flex justify-between items-center">
+                                                        <span className="text-gray-400 font-medium">College:</span>
+                                                        <span className="text-white text-right">{reg.college}</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* College ID Status Section */}
+                                            <div className="bg-black/20 rounded-lg p-3">
+                                                <h4 className="text-white font-semibold text-sm border-b border-white/10 pb-2 mb-3">College ID Status</h4>
+                                                
+                                                <div className="flex items-center justify-between">
+                                                    {!isTeamEvent ? (
+                                                        <>
+                                                            <div className="flex items-center gap-2">
+                                                                <div className={`w-3 h-3 rounded-full ${reg.college_id_url ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                                                                <span className={`text-sm font-medium ${reg.college_id_url ? 'text-green-400' : 'text-red-400'}`}>
+                                                                    {reg.college_id_url ? 'ID Uploaded' : 'ID Missing'}
+                                                                </span>
+                                                            </div>
+                                                            {reg.college_id_url && (
+                                                                <button
+                                                                    onClick={() => viewImage(reg.college_id_url)}
+                                                                    disabled={imageLoading}
+                                                                    className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg text-sm transition-colors disabled:opacity-50"
+                                                                >
+                                                                    <Eye size={14} />
+                                                                    View ID
+                                                                </button>
+                                                            )}
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <div className="flex items-center gap-2">
+                                                                <div className={`w-3 h-3 rounded-full ${
+                                                                    reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                    reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                                    reg.college_id_url ? 'bg-green-400' : 'bg-red-400'
+                                                                }`}></div>
+                                                                <span className={`text-sm font-medium ${
+                                                                    reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                    reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                                    reg.college_id_url ? 'text-green-400' : 'text-red-400'
+                                                                }`}>
+                                                                    {reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                     reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                                     reg.college_id_url ? 'Team IDs Uploaded' : 'Team IDs Missing'}
+                                                                </span>
+                                                            </div>
+                                                            {(reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                              reg.player3_college_id_url || reg.player4_college_id_url || 
+                                                              reg.college_id_url) && (
+                                                                <button
+                                                                    onClick={() => {
+                                                                        if (reg.player1_college_id_url || reg.player2_college_id_url || 
+                                                                            reg.player3_college_id_url || reg.player4_college_id_url) {
+                                                                            viewMultipleImages(reg);
+                                                                        } else {
+                                                                            viewImage(reg.college_id_url);
+                                                                        }
+                                                                    }}
+                                                                    disabled={multipleImagesLoading || imageLoading}
+                                                                    className="flex items-center gap-1 px-3 py-1.5 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg text-sm transition-colors disabled:opacity-50"
+                                                                >
+                                                                    <Eye size={14} />
+                                                                    View All IDs
+                                                                </button>
+                                                            )}
+                                                        </>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Verification Status & Actions */}
+                                            <div className="bg-black/20 rounded-lg p-3">
+                                                <h4 className="text-white font-semibold text-sm border-b border-white/10 pb-2 mb-3">Verification Status</h4>
+                                                
+                                                {/* Status Details */}
+                                                {reg.verification_status === 'rejected' && reg.rejection_reason && (
+                                                    <div className="mb-3 p-2 text-xs text-red-300 bg-red-500/10 rounded border border-red-500/20">
+                                                        <span className="font-medium">Rejection Reason:</span> {reg.rejection_reason}
+                                                    </div>
+                                                )}
+                                                
+                                                {(reg.verification_status === 'verified' || reg.verification_status === 'rejected') && (
+                                                    <div className="mb-3 text-xs text-gray-400 space-y-1">
+                                                        {reg.verified_at && (
+                                                            <div>Verified: {new Date(reg.verified_at).toLocaleDateString()}</div>
+                                                        )}
+                                                        {reg.verified_by && (
+                                                            <div>By: {reg.verified_by}</div>
+                                                        )}
+                                                    </div>
+                                                )}
+                                                
+                                                {/* Action Buttons */}
+                                                <div className="flex gap-2">
+                                                    {reg.verification_status === 'pending' || !reg.verification_status ? (
+                                                        <>
+                                                            <button
+                                                                onClick={() => updateVerificationStatus(reg.id, 'verified')}
+                                                                disabled={verificationUpdateLoading === reg.id}
+                                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                                            >
+                                                                {verificationUpdateLoading === reg.id ? (
+                                                                    <div className="animate-spin w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full"></div>
+                                                                ) : (
+                                                                    <>✓ Verify</>
+                                                                )}
+                                                            </button>
+                                                            <button
+                                                                onClick={() => {
+                                                                    if (verificationUpdateLoading === reg.id) return;
+                                                                    const reason = prompt('Rejection reason (optional):');
+                                                                    updateVerificationStatus(reg.id, 'rejected', reason);
+                                                                }}
+                                                                disabled={verificationUpdateLoading === reg.id}
+                                                                className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                                            >
+                                                                {verificationUpdateLoading === reg.id ? (
+                                                                    <div className="animate-spin w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full"></div>
+                                                                ) : (
+                                                                    <>✗ Reject</>
+                                                                )}
+                                                            </button>
+                                                        </>
+                                                    ) : (
+                                                        <button
+                                                            onClick={() => {
+                                                                if (verificationUpdateLoading === reg.id) return;
+                                                                if (confirm(`Reset verification status to pending for ${reg.name}?`)) {
+                                                                    updateVerificationStatus(reg.id, 'pending');
+                                                                }
+                                                            }}
+                                                            disabled={verificationUpdateLoading === reg.id}
+                                                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                                        >
+                                                            {verificationUpdateLoading === reg.id ? (
+                                                                <div className="animate-spin w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full"></div>
+                                                            ) : (
+                                                                <>Reset to Pending</>
+                                                            )}
+                                                        </button>
+                                                    )}
+                                                    
+                                                    {isTeamEvent && (
+                                                        <button
+                                                            onClick={() => setExpandedRow(isExpanded ? null : reg.id)}
+                                                            className="flex items-center justify-center gap-1 px-4 py-2.5 bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 rounded-lg text-sm font-medium transition-colors"
+                                                        >
+                                                            <Users size={14} />
+                                                            {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                                                            Team
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Team Details Expansion - Enhanced */}
+                                            {isTeamEvent && isExpanded && (
+                                                <div className="bg-gradient-to-br from-cyan-500/10 to-blue-500/10 border border-cyan-500/20 rounded-lg p-4 space-y-4">
+                                                    <h4 className="text-white font-bold text-base flex items-center gap-2 border-b border-cyan-500/20 pb-2">
+                                                        <Users size={16} className="text-cyan-400" />
+                                                        Team Members Details
+                                                    </h4>
+                                                    
+                                                    <div className="space-y-3">
+                                                        {/* Team Leader */}
+                                                        <div className="bg-gradient-to-r from-purple-500/10 to-blue-500/10 border border-purple-500/20 rounded-lg p-3">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                                                                <span className="text-xs text-purple-400 font-semibold uppercase tracking-wider">Leader / IGL</span>
+                                                            </div>
+                                                            <div className="space-y-1 text-sm">
+                                                                <div className="text-white font-semibold">{reg.name}</div>
+                                                                <div className="text-gray-300">{reg.email}</div>
+                                                                <div className="text-gray-300">{reg.phone}</div>
+                                                                <div className="flex justify-between">
+                                                                    <span className="text-gray-400">Roll Number:</span>
+                                                                    <span className="text-white font-mono">{reg.roll_no || 'N/A'}</span>
+                                                                </div>
+                                                                <div className="flex justify-between">
+                                                                    <span className="text-gray-400">Class:</span>
+                                                                    <span className="text-white">{reg.class}</span>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        
+                                                        {/* Other Members */}
+                                                        {reg.player2_name && (
+                                                            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                                                                    <span className="text-xs text-cyan-400 font-semibold uppercase tracking-wider">Member 2</span>
+                                                                </div>
+                                                                <div className="space-y-1 text-sm">
+                                                                    <div className="text-white font-semibold">{reg.player2_name}</div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-400">Roll Number:</span>
+                                                                        <span className="text-white font-mono">{reg.player2_roll_no || 'N/A'}</span>
+                                                                    </div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-400">Class:</span>
+                                                                        <span className="text-white">{reg.player2_class || 'N/A'}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {reg.player3_name && (
+                                                            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                                                                    <span className="text-xs text-cyan-400 font-semibold uppercase tracking-wider">Member 3</span>
+                                                                </div>
+                                                                <div className="space-y-1 text-sm">
+                                                                    <div className="text-white font-semibold">{reg.player3_name}</div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-400">Roll Number:</span>
+                                                                        <span className="text-white font-mono">{reg.player3_roll_no || 'N/A'}</span>
+                                                                    </div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-400">Class:</span>
+                                                                        <span className="text-white">{reg.player3_class || 'N/A'}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {reg.player4_name && (
+                                                            <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                                                                <div className="flex items-center gap-2 mb-2">
+                                                                    <div className="w-2 h-2 bg-cyan-400 rounded-full"></div>
+                                                                    <span className="text-xs text-cyan-400 font-semibold uppercase tracking-wider">Member 4</span>
+                                                                </div>
+                                                                <div className="space-y-1 text-sm">
+                                                                    <div className="text-white font-semibold">{reg.player4_name}</div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-400">Roll Number:</span>
+                                                                        <span className="text-white font-mono">{reg.player4_roll_no || 'N/A'}</span>
+                                                                    </div>
+                                                                    <div className="flex justify-between">
+                                                                        <span className="text-gray-400">Class:</span>
+                                                                        <span className="text-white">{reg.player4_class || 'N/A'}</span>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                        
+                                                        {/* Team College Info */}
+                                                        <div className="bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-500/20 rounded-lg p-3">
+                                                            <div className="flex items-center gap-2 mb-2">
+                                                                <div className="w-2 h-2 bg-green-400 rounded-full"></div>
+                                                                <span className="text-xs text-green-400 font-semibold uppercase tracking-wider">Team College</span>
+                                                            </div>
+                                                            <div className="space-y-1 text-sm">
+                                                                <div className="text-white font-semibold">{reg.college}</div>
+                                                                <div className="text-gray-400 text-xs">All team members from this college</div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* Payment Information for Team Events - Enhanced */}
+                                                    {reg.payment_required && (
+                                                        <div className="bg-gradient-to-br from-yellow-500/10 to-orange-500/10 border border-yellow-500/20 rounded-lg p-4 space-y-4">
+                                                            <h4 className="text-base font-bold text-yellow-400 flex items-center gap-2 border-b border-yellow-500/20 pb-2">
+                                                                <CreditCard size={16} />
+                                                                Payment Information
+                                                            </h4>
+                                                            
+                                                            {/* Payment Status Badge */}
+                                                            <div className="flex justify-center">
+                                                                <span className={`inline-flex items-center px-4 py-2 rounded-full text-sm font-bold border ${
+                                                                    reg.payment_status === 'verified' ? 'bg-green-500/20 text-green-400 border-green-500/30' :
+                                                                    reg.payment_status === 'pending' ? 'bg-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                                                                    reg.payment_status === 'rejected' ? 'bg-red-500/20 text-red-400 border-red-500/30' :
+                                                                    'bg-gray-500/20 text-gray-400 border-gray-500/30'
+                                                                }`}>
+                                                                    {reg.payment_status === 'verified' ? '✓ Payment Verified' :
+                                                                     reg.payment_status === 'pending' ? '⏳ Payment Pending' :
+                                                                     reg.payment_status === 'rejected' ? '✗ Payment Rejected' :
+                                                                     `Status: ${reg.payment_status || 'Unknown'}`}
+                                                                </span>
+                                                            </div>
+                                                            
+                                                            {/* Payment Details Grid */}
+                                                            <div className="grid grid-cols-2 gap-3">
+                                                                <div className="bg-black/30 rounded-lg p-3 text-center">
+                                                                    <div className="text-xs text-gray-400 mb-1">Entry Fee</div>
+                                                                    <div className="text-lg font-bold text-yellow-400">₹{reg.payment_amount}</div>
+                                                                </div>
+                                                                <div className="bg-black/30 rounded-lg p-3 text-center">
+                                                                    <div className="text-xs text-gray-400 mb-1">Screenshot</div>
+                                                                    <div className={`text-sm font-semibold ${reg.payment_screenshot_url ? 'text-green-400' : 'text-red-400'}`}>
+                                                                        {reg.payment_screenshot_url ? '✓ Uploaded' : '✗ Missing'}
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {/* Transaction ID */}
+                                                            <div className="bg-black/30 rounded-lg p-3">
+                                                                <div className="text-xs text-gray-400 mb-1">Transaction ID</div>
+                                                                <div className="text-sm text-cyan-400 font-mono break-all">
+                                                                    {reg.payment_transaction_id || 'Not provided'}
+                                                                </div>
+                                                            </div>
+
+                                                            {/* Payment Screenshot View Button */}
+                                                            {reg.payment_screenshot_url && (
+                                                                <div className="flex justify-center">
+                                                                    <button
+                                                                        onClick={() => viewPaymentScreenshot(reg.payment_screenshot_url)}
+                                                                        disabled={paymentLoading}
+                                                                        className="flex items-center gap-2 px-4 py-2 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                                                    >
+                                                                        <Eye size={14} />
+                                                                        View Payment Screenshot
+                                                                    </button>
+                                                                </div>
+                                                            )}
+
+                                                            {/* Payment Action Buttons */}
+                                                            {reg.payment_status === 'pending' && (
+                                                                <div className="flex gap-2">
+                                                                    <button
+                                                                        onClick={() => updatePaymentStatus(reg.id, 'verified')}
+                                                                        disabled={statusUpdateLoading === reg.id}
+                                                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-green-500/20 hover:bg-green-500/30 text-green-400 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
+                                                                    >
+                                                                        {statusUpdateLoading === reg.id ? (
+                                                                            <div className="animate-spin w-4 h-4 border-2 border-green-400 border-t-transparent rounded-full"></div>
+                                                                        ) : (
+                                                                            <>✓ Verify Payment</>
+                                                                        )}
+                                                                    </button>
+                                                                    <button
+                                                                        onClick={() => updatePaymentStatus(reg.id, 'rejected')}
+                                                                        disabled={statusUpdateLoading === reg.id}
+                                                                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg text-sm font-bold transition-colors disabled:opacity-50"
+                                                                    >
+                                                                        {statusUpdateLoading === reg.id ? (
+                                                                            <div className="animate-spin w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full"></div>
+                                                                        ) : (
+                                                                            <>✗ Reject Payment</>
+                                                                        )}
+                                                                    </button>
+                                                                </div>
+                                                            )}
+
+                                                            {reg.payment_status !== 'pending' && (
+                                                                <div className="flex justify-center">
+                                                                    <button
+                                                                        onClick={() => {
+                                                                            if (statusUpdateLoading === reg.id) return;
+                                                                            if (confirm(`Reset payment status to pending for ${reg.name}?`)) {
+                                                                                updatePaymentStatus(reg.id, 'pending');
+                                                                            }
+                                                                        }}
+                                                                        disabled={statusUpdateLoading === reg.id}
+                                                                        className="flex items-center justify-center gap-2 px-4 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 rounded-lg text-sm font-medium transition-colors disabled:opacity-50"
+                                                                    >
+                                                                        {statusUpdateLoading === reg.id ? (
+                                                                            <div className="animate-spin w-4 h-4 border-2 border-yellow-400 border-t-transparent rounded-full"></div>
+                                                                        ) : (
+                                                                            <>Reset to Pending</>
+                                                                        )}
+                                                                    </button>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="p-8 text-center text-gray-500">
+                                No registrations found.
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
