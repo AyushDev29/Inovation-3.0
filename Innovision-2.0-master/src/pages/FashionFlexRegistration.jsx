@@ -4,6 +4,7 @@ import { CheckCircle, AlertCircle, Upload, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { cleanRegistrationData, getPlaceholderExamples } from '../utils/dataCleaners';
+import { getUserFriendlyError, validateFormData } from '../utils/errorHandler';
 import MultiplePhotoUpload from '../components/MultiplePhotoUpload';
 
 const FashionFlexRegistration = () => {

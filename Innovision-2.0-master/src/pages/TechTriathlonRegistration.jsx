@@ -4,6 +4,7 @@ import { CheckCircle, AlertCircle, Upload, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { cleanRegistrationData, getPlaceholderExamples } from '../utils/dataCleaners';
+import { getUserFriendlyError, validateFormData } from '../utils/errorHandler';
 
 const TechTriathlonRegistration = () => {
     const navigate = useNavigate();
@@ -152,7 +153,7 @@ const TechTriathlonRegistration = () => {
         } catch (error) {
             console.error(error);
             setStatus('error');
-            setMessage(error.message || "Something went wrong. Please try again.");
+            setMessage(getUserFriendlyError(error));
         } finally {
             setLoading(false);
         }
@@ -354,8 +355,10 @@ const TechTriathlonRegistration = () => {
 
                             {/* College ID Photo Upload */}
                             <div className="space-y-1">
-                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium">
+                                <label className="text-[8px] sm:text-[9px] md:text-[10px] text-gray-300 uppercase tracking-wider ml-1 font-medium flex items-center gap-1">
                                     College ID Photo
+                                    <span className="text-red-400 text-xs">*</span>
+                                    <span className="text-red-400 text-[8px] sm:text-[9px] font-normal">(Required)</span>
                                 </label>
                                 <div className="relative">
                                     <input
@@ -369,21 +372,27 @@ const TechTriathlonRegistration = () => {
                                     />
                                     <label
                                         htmlFor="college_id_upload"
-                                        className="w-full bg-black/40 border border-white/10 rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs text-white hover:border-neon-purple transition-all cursor-pointer flex items-center gap-1.5"
+                                        className={`w-full bg-black/40 border rounded-md px-2 py-1.5 sm:px-3 sm:py-2 text-[11px] sm:text-xs text-white hover:border-neon-purple transition-all cursor-pointer flex items-center gap-1.5 ${
+                                            files.college_id 
+                                                ? 'border-green-500/50 bg-green-500/5' 
+                                                : 'border-red-500/50 bg-red-500/5'
+                                        }`}
                                     >
                                         <Upload size={14} />
                                         {files.college_id ? (
                                             <span className="text-green-400 truncate">{files.college_id.name}</span>
                                         ) : (
-                                            <span className="text-gray-400 text-[10px] sm:text-[11px]">
-                                                📸 Take Photo (max 10MB)
+                                            <span className="text-red-300 text-[10px] sm:text-[11px]">
+                                                📸 Take Photo (Required - max 10MB)
                                             </span>
                                         )}
                                     </label>
                                 </div>
-                                <p className="text-[11px] sm:text-xs text-gray-300 mt-1 ml-1 leading-relaxed">
-                                    📸 Take a clear photo of your college ID
-                                </p>
+                                <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-2 mt-2">
+                                    <p className="text-red-300 text-[9px] sm:text-[10px] font-medium">
+                                        ⚠️ College ID photo is mandatory for registration. Take a clear photo of your college ID card.
+                                    </p>
+                                </div>
                             </div>
 
                             {/* Loading Message */}

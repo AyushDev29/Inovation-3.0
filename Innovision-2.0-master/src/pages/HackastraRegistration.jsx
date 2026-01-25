@@ -4,6 +4,7 @@ import { CheckCircle, AlertCircle, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { cleanRegistrationData } from '../utils/dataCleaners';
+import { getUserFriendlyError, validateFormData } from '../utils/errorHandler';
 import MultiplePhotoUpload from '../components/MultiplePhotoUpload';
 
 const HackastraRegistration = () => {

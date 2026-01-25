@@ -4,6 +4,7 @@ import { CheckCircle, AlertCircle, Upload, X, CreditCard, QrCode } from 'lucide-
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../supabaseClient';
 import { cleanRegistrationData, getPlaceholderExamples } from '../utils/dataCleaners';
+import { getUserFriendlyError, validateFormData } from '../utils/errorHandler';
 import MultiplePhotoUpload from '../components/MultiplePhotoUpload';
 
 const FreeFireRegistration = () => {
