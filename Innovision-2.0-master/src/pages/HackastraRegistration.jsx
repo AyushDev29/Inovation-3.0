@@ -114,7 +114,7 @@ const HackastraRegistration = () => {
 
             let uploadedFiles = {};
             
-            // Upload multiple college ID photos if provided
+            // Upload multiple college ID photos - MANDATORY (minimum 2, maximum 3)
             if (files.college_id_photos && files.college_id_photos.length > 0) {
                 try {
                     setMessage('Uploading college ID documents...');
@@ -132,9 +132,11 @@ const HackastraRegistration = () => {
                     uploadedFiles.player3_college_id_url = uploadedPaths[2] || null;
                     
                 } catch (uploadError) {
-                    console.warn('File upload failed, continuing without files:', uploadError);
-                    // Continue registration without file upload
+                    console.error('❌ CRITICAL: College ID photo upload failed:', uploadError);
+                    throw new Error('Failed to upload college ID photos. Please check your internet connection and try again. Registration cannot proceed without college ID verification.');
                 }
+            } else {
+                throw new Error('College ID photos are mandatory for registration. Please upload 2-3 team member photos.');
             }
 
             setMessage('Saving registration...');

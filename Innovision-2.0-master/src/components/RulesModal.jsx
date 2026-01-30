@@ -24,7 +24,7 @@ const rulesData = {
                 items: [
                     "Device Restriction: Handheld mobile devices only",
                     "Tablets, iPads, Emulators, Triggers, GFX Tools and other third party app involvement are strictly prohibited",
-                    "Identity: Players must use the exact In-Game Name provided during registration",
+                    "Identity: Players must Provide the Collage ID name during registration",
                     "Smurfing (playing on another account) is not allowed and will result in disqualification"
                 ]
             },
@@ -80,7 +80,7 @@ const rulesData = {
                 items: [
                     "Device Restriction: Handheld mobile devices only",
                     "Strictly Prohibited: Tablets, iPads, Emulators (PC), Triggers, and shoulder buttons",
-                    "Identity: Players must use the exact In-Game Name and UID provided during registration",
+                    "Identity: Players must Provide the Collage ID name during registration",
                     "Smurfing (playing on someone else's account) will lead to disqualification"
                 ]
             },

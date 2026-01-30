@@ -311,7 +311,7 @@ const FreeFireRegistration = () => {
 
             let uploadedFiles = {};
             
-            // Upload college ID documents (multiple photos)
+            // Upload college ID documents (multiple photos) - MANDATORY
             if (files.collegeIdPhotos.length > 0) {
                 try {
                     setMessage('Uploading college ID photos...');
@@ -323,8 +323,11 @@ const FreeFireRegistration = () => {
                     uploadedFiles.player3_college_id_url = uploadedPaths[2] || null;
                     uploadedFiles.player4_college_id_url = uploadedPaths[3] || null;
                 } catch (uploadError) {
-                    console.warn('File upload failed, continuing without files:', uploadError);
+                    console.error('❌ CRITICAL: College ID photo upload failed:', uploadError);
+                    throw new Error('Failed to upload college ID photos. Please check your internet connection and try again. Registration cannot proceed without college ID verification.');
                 }
+            } else {
+                throw new Error('College ID photos are mandatory for registration. Please upload all 4 team member photos.');
             }
 
             // Upload payment screenshot (NEW - SAFE ADDITION)

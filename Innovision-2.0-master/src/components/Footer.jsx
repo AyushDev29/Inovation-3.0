@@ -63,9 +63,24 @@ const Footer = () => {
                     <p className="text-gray-500 text-sm mb-3">
                         © 2026 Innovision 3.0.
                     </p>
-                    <p className="text-gray-500 text-sm">
+                    <p className="text-gray-500 text-sm mb-3">
                         Designed by Department of IT
                     </p>
+                    
+                    {/* Developer Credits */}
+                    <div className="mt-4 pt-4 border-t border-white/5">
+                        <p className="text-gray-600 text-xs mb-2">Developed by</p>
+                        <div className="flex items-center justify-center gap-4 text-xs">
+                            <span className="text-neon-purple font-medium hover:text-cyber-blue transition-colors cursor-default">
+                                Ayush Navale
+                            </span>
+                            <span className="text-gray-500">•</span>
+                            <span className="text-neon-purple font-medium hover:text-cyber-blue transition-colors cursor-default">
+                                Sachin Singh
+                            </span>
+                        </div>
+                        <p className="text-gray-600 text-xs mt-2">SYIT - Development Team</p>
+                    </div>
                 </div>
             </div>
 

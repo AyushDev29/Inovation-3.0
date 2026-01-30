@@ -21,7 +21,8 @@ const eventsData = [
         prize: "₹7,000",
         image: "/images/BGMI.png",
         color: "from-orange-500 to-red-600",
-        registrationLink: ""
+        registrationLink: "",
+        registrationClosed: false
     },
     {
         id: 2,
@@ -34,7 +35,8 @@ const eventsData = [
         prize: "₹3,000",
         image: "/images/free_fire.png",
         color: "from-blue-500 to-cyan-500",
-        registrationLink: ""
+        registrationLink: "",
+        registrationClosed: false
     },
     {
         id: 3,
@@ -47,7 +49,8 @@ const eventsData = [
         prize: "",
         image: "/images/blind_type.png",
         color: "from-yellow-500 to-amber-600",
-        registrationLink: ""
+        registrationLink: "",
+        registrationClosed: false
     },
     {
         id: 4,
@@ -60,7 +63,8 @@ const eventsData = [
         prize: "",
         image: "/images/ui_ux.png",
         color: "from-purple-500 to-pink-600",
-        registrationLink: ""
+        registrationLink: "",
+        registrationClosed: false
     },
     {
         id: 5,
@@ -73,7 +77,8 @@ const eventsData = [
         prize: "",
         image: "/images/hackathon.png",
         color: "from-green-500 to-emerald-600",
-        registrationLink: ""
+        registrationLink: "",
+        registrationClosed: false
     },
     {
         id: 6,
@@ -86,22 +91,41 @@ const eventsData = [
         prize: "",
         image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1000&auto=format&fit=crop",
         color: "from-indigo-500 to-violet-600",
-        registrationLink: ""
+        registrationLink: "",
+        registrationClosed: false // Registration is now OPEN again
     }
 ];
 
 const EventCardLeft = ({ event, onClick }) => {
     return (
         <div
-            className="event-left-card h-64 sm:h-72 md:h-80 p-4 sm:p-6 md:p-8 border-l-4 border-cyber-blue bg-white/5 backdrop-blur-sm rounded-r-xl hover:bg-white/10 transition-colors duration-300 cursor-pointer group flex flex-col"
+            className={`event-left-card h-64 sm:h-72 md:h-80 p-4 sm:p-6 md:p-8 border-l-4 border-cyber-blue bg-white/5 backdrop-blur-sm rounded-r-xl hover:bg-white/10 transition-colors duration-300 cursor-pointer group flex flex-col relative ${
+                event.registrationClosed ? 'opacity-75' : ''
+            }`}
             onClick={() => onClick(event)}
         >
-            <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4">
+            {/* Registration Closed Badge */}
+            {event.registrationClosed && (
+                <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-20">
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-red-500/95 text-white border border-red-400/50 backdrop-blur-sm shadow-lg">
+                        🔒 CLOSED
+                    </span>
+                </div>
+            )}
+            
+            {/* Closed Overlay */}
+            {event.registrationClosed && (
+                <div className="absolute inset-0 bg-black/20 rounded-r-xl z-10"></div>
+            )}
+            
+            <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 relative z-15">
                 <div className="flex-shrink-0">
                     <img
                         src={event.image}
                         alt={event.title}
-                        className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover rounded-lg border border-white/10"
+                        className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover rounded-lg border border-white/10 ${
+                            event.registrationClosed ? 'opacity-60 grayscale' : ''
+                        }`}
                     />
                 </div>
                 <div className="flex-1 min-w-0">
@@ -115,12 +139,16 @@ const EventCardLeft = ({ event, onClick }) => {
                             </span>
                         )}
                     </div>
-                    <h4 className="text-base sm:text-lg md:text-xl font-orbitron font-bold text-white mb-1 sm:mb-2 group-hover:text-cyber-blue transition-colors leading-tight">
+                    <h4 className={`text-base sm:text-lg md:text-xl font-orbitron font-bold mb-1 sm:mb-2 group-hover:text-cyber-blue transition-colors leading-tight ${
+                        event.registrationClosed ? 'text-gray-400' : 'text-white'
+                    }`}>
                         {event.title}
                     </h4>
                 </div>
             </div>
-            <p className="text-gray-400 leading-relaxed text-xs sm:text-sm md:text-base mb-3 flex-1 overflow-hidden" style={{
+            <p className={`leading-relaxed text-xs sm:text-sm md:text-base mb-3 flex-1 overflow-hidden relative z-10 ${
+                event.registrationClosed ? 'text-gray-500' : 'text-gray-400'
+            }`} style={{
                 display: '-webkit-box',
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: 'vertical',
@@ -130,22 +158,24 @@ const EventCardLeft = ({ event, onClick }) => {
             </p>
             
             {/* Event Details Section */}
-            <div className="mb-3 space-y-2">
+            <div className="mb-3 space-y-2 relative z-10">
                 <div className="flex items-center gap-2 text-xs sm:text-sm">
-                    <Users size={14} className="text-cyber-blue flex-shrink-0" />
-                    <span className="text-gray-300 font-medium">{event.teamSize}</span>
+                    <Users size={14} className={`flex-shrink-0 ${event.registrationClosed ? 'text-gray-500' : 'text-cyber-blue'}`} />
+                    <span className={`font-medium ${event.registrationClosed ? 'text-gray-500' : 'text-gray-300'}`}>{event.teamSize}</span>
                     <span className="text-gray-600">•</span>
-                    <MapPin size={14} className="text-cyber-blue flex-shrink-0" />
-                    <span className="text-gray-300 font-medium truncate">{event.venue}</span>
+                    <MapPin size={14} className={`flex-shrink-0 ${event.registrationClosed ? 'text-gray-500' : 'text-cyber-blue'}`} />
+                    <span className={`font-medium truncate ${event.registrationClosed ? 'text-gray-500' : 'text-gray-300'}`}>{event.venue}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs sm:text-sm">
-                    <Calendar size={14} className="text-cyber-blue flex-shrink-0" />
-                    <span className="text-gray-300 font-medium truncate">{event.date}</span>
+                    <Calendar size={14} className={`flex-shrink-0 ${event.registrationClosed ? 'text-gray-500' : 'text-cyber-blue'}`} />
+                    <span className={`font-medium truncate ${event.registrationClosed ? 'text-gray-500' : 'text-gray-300'}`}>{event.date}</span>
                 </div>
             </div>
             
-            <div className="flex items-center justify-end text-xs sm:text-sm mt-auto">
-                <div className="flex items-center text-cyber-blue font-medium whitespace-nowrap">
+            <div className="flex items-center justify-end text-xs sm:text-sm mt-auto relative z-10">
+                <div className={`flex items-center font-medium whitespace-nowrap ${
+                    event.registrationClosed ? 'text-gray-500' : 'text-cyber-blue'
+                }`}>
                     <span>View Details</span>
                     <svg className="w-4 h-4 ml-1 group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
@@ -159,10 +189,26 @@ const EventCardLeft = ({ event, onClick }) => {
 const EventCardRight = ({ event, onClick }) => {
     return (
         <div
-            className="event-right-card h-64 sm:h-72 md:h-80 p-4 sm:p-6 md:p-8 border-r-4 border-neon-purple bg-white/5 backdrop-blur-sm rounded-l-xl text-right hover:bg-white/10 transition-colors duration-300 cursor-pointer group flex flex-col"
+            className={`event-right-card h-64 sm:h-72 md:h-80 p-4 sm:p-6 md:p-8 border-r-4 border-neon-purple bg-white/5 backdrop-blur-sm rounded-l-xl text-right hover:bg-white/10 transition-colors duration-300 cursor-pointer group flex flex-col relative ${
+                event.registrationClosed ? 'opacity-75' : ''
+            }`}
             onClick={() => onClick(event)}
         >
-            <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 justify-end">
+            {/* Registration Closed Badge */}
+            {event.registrationClosed && (
+                <div className="absolute top-2 left-1/2 transform -translate-x-1/2 z-20">
+                    <span className="inline-flex items-center px-3 py-1.5 rounded-full text-[10px] sm:text-xs font-bold bg-red-500/95 text-white border border-red-400/50 backdrop-blur-sm shadow-lg">
+                        🔒 CLOSED
+                    </span>
+                </div>
+            )}
+            
+            {/* Closed Overlay */}
+            {event.registrationClosed && (
+                <div className="absolute inset-0 bg-black/20 rounded-l-xl z-10"></div>
+            )}
+            
+            <div className="flex items-start gap-3 sm:gap-4 mb-3 sm:mb-4 justify-end relative z-15">
                 <div className="flex-1 min-w-0">
                     <div className="flex flex-wrap items-center gap-2 mb-2 justify-end">
                         {event.prize && (
@@ -174,7 +220,9 @@ const EventCardRight = ({ event, onClick }) => {
                             {event.category}
                         </span>
                     </div>
-                    <h4 className="text-base sm:text-lg md:text-xl font-orbitron font-bold text-white mb-1 sm:mb-2 group-hover:text-neon-purple transition-colors leading-tight">
+                    <h4 className={`text-base sm:text-lg md:text-xl font-orbitron font-bold mb-1 sm:mb-2 group-hover:text-neon-purple transition-colors leading-tight ${
+                        event.registrationClosed ? 'text-gray-400' : 'text-white'
+                    }`}>
                         {event.title}
                     </h4>
                 </div>
@@ -182,11 +230,15 @@ const EventCardRight = ({ event, onClick }) => {
                     <img
                         src={event.image}
                         alt={event.title}
-                        className="w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover rounded-lg border border-white/10"
+                        className={`w-14 h-14 sm:w-16 sm:h-16 md:w-20 md:h-20 object-cover rounded-lg border border-white/10 ${
+                            event.registrationClosed ? 'opacity-60 grayscale' : ''
+                        }`}
                     />
                 </div>
             </div>
-            <p className="text-gray-400 leading-relaxed text-xs sm:text-sm md:text-base mb-3 flex-1 overflow-hidden" style={{
+            <p className={`leading-relaxed text-xs sm:text-sm md:text-base mb-3 flex-1 overflow-hidden relative z-10 ${
+                event.registrationClosed ? 'text-gray-500' : 'text-gray-400'
+            }`} style={{
                 display: '-webkit-box',
                 WebkitLineClamp: 3,
                 WebkitBoxOrient: 'vertical',
@@ -196,22 +248,24 @@ const EventCardRight = ({ event, onClick }) => {
             </p>
             
             {/* Event Details Section */}
-            <div className="mb-3 space-y-2">
+            <div className="mb-3 space-y-2 relative z-10">
                 <div className="flex items-center gap-2 text-xs sm:text-sm justify-end">
-                    <span className="text-gray-300 font-medium truncate">{event.venue}</span>
-                    <MapPin size={14} className="text-neon-purple flex-shrink-0" />
+                    <span className={`font-medium truncate ${event.registrationClosed ? 'text-gray-500' : 'text-gray-300'}`}>{event.venue}</span>
+                    <MapPin size={14} className={`flex-shrink-0 ${event.registrationClosed ? 'text-gray-500' : 'text-neon-purple'}`} />
                     <span className="text-gray-600">•</span>
-                    <span className="text-gray-300 font-medium">{event.teamSize}</span>
-                    <Users size={14} className="text-neon-purple flex-shrink-0" />
+                    <span className={`font-medium ${event.registrationClosed ? 'text-gray-500' : 'text-gray-300'}`}>{event.teamSize}</span>
+                    <Users size={14} className={`flex-shrink-0 ${event.registrationClosed ? 'text-gray-500' : 'text-neon-purple'}`} />
                 </div>
                 <div className="flex items-center gap-2 text-xs sm:text-sm justify-end">
-                    <span className="text-gray-300 font-medium truncate">{event.date}</span>
-                    <Calendar size={14} className="text-neon-purple flex-shrink-0" />
+                    <span className={`font-medium truncate ${event.registrationClosed ? 'text-gray-500' : 'text-gray-300'}`}>{event.date}</span>
+                    <Calendar size={14} className={`flex-shrink-0 ${event.registrationClosed ? 'text-gray-500' : 'text-neon-purple'}`} />
                 </div>
             </div>
             
-            <div className="flex items-center justify-start text-xs sm:text-sm mt-auto">
-                <div className="flex items-center text-neon-purple font-medium whitespace-nowrap">
+            <div className="flex items-center justify-start text-xs sm:text-sm mt-auto relative z-10">
+                <div className={`flex items-center font-medium whitespace-nowrap ${
+                    event.registrationClosed ? 'text-gray-500' : 'text-neon-purple'
+                }`}>
                     <svg className="w-4 h-4 mr-1 group-hover:-translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
                     </svg>
@@ -304,12 +358,33 @@ const EventModal = ({ event, onClose, onViewRules, navigate }) => {
                             <FileText size={18} />
                             VIEW RULES
                         </button>
-                        <button
-                            onClick={() => navigate(getRegistrationPath(event.title))}
-                            className="block w-full py-3 sm:py-4 bg-gradient-to-r from-neon-purple to-cyber-blue text-white text-center font-bold font-orbitron tracking-wider rounded-xl hover:opacity-90 transition-opacity text-sm sm:text-base"
-                        >
-                            REGISTER NOW
-                        </button>
+                        
+                        {event.registrationClosed ? (
+                            <div className="block w-full py-3 sm:py-4 bg-gradient-to-r from-red-600/20 to-red-500/20 border border-red-500/30 text-red-400 text-center font-bold font-orbitron tracking-wider rounded-xl text-sm sm:text-base flex items-center justify-center gap-2 cursor-not-allowed">
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                                </svg>
+                                REGISTRATION CLOSED
+                            </div>
+                        ) : (
+                            <button
+                                onClick={() => navigate(getRegistrationPath(event.title))}
+                                className="block w-full py-3 sm:py-4 bg-gradient-to-r from-neon-purple to-cyber-blue text-white text-center font-bold font-orbitron tracking-wider rounded-xl hover:opacity-90 transition-opacity text-sm sm:text-base"
+                            >
+                                REGISTER NOW
+                            </button>
+                        )}
+                        
+                        {event.registrationClosed && (
+                            <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 text-center">
+                                <p className="text-red-300 text-sm font-medium mb-2">
+                                    🔒 Registration Full
+                                </p>
+                                <p className="text-red-200 text-xs">
+                                    We've reached maximum capacity for this event. Thank you for your interest!
+                                </p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </motion.div>

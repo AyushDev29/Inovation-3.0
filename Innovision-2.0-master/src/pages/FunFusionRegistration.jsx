@@ -12,7 +12,8 @@ const FunFusionRegistration = () => {
         id: 6,
         title: "Fun Fusion",
         teamSize: "Individual",
-        prize: ""
+        prize: "",
+        registrationClosed: false // Registration is now OPEN
     };
 
     // Scroll to top when component mounts (only for form positioning)
