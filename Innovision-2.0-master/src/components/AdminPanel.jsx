@@ -885,7 +885,12 @@ const AdminPanel = () => {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-gray-400">
-                                                        {new Date(reg.created_at).toLocaleDateString()}
+                                                        <div className="text-sm">
+                                                            {new Date(reg.created_at).toLocaleDateString()}
+                                                        </div>
+                                                        <div className="text-xs text-gray-500">
+                                                            {new Date(reg.created_at).toLocaleTimeString()}
+                                                        </div>
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         {isTeamEvent && (
@@ -1179,7 +1184,7 @@ const AdminPanel = () => {
                                                         </span>
                                                         <span className="text-xs text-gray-500">•</span>
                                                         <span className="text-xs text-gray-300">
-                                                            {new Date(reg.created_at).toLocaleDateString()}
+                                                            {new Date(reg.created_at).toLocaleDateString()} • {new Date(reg.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                                                         </span>
                                                     </div>
                                                 </div>
