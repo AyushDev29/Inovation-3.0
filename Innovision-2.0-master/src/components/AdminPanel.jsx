@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { Download, Search, Filter, LogOut, ChevronDown, ChevronUp, Users, FileText, Eye, X, CreditCard } from 'lucide-react';
+import { Download, Search, Filter, LogOut, ChevronDown, ChevronUp, Users, FileText, Eye, X, CreditCard, BarChart3 } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { cleanName, cleanEmail, cleanPhone, cleanRollNo, cleanClass, cleanCollege, cleanTeamName } from '../utils/dataCleaners';
+import AnalyticsDashboard from './AnalyticsDashboard';
 
 const AdminPanel = () => {
     const [session, setSession] = useState(null);
@@ -41,6 +42,32 @@ const AdminPanel = () => {
     const [currentPaymentUrl, setCurrentPaymentUrl] = useState(null);
     const [paymentLoading, setPaymentLoading] = useState(false);
     const [statusUpdateLoading, setStatusUpdateLoading] = useState(null);
+
+    // ANALYTICS DASHBOARD STATE with URL persistence
+    const [showAnalytics, setShowAnalytics] = useState(() => {
+        // Check URL for analytics parameter on initial load
+        return window.location.hash === '#analytics';
+    });
+
+    // Update URL when analytics dashboard opens/closes
+    const toggleAnalytics = (show) => {
+        setShowAnalytics(show);
+        if (show) {
+            window.history.pushState(null, '', '#analytics');
+        } else {
+            window.history.pushState(null, '', '#');
+        }
+    };
+
+    // Handle browser back/forward buttons
+    useEffect(() => {
+        const handlePopState = () => {
+            setShowAnalytics(window.location.hash === '#analytics');
+        };
+        
+        window.addEventListener('popstate', handlePopState);
+        return () => window.removeEventListener('popstate', handlePopState);
+    }, []);
 
     useEffect(() => {
         supabase.auth.getSession().then(({ data: { session } }) => {
@@ -587,6 +614,14 @@ const AdminPanel = () => {
                             )}
                             <span className="hidden sm:inline">{refreshing ? 'Refreshing...' : 'Refresh'}</span>
                             <span className="sm:hidden">{refreshing ? '...' : 'Refresh'}</span>
+                        </button>
+                        <button
+                            onClick={() => toggleAnalytics(true)}
+                            className="flex items-center px-3 md:px-4 py-2 bg-neon-purple/10 hover:bg-neon-purple/20 text-neon-purple rounded-lg transition-colors text-sm md:text-base"
+                        >
+                            <BarChart3 size={16} className="mr-2" />
+                            <span className="hidden sm:inline">Insights</span>
+                            <span className="sm:hidden">Insights</span>
                         </button>
                         <button
                             onClick={handleLogout}
@@ -1815,6 +1850,11 @@ const AdminPanel = () => {
                         <p>Loading Payment Screenshot...</p>
                     </div>
                 </div>
+            )}
+            
+            {/* Analytics Dashboard */}
+            {showAnalytics && (
+                <AnalyticsDashboard onClose={() => toggleAnalytics(false)} />
             )}
         </div>
     );
