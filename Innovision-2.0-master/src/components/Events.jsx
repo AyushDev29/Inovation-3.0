@@ -92,7 +92,7 @@ const eventsData = [
         image: "https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=1000&auto=format&fit=crop",
         color: "from-indigo-500 to-violet-600",
         registrationLink: "",
-        registrationClosed: false // Registration is now OPEN again
+        registrationClosed: true // Registration is now CLOSED
     }
 ];
 

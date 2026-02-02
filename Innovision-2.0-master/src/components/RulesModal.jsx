@@ -249,7 +249,7 @@ const rulesData = {
             {
                 heading: "Technical Guidelines",
                 items: [
-                    "Only DeepSeek AI is allowed for assistance",
+                    "All AI Tools are allowed for assistance",
                     "Allowed coding tools/editors: VS Code, Jupyter Notebook, Notepad++",
                     "Copied or pre-made projects will be disqualified",
                     "If using college systems: Participants must bring a pre-loaded pendrive with necessary tools & tech stack (e.g., VS Code, Node.js, MongoDB, etc.)",
